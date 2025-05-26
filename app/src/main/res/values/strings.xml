@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">TaskScheduler</string>
+
+    <string name="schedule_screen">Schedule Screen</string>
+    <string name="task_manager_screen">Task Manager Screen</string>
+    <string name="session_screen">Session Screen</string>
+
+
+    <string name="go_task_manager">Go to Task Manager</string>
+    <string name="back_button">back button</string>
+
+    <string name="create_new_task">Create New Task</string>
+</resources>
