@@ -12,7 +12,7 @@ abstract class TaskDatabase : RoomDatabase(){
     companion object {
         private var Instance: TaskDatabase? = null
 
-        fun getDatabse(context: Context): TaskDatabase {
+        fun getDatabase(context: Context): TaskDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, TaskDatabase::class.java, "task_database")
                     .build()

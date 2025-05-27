@@ -21,7 +21,7 @@ interface TaskDao {
     suspend fun delete(task: Task)
 
     // For the task manager list
-    @Query("SELECT * from tasks")
+    @Query("SELECT * from tasks ORDER BY id ASC")
     fun getAllTasks() : Flow<List<Task>>
 
     // For the task session list

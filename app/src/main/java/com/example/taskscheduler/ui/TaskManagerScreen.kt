@@ -48,6 +48,7 @@ import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.ui.navigation.NavigationDestination
+import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 
 
 object TaskManagerDestination : NavigationDestination {
@@ -63,10 +64,9 @@ fun TaskManagerScreen(
     tasks: List<Task>,
     navigateBack: () -> Unit,
     navigateToTSessioManager: () -> Unit,
-    canNavigateBack: Boolean = true
+    canNavigateBack: Boolean = true,
+    viewModel: TaskManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
-
-
     Scaffold(
         modifier = Modifier,
         topBar = {

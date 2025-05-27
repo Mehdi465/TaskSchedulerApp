@@ -17,6 +17,6 @@ class AppDataContainer(private val context: Context) : AppContainer {
      * Implementation for [TasksRepository]
      */
     override val tasksRepository: TaskRepository by lazy {
-        OfflineTasksRepository(TaskDatabase.getDatabse(context).taskDao())
+        OfflineTasksRepository(TaskDatabase.getDatabase(context).taskDao())
     }
 }
