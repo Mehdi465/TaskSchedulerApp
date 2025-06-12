@@ -92,6 +92,13 @@ class TaskManagerViewModel(
 
     // You can add other methods here as needed, for example:
     // fun updateTask(task: Task) { viewModelScope.launch { tasksRepository.updateTask(task) } }
-    // fun deleteTask(task: Task) { viewModelScope.launch { tasksRepository.deleteTask(task) } }
+    fun deleteTask(task: Task) {
+        viewModelScope.launch {
+            try {
+            tasksRepository.deleteTask(task)
+        } catch (e:Exception) {
+            println("TaskManagerViewModel: Error deleting task - ${e.message}")}
+        }
+    }
     // fun setTaskCompleted(task: Task, completed: Boolean) { /* ... */ }
 }

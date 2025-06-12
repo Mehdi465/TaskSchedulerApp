@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -17,17 +18,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,7 +43,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,6 +61,7 @@ import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.ui.navigation.NavigationDestination
+import com.example.taskscheduler.ui.theme.ThemeGreen1
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import com.example.taskscheduler.ui.viewModel.TaskViewModelFactory
 import java.util.Date
@@ -131,10 +141,9 @@ fun TaskManagerScreen(
     val uiState by viewModel.taskListUiState.collectAsStateWithLifecycle() // Use lifecycle-aware collector
     val tasks = uiState.tasks
     val isLoading = uiState.isLoading
-
-
-
+    
     var showNewTaskDialog by remember { mutableStateOf(false) }
+
     Column() {
         Box(
             modifier = Modifier
@@ -149,13 +158,30 @@ fun TaskManagerScreen(
                 Text(stringResource(R.string.create_new_task))
             }
         }
+
+        Box(
+            modifier = Modifier
+                    .height(20.dp)
+                    .fillMaxWidth()
+                    .background(color = Color.DarkGray)
+        ){
+            Text(
+                text= "List of Tasks",
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
         if (tasks.isEmpty()){
             Text("No tasks")
+        }
+        else if (isLoading){
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         }
         else {
             TaskListBody(
                 tasks = tasks,
-                modifier = Modifier.fillMaxSize()
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxSize(),
             )
         }
         if (showNewTaskDialog) {
@@ -183,7 +209,11 @@ private fun TaskListBody(
     tasks: List<Task>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    viewModel: TaskManagerViewModel,
 ) {
+
+    var taskToModify by remember { mutableStateOf<Task?>(null) }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier,
@@ -198,6 +228,14 @@ private fun TaskListBody(
         } else {
             TaskList(
                 tasks = tasks,
+                onDeleteTask = { task ->
+                    viewModel.deleteTask(task)
+                },
+                onStartModifyTask = { task ->
+                    // For now, just print or set state to show a dialog/navigate
+                    println("UI: Start modifying task: ${task.name}")
+                    taskToModify = task // You would use this to show a dialog or navigate
+                },
                 contentPadding = contentPadding,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
@@ -208,6 +246,8 @@ private fun TaskListBody(
 @Composable
 private fun TaskList(
     tasks: List<Task>,
+    onDeleteTask: (Task) -> Unit,
+    onStartModifyTask: (Task) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -215,8 +255,13 @@ private fun TaskList(
         modifier = modifier,
         contentPadding = contentPadding
     ) {
-        items(items = tasks) { task ->
-            TaskItem(task = task,
+        items(
+            items = tasks,
+            key = {task -> task.id}
+        ) { task ->
+            SwipableTaskItem(task = task,
+                onDelete = { onDeleteTask(task) },
+                onModify = { onStartModifyTask(task) }, // Pass the modify callback
                 modifier = Modifier
                     .padding(8.dp)
                 )
@@ -225,7 +270,103 @@ private fun TaskList(
 }
 
 @Composable
-private fun TaskItem(task: Task, modifier: Modifier = Modifier){
+private fun SwipableTaskItem(task: Task,
+                             onDelete: () -> Unit,
+                             onModify: () -> Unit,
+                             modifier: Modifier = Modifier){
+
+
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { dismissValue ->
+            when (dismissValue) {
+                SwipeToDismissBoxValue.EndToStart -> { // Swiped from End (right) to Start (left) -> Delete
+                    onDelete()
+                    return@rememberSwipeToDismissBoxState true // Confirm dismiss
+                }
+                SwipeToDismissBoxValue.StartToEnd -> { // Swiped from Start (left) to End (right) -> Modify
+                    onModify()
+                    // For UI-only, we don't want the item to disappear, so return false.
+                    // If you wanted it to dismiss and then show a dialog, you'd return true.
+                    return@rememberSwipeToDismissBoxState false // Do not dismiss, just trigger action
+                }
+                SwipeToDismissBoxValue.Settled -> { // Not dismissed
+                    return@rememberSwipeToDismissBoxState false
+                }
+            }
+        },
+        // Positional threshold can be adjusted if needed
+        // positionalThreshold = { distance -> distance * 0.5f } // Example: 50% swipe needed
+    )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        modifier = modifier.fillMaxWidth(),
+        enableDismissFromStartToEnd = true, // Enable swipe from left to right (Modify)
+        enableDismissFromEndToStart = true,   // Enable swipe from right to left (Delete)
+        backgroundContent = {
+            val direction = dismissState.dismissDirection // Current swipe direction
+
+            // Background for swipe right (Modify)
+            if (direction == SwipeToDismissBoxValue.StartToEnd) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF2196F3)) // Blue for Modify
+                        .padding(horizontal = 20.dp),
+                    contentAlignment = Alignment.CenterStart // Align content to the left
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Modify Icon",
+                            tint = Color.White,
+                            modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) 1f else 0.75f)
+                        )
+                        Text(
+                            "Modify",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+            }
+            // Background for swipe left (Delete)
+            else if (direction == SwipeToDismissBoxValue.EndToStart) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Red) // Red for Delete
+                        .padding(horizontal = 20.dp),
+                    contentAlignment = Alignment.CenterEnd // Align content to the right
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "Delete",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete Icon",
+                            tint = Color.White,
+                            modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) 1f else 0.75f)
+                        )
+                    }
+                }
+            }
+        }
+    ) {
+        TaskItem(task = task)
+    }
+}
+
+
+@Composable
+fun TaskItem(task: Task,
+            modifier: Modifier = Modifier
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
