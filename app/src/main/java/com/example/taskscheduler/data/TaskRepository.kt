@@ -16,7 +16,7 @@ interface TaskRepository {
     /**
      * Insert task in the data source
      */
-    suspend fun insertTask(task: Task)
+    suspend fun insertTask(task: Task): Long
 
     /**
      * Delete task from the data source

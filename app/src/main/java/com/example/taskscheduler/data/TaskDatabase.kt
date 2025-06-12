@@ -12,6 +12,7 @@ abstract class TaskDatabase : RoomDatabase(){
     abstract fun taskDao(): TaskDao
 
     companion object {
+        @Volatile
         private var Instance: TaskDatabase? = null
 
         fun getDatabase(context: Context): TaskDatabase {

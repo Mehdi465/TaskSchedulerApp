@@ -11,10 +11,10 @@ import java.util.Calendar
 
 
 enum class Priority {
-    Low,
-    Medium,
-    High,
-    Mandatory
+    LOW,
+    MEDIUM,
+    HIGH,
+    MANDATORY
 }
 
 @Entity(tableName="tasks")
@@ -22,8 +22,9 @@ class Task(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
-    @ColumnInfo(name = "name")
     var name: String,
+
+    var priority : Priority,
 
     /*
     @ColumnInfo(name = "icon")
@@ -35,9 +36,6 @@ class Task(
     @ColumnInfo(name = "color")
     var colorLong : ULong,
     */
-
-    @ColumnInfo(name = "priority")
-    var priority : Priority,
     )
 {
     // Inject context when needed to generate icons
@@ -69,22 +67,22 @@ class Task(
 
         val PREPARATION_TASK = Task(
             name = "Preparation",
-            priority = Priority.Medium // Example priority
+            priority = Priority.MEDIUM
         )
 
         val EXECUTION_TASK = Task(
             name = "Execution",
-            priority = Priority.High // Example priority
+            priority = Priority.HIGH
         )
 
         val REVIEW_TASK = Task(
             name = "Review",
-            priority = Priority.Medium // Example priority
+            priority = Priority.MEDIUM
         )
 
         val COMPLETION_TASK = Task(
             name = "Completion",
-            priority = Priority.Low // Example priority
+            priority = Priority.LOW
         )
 
         val DEFAULT_TASKS = listOf(

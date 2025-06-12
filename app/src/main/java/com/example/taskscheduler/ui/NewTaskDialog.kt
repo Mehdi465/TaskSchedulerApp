@@ -43,11 +43,17 @@ import com.example.taskscheduler.R
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.ui.HelperDialog.ColorCircle
+import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import java.util.Date
 
 
 @Composable
 fun NewTaskDialog(
+    viewModel: TaskManagerViewModel,
+    selectedPriority: Priority,
+    taskNameInput : String,
+    onNameChange : (String) -> Unit,
+    onPriorityChange : (Priority) -> Unit,
     onDismiss : () -> Unit,
     onSave: () -> Unit
 ) {
@@ -59,31 +65,28 @@ fun NewTaskDialog(
     )
 
     val listPriority = listOf(
-        Priority.Low,
-        Priority.Medium,
-        Priority.High,
-        Priority.Mandatory
+        Priority.LOW,
+        Priority.MEDIUM,
+        Priority.HIGH,
+        Priority.MANDATORY
     )
 
     // State to control the visibility of the color picker dialog
     var showColorPickerDialog by remember { mutableStateOf(false) }
 
     // State to hold the selected color (you'll likely use this for your task)
-    var selectedColor by remember { mutableStateOf(Color.Black) }
+    //var selectedColor by remember { mutableStateOf(Color.Black) }
 
     var showPicker by remember { mutableStateOf(false) }
 
-    // name selected for the task
-    var taskNameInput by remember { mutableStateOf("") }
 
     // color selected for the task
-    var selectedTaskColor by remember { mutableStateOf(Color.LightGray)}
+    //var selectedTaskColor by remember { mutableStateOf(Color.LightGray)}
 
-    var selectedDuration by remember { mutableStateOf(0)}
+    //var selectedDuration by remember { mutableStateOf(0)}
 
-    var selectedTaskLogo by remember { mutableStateOf(iconList.firstOrNull() ?: R.drawable.pen) }
+    //var selectedTaskLogo by remember { mutableStateOf(iconList.firstOrNull() ?: R.drawable.pen) }
 
-    var selectedPriority by remember { mutableStateOf(listPriority.firstOrNull() ?: Priority.Low) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -107,10 +110,8 @@ fun NewTaskDialog(
 
                 TextField(
                     value = taskNameInput,
-                    onValueChange = {newInput ->
-                        taskNameInput = newInput
-                    },
-                    label = { Text("Name") },
+                    onValueChange = onNameChange,
+                    label = { Text("Task Name") },
                     singleLine = true
                 )
                 Row() {
@@ -121,22 +122,24 @@ fun NewTaskDialog(
                     ) {
                         Text("Pick Color")
                     }
-                    ColorCircle(selectedColor, onClick = {},true) }
+                    ColorCircle(Color.Green, onClick = {},true) }
+                //ColorCircle(selectedColor, onClick = {},true) }
 
                 Button(onClick = { showPicker = true }) {
                     Text("Pick Duration")
                 }
                 IconDropdown(iconList,
-                    selectedIcon = selectedTaskLogo, // Pass the current state
+                    selectedIcon = R.drawable.pen,
+                    //selectedIcon = selectedTaskLogo, // Pass the current state
                     onIconSelected = { newIconId ->
-                        selectedTaskLogo = newIconId // Update the state when an icon is selected
+                        //selectedTaskLogo = newIconId // Update the state when an icon is selected
                     }
                 )
 
                 PriorityDropdown(
                     priorities = listPriority,
                     selectedPriority = selectedPriority,
-                    onPrioritySelected = { newPriority -> selectedPriority = newPriority},
+                    onPrioritySelected = onPriorityChange,
                     modifier= Modifier,
                 )
                 // Create and Cancel buttons
@@ -149,7 +152,8 @@ fun NewTaskDialog(
                                 priority = selectedPriority,
                             )
 
-                            //onSaveTask(newTask)
+                            viewModel.addTask(name = taskNameInput, priority = selectedPriority)
+                            
 
                             onDismiss() // close dialog
                         }
@@ -180,7 +184,7 @@ fun NewTaskDialog(
     ColorPickerDialog(
         showDialog = showColorPickerDialog,
         onColorSelected = { color ->
-            selectedColor = color
+            //selectedColor = color
             showColorPickerDialog = false
         },
         onDismiss = {
@@ -290,8 +294,3 @@ fun IconDropdown(
 
 
 
-@Preview
-@Composable
-fun DialogPreview(){
-    NewTaskDialog({},{})
-}

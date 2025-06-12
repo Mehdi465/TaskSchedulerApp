@@ -37,18 +37,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.R
+import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
+import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
+import com.example.taskscheduler.ui.viewModel.TaskViewModelFactory
 import java.util.Date
 
 
@@ -104,6 +109,31 @@ fun TaskManagerScreen(
     tasks: List<Task>,
     modifier: Modifier,
 ){
+
+    // --- Get Repository from Application context ---
+    val context = LocalContext.current
+    // It's good practice to ensure the context is indeed an application context
+    // if you are sure it's always called from within an activity/composable with app context.
+    val application = context.applicationContext as TaskApplication // Cast to your Application class
+    val tasksRepository = application.tasksRepository
+
+    // --- Create the ViewModel using the Factory ---
+    val viewModel: TaskManagerViewModel = viewModel(
+        factory = TaskViewModelFactory(tasksRepository)
+    )
+
+    // --- State for Input Fields ---
+    var taskNameInput by remember { mutableStateOf("") }
+    var selectedPriority by remember { mutableStateOf(Priority.LOW) } // Default priority
+    var priorityMenuExpanded by remember { mutableStateOf(false) }
+
+    // --- Observe Task List from ViewModel ---
+    val uiState by viewModel.taskListUiState.collectAsStateWithLifecycle() // Use lifecycle-aware collector
+    val tasks = uiState.tasks
+    val isLoading = uiState.isLoading
+
+
+
     var showNewTaskDialog by remember { mutableStateOf(false) }
     Column() {
         Box(
@@ -130,6 +160,11 @@ fun TaskManagerScreen(
         }
         if (showNewTaskDialog) {
             NewTaskDialog(
+                viewModel = viewModel,
+                selectedPriority = selectedPriority,
+                taskNameInput = taskNameInput,
+                onNameChange = { taskNameInput = it },
+                onPriorityChange = { selectedPriority = it },
                 onDismiss = {
                     showNewTaskDialog = false
                     println("Dialog dismissed")
