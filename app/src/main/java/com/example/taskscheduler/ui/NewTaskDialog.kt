@@ -146,10 +146,7 @@ fun NewTaskDialog(
                         onClick = {
                             val newTask = Task(
                                 name = taskNameInput,
-                                iconResId = selectedTaskLogo,
                                 priority = selectedPriority,
-                                colorLong = selectedColor.value,
-                                durationStamp = selectedDuration.toLong() // TODO : apply the logic
                             )
 
                             //onSaveTask(newTask)

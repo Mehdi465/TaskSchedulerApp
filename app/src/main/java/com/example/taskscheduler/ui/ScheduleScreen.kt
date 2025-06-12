@@ -100,7 +100,7 @@ fun ScheduleSreen(
 fun TimelineScreen(session: Session,
                    modifier: Modifier = Modifier,
 ) {
-    var tasks by remember { mutableStateOf(session.tasks.sortedBy { it.task.duration }) }
+    var tasks by remember { mutableStateOf(session.tasks)}//sortedBy { it.task.durationStamp }) }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -174,7 +174,7 @@ fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 1.dp)
-            .height(getCardHeightInDp(scheduledTask)), // TODO: Calculate the height based on the duration
+            .height(80.dp),//getCardHeightInDp(scheduledTask)), // TODO: Calculate the height based on the duration
 
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFFFFFF)
@@ -187,13 +187,13 @@ fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
                 modifier = Modifier
                     .fillMaxHeight() // Fill the height of the Row
                     .width(56.dp) // Give it a fixed width (adjust as needed)
-                    .background(color = Color(scheduledTask.task.getColor())) // Set the background color from the task
+                    .background(color = Color.Red)//Color(scheduledTask.task.getColor())) // Set the background color from the task
                     .padding(8.dp) // Add some padding inside the box
                     .align(Alignment.CenterVertically), // Align this box vertically in the center of the Row
                 contentAlignment = Alignment.Center // Center the content (the icon) within the Box
             ) {
                 Image(
-                    painter = painterResource(scheduledTask.task.getIconId()),
+                    painter = painterResource(R.drawable.pen),
                     contentDescription = "Task logo",
                     modifier = Modifier
                         .width(32.dp)
@@ -217,7 +217,7 @@ fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
                 )
 
                 Text(
-                    text = "Duration: ${scheduledTask.task.duration.hours}h ${scheduledTask.task.duration.minutes}m", // Display duration in minutes
+                    text = "Duration: Not yet implemented",//${Date(scheduledTask.task.durationStamp).hours}h ${Date(scheduledTask.task.durationStamp).minutes}m", // Display duration in minutes
                     style = MaterialTheme.typography.bodySmall, // Use a smaller typography style
                     color = Color.Gray // Example: Gray text for duration
                 )
@@ -231,7 +231,7 @@ fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
             Checkbox(
                 checked = false,
                 onCheckedChange = {}, //TODO : make the card change color when clicked,
-                colors = CheckboxDefaults.colors(Color(scheduledTask.color)),
+                colors = CheckboxDefaults.colors(Color.Red),
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             )
@@ -247,7 +247,7 @@ fun getRelativeDuration(date: Date): Int {
 }
 
 fun getCardHeightInDp(scheduledTask: ScheduledTask): Dp {
-    val relativeDuration = getRelativeDuration(scheduledTask.task.duration)
+    val relativeDuration =  10//getRelativeDuration(Date(scheduledTask.task.durationStamp))
     val minThreshold  = getRelativeDuration(Date(System.currentTimeMillis() + 15 * 60 * 1000))
     val maxThreshold = getRelativeDuration(Date(System.currentTimeMillis() + 180 * 60 * 1000))
 

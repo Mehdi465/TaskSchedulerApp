@@ -27,5 +27,4 @@ interface TaskDao {
     // For the task session list
     @Query("SELECT * from tasks WHERE id = :id")
     fun getTask(id: Int) : Flow<Task>
-
 }

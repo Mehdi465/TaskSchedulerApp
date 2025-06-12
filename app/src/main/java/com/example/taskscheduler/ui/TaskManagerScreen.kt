@@ -49,6 +49,7 @@ import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
+import java.util.Date
 
 
 object TaskManagerDestination : NavigationDestination {
@@ -205,13 +206,13 @@ private fun TaskItem(task: Task, modifier: Modifier = Modifier){
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(56.dp)
-                    .background(color = Color(task.getColor()))
+                    .background(color = Color.Red)
                     .padding(8.dp)
                     .align(Alignment.CenterVertically),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = task.getIconId()),
+                    painter = painterResource(id = R.drawable.runner),
                     contentDescription = "Task logo",
                     modifier = Modifier
                         .width(32.dp)
@@ -228,14 +229,14 @@ private fun TaskItem(task: Task, modifier: Modifier = Modifier){
             ) {
 
                 Text(
-                    text = task.getName(),
+                    text = task.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray
                 )
 
                 Text(
-                    text = "Duration: ${task.duration.hours}h ${task.duration.minutes}m",
+                    text = "Duration: No yet implemented", //${Date(task.durationStamp).hours}h ${Date(task.durationStamp).minutes}m",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
@@ -246,7 +247,7 @@ private fun TaskItem(task: Task, modifier: Modifier = Modifier){
                 checked = checked,
                 onCheckedChange = {checked = it}, //TODO : make the card change color when clicked,
                 colors = CheckboxDefaults.colors(
-                    checkedColor = Color(task.getColor()),
+                    checkedColor = Color.Red,
                     uncheckedColor = MaterialTheme.colorScheme.error,
                     checkmarkColor = MaterialTheme.colorScheme.onPrimary
                     ),

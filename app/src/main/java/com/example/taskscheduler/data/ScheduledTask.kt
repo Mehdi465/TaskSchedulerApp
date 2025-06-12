@@ -17,14 +17,7 @@ class ScheduledTask(
     }
 
     val name: String
-        get() = task.getName()
-
-    val icon: Icon?
-        get() = task.icon
-
-    val color: ULong
-        get() = task.getColor()
-
+        get() = task.name
 
     companion object{
         val PREPARATION_TASK_SCHEDULED = ScheduledTask(task = Task.PREPARATION_TASK,Date(System.currentTimeMillis()),Date(System.currentTimeMillis() + 60 * 60 * 1000))
