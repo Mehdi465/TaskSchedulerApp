@@ -8,6 +8,7 @@ import java.util.Date
 import androidx.room.*
 import com.example.taskscheduler.R
 import java.util.Calendar
+import kotlin.time.Duration
 
 
 enum class Priority {
@@ -21,17 +22,13 @@ enum class Priority {
 class Task(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-
     var name: String,
-
     var priority : Priority,
+    var duration : Duration = Duration.ZERO,
 
     /*
     @ColumnInfo(name = "icon")
     var iconResId : Int,
-
-    @ColumnInfo(name = "duration")
-    var durationStamp : Long,
 
     @ColumnInfo(name = "color")
     var colorLong : ULong,

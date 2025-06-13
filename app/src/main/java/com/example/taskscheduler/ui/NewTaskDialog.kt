@@ -45,6 +45,10 @@ import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.ui.HelperDialog.ColorCircle
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import java.util.Date
+import kotlin.text.toInt
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 
 @Composable
@@ -52,6 +56,7 @@ fun NewTaskDialog(
     viewModel: TaskManagerViewModel,
     selectedPriority: Priority,
     taskNameInput : String,
+    //selectedDuration: Duration,
     onNameChange : (String) -> Unit,
     onPriorityChange : (Priority) -> Unit,
     onDismiss : () -> Unit,
@@ -79,11 +84,12 @@ fun NewTaskDialog(
 
     var showPicker by remember { mutableStateOf(false) }
 
+    var selectedDuration by remember { mutableStateOf(Duration.ZERO) }
+
 
     // color selected for the task
     //var selectedTaskColor by remember { mutableStateOf(Color.LightGray)}
 
-    //var selectedDuration by remember { mutableStateOf(0)}
 
     //var selectedTaskLogo by remember { mutableStateOf(iconList.firstOrNull() ?: R.drawable.pen) }
 
@@ -150,6 +156,7 @@ fun NewTaskDialog(
                             val newTask = Task(
                                 name = taskNameInput,
                                 priority = selectedPriority,
+                                duration = selectedDuration
                             )
 
                             viewModel.addTask(name = taskNameInput, priority = selectedPriority)
@@ -176,7 +183,13 @@ fun NewTaskDialog(
 
     if (showPicker) {
         TimePickerDialog(
-            onTimeSelected = { h, m -> println("Selected: $h:$m") },
+            initialHour = selectedDuration.toComponents { h, _, _, _ -> h.toInt() },
+            initialMinute = selectedDuration.toComponents { _, m, _, _ -> m.toInt() },
+            onTimeSelected = { h, m ->
+                val newDuration = h.hours + m.minutes
+                selectedDuration = newDuration
+                showPicker = false
+            },
             onDismissRequest = { showPicker = false }
         )
     }

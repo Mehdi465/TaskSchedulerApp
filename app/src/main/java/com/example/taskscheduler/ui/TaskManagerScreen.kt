@@ -65,6 +65,7 @@ import com.example.taskscheduler.ui.theme.ThemeGreen1
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import com.example.taskscheduler.ui.viewModel.TaskViewModelFactory
 import java.util.Date
+import kotlin.time.Duration
 
 
 object TaskManagerDestination : NavigationDestination {
@@ -107,7 +108,6 @@ fun TaskManagerScreen(
         }
     ){innerPadding ->
         TaskManagerScreen(
-            tasks = Task.DEFAULT_TASKS,
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -116,7 +116,6 @@ fun TaskManagerScreen(
 
 @Composable
 fun TaskManagerScreen(
-    tasks: List<Task>,
     modifier: Modifier,
 ){
 
@@ -135,7 +134,8 @@ fun TaskManagerScreen(
     // --- State for Input Fields ---
     var taskNameInput by remember { mutableStateOf("") }
     var selectedPriority by remember { mutableStateOf(Priority.LOW) } // Default priority
-    var priorityMenuExpanded by remember { mutableStateOf(false) }
+    //var priorityMenuExpanded by remember { mutableStateOf(false) }
+    var selectedDuration by remember { mutableStateOf(Duration.ZERO) }
 
     // --- Observe Task List from ViewModel ---
     val uiState by viewModel.taskListUiState.collectAsStateWithLifecycle() // Use lifecycle-aware collector
@@ -189,6 +189,7 @@ fun TaskManagerScreen(
                 viewModel = viewModel,
                 selectedPriority = selectedPriority,
                 taskNameInput = taskNameInput,
+                //selectedDuration = selectedDuration,
                 onNameChange = { taskNameInput = it },
                 onPriorityChange = { selectedPriority = it },
                 onDismiss = {

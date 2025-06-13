@@ -12,12 +12,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.time.Duration
 
 
 @Composable
 fun TimePickerDialog(
-    initialHour: Int = 0,
-    initialMinute: Int = 0,
+    //selecedDuration: Duration,
+    initialHour: Int,
+    initialMinute: Int,
     onTimeSelected: (Int, Int) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
