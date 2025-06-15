@@ -189,7 +189,22 @@ fun TaskManagerScreen(
                 viewModel = viewModel,
                 selectedPriority = selectedPriority,
                 taskNameInput = taskNameInput,
-                //selectedDuration = selectedDuration,
+                selectedDuration = selectedDuration,
+                onDurationChange = { updatedDuration ->
+                    selectedDuration = updatedDuration // Update parent's state when dialog reports change
+                },
+                onConfirm = { name, priority, durationFromDialog ->
+                    // IMPORTANT: Use the 'durationFromDialog' received from the onConfirm callback,
+                    // which is the 'currentDuration' from within the dialog's scope.
+                    // Or, if onConfirm doesn't pass it, newDialogTaskDuration should be up-to-date.
+                    val newTask = Task(
+                        name = name,
+                        priority = priority,
+                        duration = durationFromDialog // Use the confirmed duration
+                    )
+                    viewModel.addTask(newTask) // Or however your ViewModel takes the task
+                    showNewTaskDialog = false
+                },
                 onNameChange = { taskNameInput = it },
                 onPriorityChange = { selectedPriority = it },
                 onDismiss = {
@@ -413,7 +428,7 @@ fun TaskItem(task: Task,
                 )
 
                 Text(
-                    text = "Duration: No yet implemented", //${Date(task.durationStamp).hours}h ${Date(task.durationStamp).minutes}m",
+                    text = "Duration: ${task.duration}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

@@ -17,7 +17,6 @@ import kotlin.time.Duration
 
 @Composable
 fun TimePickerDialog(
-    //selecedDuration: Duration,
     initialHour: Int,
     initialMinute: Int,
     onTimeSelected: (Int, Int) -> Unit,

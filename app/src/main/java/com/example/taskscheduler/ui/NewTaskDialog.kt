@@ -4,6 +4,7 @@ import TimePickerDialog
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.icu.text.ListFormatter
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,7 +57,9 @@ fun NewTaskDialog(
     viewModel: TaskManagerViewModel,
     selectedPriority: Priority,
     taskNameInput : String,
-    //selectedDuration: Duration,
+    selectedDuration: Duration,
+    onConfirm: (name: String, priority: Priority, duration: Duration) -> Unit,
+    onDurationChange : (Duration) -> Unit,
     onNameChange : (String) -> Unit,
     onPriorityChange : (Priority) -> Unit,
     onDismiss : () -> Unit,
@@ -84,8 +87,7 @@ fun NewTaskDialog(
 
     var showPicker by remember { mutableStateOf(false) }
 
-    var selectedDuration by remember { mutableStateOf(Duration.ZERO) }
-
+    //var selectedDuration_dialog by remember {mutableStateOf(selectedDuration)}
 
     // color selected for the task
     //var selectedTaskColor by remember { mutableStateOf(Color.LightGray)}
@@ -132,7 +134,8 @@ fun NewTaskDialog(
                 //ColorCircle(selectedColor, onClick = {},true) }
 
                 Button(onClick = { showPicker = true }) {
-                    Text("Pick Duration")
+                    Text( if (selectedDuration == Duration.ZERO) "Pick Duration"
+                    else "Duration: ${selectedDuration.toComponents { h, m, _, _ -> "${h}h ${m}m" }}")
                 }
                 IconDropdown(iconList,
                     selectedIcon = R.drawable.pen,
@@ -187,7 +190,7 @@ fun NewTaskDialog(
             initialMinute = selectedDuration.toComponents { _, m, _, _ -> m.toInt() },
             onTimeSelected = { h, m ->
                 val newDuration = h.hours + m.minutes
-                selectedDuration = newDuration
+                onDurationChange(newDuration)
                 showPicker = false
             },
             onDismissRequest = { showPicker = false }
