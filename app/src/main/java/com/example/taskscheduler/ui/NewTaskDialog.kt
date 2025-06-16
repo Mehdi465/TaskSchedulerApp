@@ -44,6 +44,7 @@ import com.example.taskscheduler.R
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.ui.HelperDialog.ColorCircle
+import com.example.taskscheduler.ui.HelperDialog.ColorCircleMenu
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import java.util.Date
 import kotlin.text.toInt
@@ -133,15 +134,14 @@ fun NewTaskDialog(
                     ) {
                         Text("Pick Color")
                     }
-                    ColorCircle(selectedColor, onClick = {},true) }
-                //ColorCircle(selectedColor, onClick = {},true) }
-
+                    ColorCircleMenu(selectedColor, onClick = {},true)
+                }
                 Button(onClick = { showPicker = true }) {
                     Text( if (selectedDuration == Duration.ZERO) "Pick Duration"
                     else "Duration: ${selectedDuration.toComponents { h, m, _, _ -> "${h}h ${m}m" }}")
                 }
                 IconDropdown(iconList,
-                    selectedIcon = R.drawable.pen,
+                    selectedIcon = selectedIcon,
                     onIconSelected = onIconChange,
                 )
 
