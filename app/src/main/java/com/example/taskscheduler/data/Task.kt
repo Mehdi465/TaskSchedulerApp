@@ -25,6 +25,8 @@ class Task(
     var name: String,
     var priority : Priority,
     var duration : Duration = Duration.ZERO,
+    var icon : Int? = null,
+    var color : Color = Color(0xFFE57373),
 
     /*
     @ColumnInfo(name = "icon")

@@ -22,6 +22,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -45,24 +49,32 @@ val availableColors = listOf(
 
 @Composable
 fun ColorPickerDialog(
+    initialColor: Color,
     showDialog: Boolean,
     onColorSelected: (Color) -> Unit,
     onDismiss: () -> Unit
 ) {
+
+    var currentlySelectedInPicker by remember { mutableStateOf(initialColor) }
+
     if (showDialog) {
         Dialog(onDismissRequest = onDismiss) {
             Column() {
                 ColorPickerContent(
                     colors = availableColors,
                     onColorClick = { selectedColor ->
-                        onColorSelected(selectedColor)
+                        currentlySelectedInPicker = selectedColor
                     },
                 )
                 Row(){
-                    Button(onClick = {}){
+                    Button(onClick = {
+                        onDismiss
+                    }){
                         Text("Cancel")
                     }
-                    Button(onClick = {}){
+                    Button(onClick = {
+                        onColorSelected(currentlySelectedInPicker)
+                    }){
                         Text("Select")
                     }
                 }
@@ -135,15 +147,3 @@ fun ColorCircle(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ColorPickerDialogPreview() {
-    ColorPickerDialog(true,{},{})
-}
-
-
-// Helper scope for FlowRow content
-interface FlowRowScope {
-    @Composable
-    fun BoxScope.item(content: @Composable BoxScope.() -> Unit)
-}

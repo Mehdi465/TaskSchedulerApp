@@ -1,6 +1,7 @@
 package com.example.taskscheduler.ui
 
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -133,9 +135,10 @@ fun TaskManagerScreen(
 
     // --- State for Input Fields ---
     var taskNameInput by remember { mutableStateOf("") }
-    var selectedPriority by remember { mutableStateOf(Priority.LOW) } // Default priority
-    //var priorityMenuExpanded by remember { mutableStateOf(false) }
+    var selectedPriority by remember { mutableStateOf(Priority.LOW) }
     var selectedDuration by remember { mutableStateOf(Duration.ZERO) }
+    var selectedColor by remember { mutableStateOf(Color(0xFFE57373)) }
+    var selectedIcon by remember { mutableStateOf(R.drawable.pen) }
 
     // --- Observe Task List from ViewModel ---
     val uiState by viewModel.taskListUiState.collectAsStateWithLifecycle() // Use lifecycle-aware collector
@@ -190,30 +193,37 @@ fun TaskManagerScreen(
                 selectedPriority = selectedPriority,
                 taskNameInput = taskNameInput,
                 selectedDuration = selectedDuration,
+                selectedColor = selectedColor,
+                selectedIcon = selectedIcon,
                 onDurationChange = { updatedDuration ->
                     selectedDuration = updatedDuration // Update parent's state when dialog reports change
                 },
-                onConfirm = { name, priority, durationFromDialog ->
+                onColorChange = { updatedColor ->
+                    selectedColor = updatedColor // Update parent's state when dialog reports change
+                },
+                onConfirm = { name, priority, durationFromDialog, color, icon ->
                     // IMPORTANT: Use the 'durationFromDialog' received from the onConfirm callback,
                     // which is the 'currentDuration' from within the dialog's scope.
                     // Or, if onConfirm doesn't pass it, newDialogTaskDuration should be up-to-date.
                     val newTask = Task(
                         name = name,
                         priority = priority,
-                        duration = durationFromDialog // Use the confirmed duration
+                        duration = durationFromDialog, // Use the confirmed duration
+                        color = color,
+                        icon = icon
                     )
                     viewModel.addTask(newTask) // Or however your ViewModel takes the task
                     showNewTaskDialog = false
                 },
                 onNameChange = { taskNameInput = it },
                 onPriorityChange = { selectedPriority = it },
+                onIconChange = { selectedIcon = it },
                 onDismiss = {
                     showNewTaskDialog = false
                     println("Dialog dismissed")
                 },
                 onSave = {
                     showNewTaskDialog = false
-
                 }
             )
         }
@@ -389,7 +399,7 @@ fun TaskItem(task: Task,
             .padding(vertical = 1.dp)
             .height(80.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFFFFF)
+            containerColor = Color.White
         )
     ) {
         Row(
@@ -398,20 +408,24 @@ fun TaskItem(task: Task,
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(56.dp)
-                    .background(color = Color.Red)
+                    .background(color = task.color)
                     .padding(8.dp)
                     .align(Alignment.CenterVertically),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.runner),
-                    contentDescription = "Task logo",
-                    modifier = Modifier
-                        .width(32.dp)
-                        .height(32.dp)
-                )
-            }
+                if (task.icon != null) {
+                    Image(
+                        painter = painterResource(id = task.icon!!),
 
+                        contentDescription = "Task logo", // Consider making this more descriptive if possible
+                        modifier = Modifier
+                            .width(32.dp)
+                            .height(32.dp)
+                    )
+                } else {
+                    Spacer(modifier = Modifier.width(32.dp).height(32.dp))
+                }
+            }
 
             Column(
                 modifier = Modifier
@@ -439,7 +453,7 @@ fun TaskItem(task: Task,
                 checked = checked,
                 onCheckedChange = {checked = it}, //TODO : make the card change color when clicked,
                 colors = CheckboxDefaults.colors(
-                    checkedColor = Color.Red,
+                    checkedColor = task.color,
                     uncheckedColor = MaterialTheme.colorScheme.error,
                     checkmarkColor = MaterialTheme.colorScheme.onPrimary
                     ),
@@ -455,10 +469,5 @@ fun TaskItem(task: Task,
 
 
 
-@Preview
-@Composable
-fun TaskManagerScreenPreview(){
-    TaskManagerScreen(tasks = Task.DEFAULT_TASKS,{},{})
-}
 
 

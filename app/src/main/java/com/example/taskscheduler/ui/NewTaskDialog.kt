@@ -58,7 +58,11 @@ fun NewTaskDialog(
     selectedPriority: Priority,
     taskNameInput : String,
     selectedDuration: Duration,
-    onConfirm: (name: String, priority: Priority, duration: Duration) -> Unit,
+    selectedColor: Color,
+    selectedIcon: Int,
+    onIconChange : (Int) -> Unit,
+    onColorChange : (Color) -> Unit,
+    onConfirm: (name: String, priority: Priority, duration: Duration, color: Color, icon: Int) -> Unit,
     onDurationChange : (Duration) -> Unit,
     onNameChange : (String) -> Unit,
     onPriorityChange : (Priority) -> Unit,
@@ -87,7 +91,6 @@ fun NewTaskDialog(
 
     var showPicker by remember { mutableStateOf(false) }
 
-    //var selectedDuration_dialog by remember {mutableStateOf(selectedDuration)}
 
     // color selected for the task
     //var selectedTaskColor by remember { mutableStateOf(Color.LightGray)}
@@ -130,7 +133,7 @@ fun NewTaskDialog(
                     ) {
                         Text("Pick Color")
                     }
-                    ColorCircle(Color.Green, onClick = {},true) }
+                    ColorCircle(selectedColor, onClick = {},true) }
                 //ColorCircle(selectedColor, onClick = {},true) }
 
                 Button(onClick = { showPicker = true }) {
@@ -139,10 +142,7 @@ fun NewTaskDialog(
                 }
                 IconDropdown(iconList,
                     selectedIcon = R.drawable.pen,
-                    //selectedIcon = selectedTaskLogo, // Pass the current state
-                    onIconSelected = { newIconId ->
-                        //selectedTaskLogo = newIconId // Update the state when an icon is selected
-                    }
+                    onIconSelected = onIconChange,
                 )
 
                 PriorityDropdown(
@@ -159,12 +159,11 @@ fun NewTaskDialog(
                             val newTask = Task(
                                 name = taskNameInput,
                                 priority = selectedPriority,
-                                duration = selectedDuration
+                                duration = selectedDuration,
+                                color = selectedColor,
+                                icon = selectedIcon
                             )
-
-                            viewModel.addTask(name = taskNameInput, priority = selectedPriority)
-                            
-
+                            viewModel.addTask(newTask)
                             onDismiss() // close dialog
                         }
                     ) {
@@ -199,8 +198,9 @@ fun NewTaskDialog(
 
     ColorPickerDialog(
         showDialog = showColorPickerDialog,
-        onColorSelected = { color ->
-            //selectedColor = color
+        initialColor = selectedColor,
+        onColorSelected = { newColor ->
+            onColorChange(newColor)
             showColorPickerDialog = false
         },
         onDismiss = {
