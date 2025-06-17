@@ -64,6 +64,7 @@ import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.ThemeGreen1
+import com.example.taskscheduler.ui.viewModel.TaskListUiState
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import com.example.taskscheduler.ui.viewModel.TaskViewModelFactory
 import java.util.Date
@@ -80,12 +81,14 @@ object TaskManagerDestination : NavigationDestination {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskManagerScreen(
-    tasks: List<Task>,
     navigateBack: () -> Unit,
-    navigateToTSessioManager: () -> Unit,
+    navigateToTSessionManager: (selecteTaskIdsString: String) -> Unit,
     canNavigateBack: Boolean = true,
     viewModel: TaskManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
+
+    val uiState by viewModel.taskListUiState.collectAsState()
+
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -97,7 +100,19 @@ fun TaskManagerScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = navigateToTSessioManager,
+                onClick = {
+                    val selectedTasks = viewModel.getSelectedTasks()
+
+                    if (selectedTasks.isNotEmpty()) { // Optional: Check if any tasks are selected
+                        val selectedTaskIdsString = selectedTasks.map { it.id }.joinToString(",")
+                        navigateToTSessionManager(selectedTaskIdsString)
+                        // Optionally clear selection after navigation if needed
+                        // viewModel.clearSelections()
+                    } else {
+                        // Optionally show a message that no tasks are selected
+                        // (e.g., using a Snackbar)
+                    }
+                },
                 modifier = Modifier
                     .padding(16.dp),
                 containerColor = MaterialTheme.colorScheme.secondary
@@ -111,6 +126,7 @@ fun TaskManagerScreen(
     ){innerPadding ->
         TaskManagerScreen(
             modifier = Modifier.padding(innerPadding),
+            uiState = uiState
         )
     }
 }
@@ -119,6 +135,7 @@ fun TaskManagerScreen(
 @Composable
 fun TaskManagerScreen(
     modifier: Modifier,
+    uiState: TaskListUiState
 ){
 
     // --- Get Repository from Application context ---
@@ -182,6 +199,7 @@ fun TaskManagerScreen(
         }
         else {
             TaskListBody(
+                uiState = uiState,
                 tasks = tasks,
                 viewModel = viewModel,
                 modifier = Modifier.fillMaxSize(),
@@ -232,6 +250,7 @@ fun TaskManagerScreen(
 
 @Composable
 private fun TaskListBody(
+    uiState: TaskListUiState,
     tasks: List<Task>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -253,7 +272,7 @@ private fun TaskListBody(
             )
         } else {
             TaskList(
-                tasks = tasks,
+                uiState = uiState,
                 onDeleteTask = { task ->
                     viewModel.deleteTask(task)
                 },
@@ -263,7 +282,8 @@ private fun TaskListBody(
                     taskToModify = task // You would use this to show a dialog or navigate
                 },
                 contentPadding = contentPadding,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 8.dp),
+                viewModel = viewModel
             )
         }
     }
@@ -271,25 +291,29 @@ private fun TaskListBody(
 
 @Composable
 private fun TaskList(
-    tasks: List<Task>,
+    uiState: TaskListUiState,
     onDeleteTask: (Task) -> Unit,
     onStartModifyTask: (Task) -> Unit,
     contentPadding: PaddingValues,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: TaskManagerViewModel
 ) {
     LazyColumn(
         modifier = modifier,
         contentPadding = contentPadding
     ) {
         items(
-            items = tasks,
+            items = uiState.tasks,
             key = {task -> task.id}
         ) { task ->
             SwipableTaskItem(task = task,
+                isSelected = task.id in uiState.checkedTasks,
+                //onSelectChange = { viewModel.toggleTaskSelection(task.id) },
                 onDelete = { onDeleteTask(task) },
-                onModify = { onStartModifyTask(task) }, // Pass the modify callback
+                onModify = { onStartModifyTask(task) },
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(8.dp),
+                viewModel = viewModel
                 )
         }
     }
@@ -297,9 +321,11 @@ private fun TaskList(
 
 @Composable
 private fun SwipableTaskItem(task: Task,
+                             isSelected: Boolean,
                              onDelete: () -> Unit,
                              onModify: () -> Unit,
-                             modifier: Modifier = Modifier){
+                             modifier: Modifier = Modifier,
+                             viewModel: TaskManagerViewModel){
 
 
     val dismissState = rememberSwipeToDismissBoxState(
@@ -384,14 +410,16 @@ private fun SwipableTaskItem(task: Task,
             }
         }
     ) {
-        TaskItem(task = task)
+        TaskItem(task = task,isSelected=isSelected,viewModel = viewModel)
     }
 }
 
 
 @Composable
 fun TaskItem(task: Task,
-            modifier: Modifier = Modifier
+             isSelected: Boolean,
+             modifier: Modifier = Modifier,
+             viewModel: TaskManagerViewModel
 ) {
     Card(
         modifier = Modifier
@@ -448,13 +476,12 @@ fun TaskItem(task: Task,
                 )
             }
 
-            var checked by remember { mutableStateOf(false) }
             Checkbox(
-                checked = checked,
-                onCheckedChange = {checked = it}, //TODO : make the card change color when clicked,
+                checked = isSelected,
+                onCheckedChange =  {viewModel.toggleTaskSelection(task.id) }, //TODO : make the card change color when clicked,
                 colors = CheckboxDefaults.colors(
+                    uncheckedColor = task.color,
                     checkedColor = task.color,
-                    uncheckedColor = MaterialTheme.colorScheme.error,
                     checkmarkColor = MaterialTheme.colorScheme.onPrimary
                     ),
 
@@ -464,10 +491,3 @@ fun TaskItem(task: Task,
         }
     }
 }
-
-// TODO : Check why flexible height does not work
-
-
-
-
-

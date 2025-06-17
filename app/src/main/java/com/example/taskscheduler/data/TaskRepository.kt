@@ -27,4 +27,10 @@ interface TaskRepository {
      * Update task in the data source
      */
     suspend fun updateTask(task: Task)
+
+    /**
+     * Retrieve all the tasks from the the given data source.
+     */
+    fun getTasksByIds(ids: List<Int>): Flow<List<Task>>
+
 }

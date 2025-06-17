@@ -5,11 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.taskscheduler.TaskScreens
 import com.example.taskscheduler.data.Session
-import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.ui.HomeDestination
-import com.example.taskscheduler.ui.ScheduleSreen
+import com.example.taskscheduler.ui.ScheduleScreen
 import com.example.taskscheduler.ui.SessionDestination
 import com.example.taskscheduler.ui.SessionScreen
 import com.example.taskscheduler.ui.TaskManagerDestination
@@ -25,22 +23,32 @@ fun TaskAppNavHost(
         startDestination = HomeDestination.route,
         modifier = modifier
     ){
-        composable(route = HomeDestination.route) {
-            ScheduleSreen(
+        composable(
+            route = HomeDestination.route
+        ) {
+            ScheduleScreen(
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
                 session = Session.sessionWithDefaults
             )
         }
-        composable(route = TaskManagerDestination.route) {
+        composable(
+            route = TaskManagerDestination.route
+        ) {
             TaskManagerScreen(
-                navigateToTSessioManager = { navController.navigate(SessionDestination.route) },
+                navigateToTSessionManager = { selectedTaskIdsStr ->
+                    navController.navigate(("${SessionDestination.route}/$selectedTaskIdsStr")) },
                 navigateBack = { navController.popBackStack() },
-                tasks = Task.DEFAULT_TASKS
             )
         }
-        composable(route= SessionDestination.route) {
+        composable(
+            route = SessionDestination.routeWithArgs, // USE routeWithArgs HERE
+            arguments = SessionDestination.arguments  // PROVIDE the argument definitions
+        ) { navBackStackEntry ->
+            val selectedTaskIdsString =
+                navBackStackEntry.arguments?.getString(SessionDestination.SELECTED_TASK_IDS_ARG)
+
             SessionScreen(
-                selectedTasks = Task.DEFAULT_TASKS,
+                selectedTaskIdsString = selectedTaskIdsString,
                 navigateToSchedulePage = { navController.navigate(HomeDestination.route) },
                 navigateBack = { navController.popBackStack() }
             )

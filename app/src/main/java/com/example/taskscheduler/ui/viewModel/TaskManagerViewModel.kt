@@ -5,19 +5,22 @@ import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 
 /**
  * UI state for the Task List screen
  */
 data class TaskListUiState(
     val tasks: List<Task> = emptyList(),
+    val checkedTasks: Set<Int> = emptySet(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null // Optional: for displaying errors to the user
 )
 
 /**
@@ -29,23 +32,35 @@ class TaskManagerViewModel(
     private val tasksRepository: TaskRepository // Injected via TaskViewModelFactory
 ) : ViewModel() {
 
+    private val _checkedTaskIds = MutableStateFlow<Set<Int>>(emptySet())
+    private val errorMessages = MutableStateFlow<String>(value = "")
+
+
     /**
      * Holds the UI state for the task list.
      * This StateFlow is observed by the UI to display tasks and loading states.
      */
     val taskListUiState: StateFlow<TaskListUiState> =
-        tasksRepository.getAllTasksStream() // Assuming this returns Flow<List<Task>>
-            .map { tasks ->
-                TaskListUiState(tasks = tasks, isLoading = false) // Set isLoading to false once data arrives
-            }
-            .stateIn(
-                scope = viewModelScope,
-                // Keep the upstream flow active for 5 seconds after the last collector disappears.
-                // This is useful for configuration changes or short periods of inactivity.
-                started = SharingStarted.WhileSubscribed(5_000L),
-                // Initial state while data is loading or if the flow hasn't emitted yet.
-                initialValue = TaskListUiState(isLoading = true)
+        combine(
+            tasksRepository.getAllTasksStream(), // Flow<List<Task>>
+            _checkedTaskIds,                     // Flow<Set<Int>>
+            errorMessages// Flow<String?>
+        ) { tasks: List<Task>, checkedIds: Set<Int>, errorMsg: String? ->
+            // This mapping function is called whenever tasks, checkedIds, or errorMsg emit a new value
+            TaskListUiState(
+                tasks = tasks,
+                checkedTasks = checkedIds,
+                isLoading = false, // Set to false because tasks are now available from the stream.
+                // The initialValue of stateIn handles the initial loading state.
             )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000L),
+            // The initialValue's isLoading will be true.
+            // Once getAllTasksStream emits its first list (even if empty),
+            // the combine block will run, and isLoading will become false.
+            initialValue = TaskListUiState(isLoading = true, checkedTasks = _checkedTaskIds.value)
+        )
 
     /**
      * Adds a new task to the database.
@@ -54,42 +69,55 @@ class TaskManagerViewModel(
      */
     fun addTask(task: Task) {
         if (task.name.isBlank()) {
-            // Optionally, update uiState with an error message or log
-            // For example: _taskListUiState.update { it.copy(errorMessage = "Task name cannot be empty") }
-            // For now, just return or log.
             println("TaskManagerViewModel: Task name cannot be blank.")
             return
         }
-
         viewModelScope.launch {
             try {
-
                 tasksRepository.insertTask(task)
-                // Optionally, clear any previous error messages on success
-                // _taskListUiState.update { it.copy(errorMessage = null) }
             } catch (e: Exception) {
-                // Handle exceptions, e.g., from database operations
                 println("TaskManagerViewModel: Error adding task - ${e.message}")
-                // Optionally, update uiState with an error message
-                // _taskListUiState.update { it.copy(errorMessage = "Failed to add task: ${e.message}") }
             }
         }
     }
 
     /**
-     * Call this function if you want to clear a displayed error message.
-     * For example, after the user has acknowledged it.
+     * Toggles the selection state of a task.
+     * @param taskId The ID of the task to toggle.
      */
-    fun clearErrorMessage() {
-        // This requires taskListUiState to be a MutableStateFlow internally if you want to update it directly.
-        // For simplicity with stateIn, error handling might be better done through a separate event Flow or State.
-        // If taskListUiState was built on a MutableStateFlow:
-        // _taskListUiState.update { it.copy(errorMessage = null) }
-        println("TaskManagerViewModel: Error message clearing logic would go here if UI state was directly mutable.")
+    fun toggleTaskSelection(taskId: Int) {
+        _checkedTaskIds.update { currentCheckedIds ->
+            val newCheckedIds = currentCheckedIds.toMutableSet()
+            if (newCheckedIds.contains(taskId)) {
+                newCheckedIds.remove(taskId)
+            } else {
+                newCheckedIds.add(taskId)
+            }
+            newCheckedIds // Return the updated set
+        }
     }
 
-    // You can add other methods here as needed, for example:
-    // fun updateTask(task: Task) { viewModelScope.launch { tasksRepository.updateTask(task) } }
+    /**
+     * Gets the list of currently selected Task objects.
+     * @return A list of selected Tasks.
+     */
+    fun getSelectedTasks(): List<Task> {
+        // We need to access the current list of tasks and checked IDs.
+        // taskListUiState.value contains the latest combined state.
+        val currentUiState = taskListUiState.value // Get the current emitted state
+        return currentUiState.tasks.filter { task ->
+            task.id in currentUiState.checkedTasks
+        }
+    }
+
+    /**
+     * Clears all current task selections.
+     */
+    fun clearSelections() {
+        _checkedTaskIds.value = emptySet()
+    }
+
+
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             try {
