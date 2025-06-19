@@ -41,8 +41,8 @@ fun TaskAppNavHost(
             )
         }
         composable(
-            route = SessionDestination.routeWithArgs, // USE routeWithArgs HERE
-            arguments = SessionDestination.arguments  // PROVIDE the argument definitions
+            route = SessionDestination.routeWithArgs,
+            arguments = SessionDestination.arguments
         ) { navBackStackEntry ->
             val selectedTaskIdsString =
                 navBackStackEntry.arguments?.getString(SessionDestination.SELECTED_TASK_IDS_ARG)

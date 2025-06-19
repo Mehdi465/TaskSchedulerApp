@@ -1,7 +1,6 @@
 package com.example.taskscheduler.ui
 
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -47,13 +46,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -63,11 +60,9 @@ import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.ui.navigation.NavigationDestination
-import com.example.taskscheduler.ui.theme.ThemeGreen1
 import com.example.taskscheduler.ui.viewModel.TaskListUiState
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import com.example.taskscheduler.ui.viewModel.TaskViewModelFactory
-import java.util.Date
 import kotlin.time.Duration
 
 
@@ -106,11 +101,8 @@ fun TaskManagerScreen(
                     if (selectedTasks.isNotEmpty()) { // Optional: Check if any tasks are selected
                         val selectedTaskIdsString = selectedTasks.map { it.id }.joinToString(",")
                         navigateToTSessionManager(selectedTaskIdsString)
-                        // Optionally clear selection after navigation if needed
-                        // viewModel.clearSelections()
                     } else {
-                        // Optionally show a message that no tasks are selected
-                        // (e.g., using a Snackbar)
+
                     }
                 },
                 modifier = Modifier
@@ -140,8 +132,6 @@ fun TaskManagerScreen(
 
     // --- Get Repository from Application context ---
     val context = LocalContext.current
-    // It's good practice to ensure the context is indeed an application context
-    // if you are sure it's always called from within an activity/composable with app context.
     val application = context.applicationContext as TaskApplication // Cast to your Application class
     val tasksRepository = application.tasksRepository
 
@@ -220,17 +210,14 @@ fun TaskManagerScreen(
                     selectedColor = updatedColor // Update parent's state when dialog reports change
                 },
                 onConfirm = { name, priority, durationFromDialog, color, icon ->
-                    // IMPORTANT: Use the 'durationFromDialog' received from the onConfirm callback,
-                    // which is the 'currentDuration' from within the dialog's scope.
-                    // Or, if onConfirm doesn't pass it, newDialogTaskDuration should be up-to-date.
                     val newTask = Task(
                         name = name,
                         priority = priority,
-                        duration = durationFromDialog, // Use the confirmed duration
+                        duration = durationFromDialog,
                         color = color,
                         icon = icon
                     )
-                    viewModel.addTask(newTask) // Or however your ViewModel takes the task
+                    viewModel.addTask(newTask)
                     showNewTaskDialog = false
                 },
                 onNameChange = { taskNameInput = it },

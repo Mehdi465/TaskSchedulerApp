@@ -84,21 +84,8 @@ fun NewTaskDialog(
         Priority.MANDATORY
     )
 
-    // State to control the visibility of the color picker dialog
     var showColorPickerDialog by remember { mutableStateOf(false) }
-
-    // State to hold the selected color (you'll likely use this for your task)
-    //var selectedColor by remember { mutableStateOf(Color.Black) }
-
     var showPicker by remember { mutableStateOf(false) }
-
-
-    // color selected for the task
-    //var selectedTaskColor by remember { mutableStateOf(Color.LightGray)}
-
-
-    //var selectedTaskLogo by remember { mutableStateOf(iconList.firstOrNull() ?: R.drawable.pen) }
-
 
     Dialog(
         onDismissRequest = onDismiss,

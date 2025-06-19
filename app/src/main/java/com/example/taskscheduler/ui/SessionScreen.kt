@@ -1,6 +1,7 @@
 package com.example.taskscheduler.ui
 
 import android.R.attr.textSize
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,7 +57,14 @@ import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.ui.viewModel.SessionViewModel
 import com.example.taskscheduler.ui.viewModel.SessionViewModelFactory
+import java.text.SimpleDateFormat
 import java.time.LocalTime
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 
 object SessionDestination : NavigationDestination {
@@ -74,8 +82,8 @@ object SessionDestination : NavigationDestination {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionScreen(
-    modifier : Modifier = Modifier,
     selectedTaskIdsString : String?,
+    modifier : Modifier = Modifier,
     navigateToSchedulePage: () -> Unit,
     canNavigateBack: Boolean = true,
     navigateBack: () -> Unit,
@@ -89,6 +97,8 @@ fun SessionScreen(
     val uiState by sessionViewModel.uiState.collectAsState()
 
     val selectedTasks = uiState.loadedSelectedTasks
+    var sessionStartTime by remember { mutableStateOf(Date())}
+    var sessionEndTime by remember { mutableStateOf(Date())}
 
 
     Scaffold(
@@ -115,19 +125,51 @@ fun SessionScreen(
         }
     ) { innerPadding ->
         SessionCreationPage(
+            sessionStartTime = sessionStartTime,
+            sessionEndTime = sessionEndTime,
+            onStartTimeChange = { updatedStartTime : Date ->
+                sessionStartTime = updatedStartTime
+            },
+            onEndTimeChange = { updatedEndTime : Date ->
+                sessionEndTime = updatedEndTime
+            },
             selectedTasks = emptyList(),
             modifier = Modifier.padding(innerPadding)
         )
     }
 }
 
+fun Date.updateTime(hour: Int, minute: Int): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this // Set calendar to current date object
+    calendar.set(Calendar.HOUR_OF_DAY, hour)
+    calendar.set(Calendar.MINUTE, minute)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    return calendar.time
+}
+
+// SimpleDateFormat for displaying the time part of the Date
+private val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+
 @Composable
 fun SessionCreationPage(
+    sessionStartTime: Date,
+    sessionEndTime: Date,
+    onStartTimeChange : (Date) -> Unit,
+    onEndTimeChange :(Date) -> Unit,
     modifier: Modifier = Modifier,
     selectedTasks : List<Task>,
 ){
-    var startTime by remember { mutableStateOf(LocalTime.now()) }
-    var endTime by remember { mutableStateOf(LocalTime.now().plusHours(1)) }
+
+    val startCalendar = Calendar.getInstance().apply { time = sessionStartTime }
+    val initialStartHour = startCalendar.get(Calendar.HOUR_OF_DAY)
+    val initialStartMinute = startCalendar.get(Calendar.MINUTE)
+
+    val endCalendar = Calendar.getInstance().apply { time = sessionEndTime }
+    val initialEndHour = endCalendar.get(Calendar.HOUR_OF_DAY)
+    val initialEndMinute = endCalendar.get(Calendar.MINUTE)
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -138,46 +180,82 @@ fun SessionCreationPage(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        TimerPicker(initialTime = LocalTime.now()) { time ->
-            startTime = time
-        }
-        Text("Selected Start: $startTime")
+        TimerPicker(
+            initialHour = initialStartHour,
+            initialMinute = initialStartMinute,
+            onTimeSelected = { hour, minute ->
+                val newStartTime = sessionStartTime.updateTime(hour, minute)
+                if (newStartTime.before(sessionEndTime) || newStartTime == sessionEndTime) {
+                    onStartTimeChange(newStartTime)
+                } else {
+                    onStartTimeChange(newStartTime)
+                    val suggestedEndTime = Calendar.getInstance().apply {
+                        time = newStartTime
+                        add(Calendar.HOUR_OF_DAY, 1)
+                    }.time
+                    onEndTimeChange(suggestedEndTime)
+                }
+            }
+        )
+        Text("Selected Start: $sessionStartTime")
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        TimerPicker(initialTime = LocalTime.now().plusHours(1)) { time ->
-            endTime = time
-        }
-
+        TimerPicker(
+            initialHour = initialEndHour,
+            initialMinute = initialEndMinute,
+            onTimeSelected = { hour, minute ->
+                val newEndTime = sessionEndTime.updateTime(hour, minute)
+                // Ensure end time is after start time
+                if (newEndTime.after(sessionStartTime)) {
+                    onEndTimeChange(newEndTime)
+                } else {
+                    // Handle invalid selection (end time is before or same as start time)
+                    // For example, show a toast, or don't update, or auto-adjust
+                    // For now, let's just log it or you could prevent the update.
+                    // A better UX would be to provide feedback.
+                    // Or, as done above for start time, auto-adjust.
+                    // For simplicity, we can choose not to update if invalid or adjust start time.
+                    // To prevent end time being before start:
+                    // onEndTimeChange(sessionStartTime.updateTime( (hour+1)%24, minute)) // or some logic
+                }
+            }
+        )
         Spacer(modifier = Modifier.height(24.dp))
-
-
-        Text("Selected End: $endTime")
+        Text("Selected End: $sessionEndTime")
     }
 }
 
 @Composable
 fun TimerPicker(
     modifier: Modifier = Modifier,
-    initialTime: LocalTime = LocalTime.now(),
-    onTimeSelected: (LocalTime) -> Unit
+    initialHour: Int,
+    initialMinute: Int,
+    onTimeSelected: (hour: Int, minute: Int) -> Unit
 ) {
     val hours = (0..23).toList()
     val minutes = (0..59).toList()
 
-    val initialHourIndex = hours.indexOf(initialTime.hour)
-    val initialMinuteIndex = minutes.indexOf(initialTime.minute)
+    val validInitialHour = initialHour.coerceIn(0, 23)
+    val validInitialMinute = initialMinute.coerceIn(0, 59)
 
-    val hourState = rememberLazyListState(initialHourIndex)
-    val minuteState = rememberLazyListState(initialMinuteIndex)
+    val hourState = rememberLazyListState(validInitialHour)
+    val minuteState = rememberLazyListState(validInitialMinute)
 
     val selectedHour = remember { derivedStateOf { hours.getOrElse(hourState.firstVisibleItemIndex) { 0 } } }
     val selectedMinute = remember { derivedStateOf { minutes.getOrElse(minuteState.firstVisibleItemIndex) { 0 } } }
 
     // Call callback with current LocalTime
     LaunchedEffect(selectedHour.value, selectedMinute.value) {
-        val selectedTime = LocalTime.of(selectedHour.value, selectedMinute.value)
-        onTimeSelected(selectedTime)
+        Log.d("TimerPicker", "Time changed: Hour=${selectedHour.value}, Minute=${selectedMinute.value}")
+        onTimeSelected(selectedHour.value, selectedMinute.value)
+    }
+
+    LaunchedEffect(validInitialHour) {
+        hourState.scrollToItem(validInitialHour)
+    }
+    LaunchedEffect(validInitialMinute) {
+        minuteState.scrollToItem(validInitialMinute)
     }
 
     Row(
@@ -214,12 +292,13 @@ fun TimeWheel(
             verticalArrangement = Arrangement.Center
         ) {
             items(values.size) { index ->
-                val selected = state.firstVisibleItemIndex == index
+                val isActuallySelected = (state.firstVisibleItemIndex +
+                        (state.layoutInfo.visibleItemsInfo.size / 2)) == index
                 Text(
                     text = values[index],
-                    fontSize = if (selected) 32.sp else 24.sp,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                    color = if (selected) MaterialTheme.colorScheme.primary else Color.Gray,
+                    fontSize = if (isActuallySelected) 32.sp else 24.sp,
+                    fontWeight = if (isActuallySelected) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isActuallySelected) MaterialTheme.colorScheme.primary else Color.Gray,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
@@ -239,10 +318,3 @@ fun TimeWheel(
     }
 }
 
-
-
-@Preview
-@Composable
-fun PagePreview(){
-    SessionCreationPage(modifier = Modifier, selectedTasks = Task.DEFAULT_TASKS)
-}

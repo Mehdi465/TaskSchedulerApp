@@ -4,6 +4,7 @@ import android.graphics.drawable.Icon
 import androidx.compose.ui.graphics.Color
 import com.example.taskscheduler.R
 import java.util.Date
+import kotlin.time.Duration
 
 class ScheduledTask(
     val task: Task,
@@ -18,6 +19,10 @@ class ScheduledTask(
 
     val name: String
         get() = task.name
+
+    fun scheduleTask(tasks:List<Task>,duration: Duration):List<ScheduledTask>{
+        return listOf()
+    }
 
     companion object{
         val PREPARATION_TASK_SCHEDULED = ScheduledTask(task = Task.PREPARATION_TASK,Date(System.currentTimeMillis()),Date(System.currentTimeMillis() + 60 * 60 * 1000))
