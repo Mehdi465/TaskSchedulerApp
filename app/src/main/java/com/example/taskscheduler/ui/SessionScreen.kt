@@ -149,9 +149,6 @@ fun Date.updateTime(hour: Int, minute: Int): Date {
     return calendar.time
 }
 
-// SimpleDateFormat for displaying the time part of the Date
-private val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-
 @Composable
 fun SessionCreationPage(
     sessionStartTime: Date,
