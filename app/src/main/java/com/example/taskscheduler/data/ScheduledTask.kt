@@ -24,6 +24,12 @@ class ScheduledTask(
 
     companion object{
 
+        fun getDurationFromDates(startDate: Date, endDate: Date): Duration {
+            val javaSessionDuration : JavaTimeDuration = JavaTimeDuration.between(
+                startDate.toInstant(),endDate.toInstant())
+            return Duration.parse(javaSessionDuration.toString())
+        }
+
         fun taskToScheduledTask(tasks: List<Task>,duration: Duration): List<ScheduledTask>{
             var result = mutableListOf<ScheduledTask>()
             var cumulDuration = Duration.ZERO
@@ -39,7 +45,7 @@ class ScheduledTask(
             return result
         }
 
-        fun scheduleTask(tasks:List<Task>,startTime:Date,endTime:Date):List<ScheduledTask>{
+        fun scheduleTasks(tasks:List<Task>,startTime:Date,endTime:Date):List<ScheduledTask>{
 
             // get session duration --------
             val javaSessionDuration : JavaTimeDuration = JavaTimeDuration.between(
@@ -66,8 +72,30 @@ class ScheduledTask(
 
             if (currentDuration < sessionDuration){
                 // keep scheduling
-            }
+                // get high, medium and low tasks
+                val highPriorityTasks = tasks.filter {it.priority == Priority.HIGH}
+                val mediumPriorityTasks = tasks.filter {it.priority == Priority.MEDIUM}
+                val lowPriorityTasks = tasks.filter {it.priority == Priority.LOW}
 
+
+                while(currentDuration < sessionDuration){
+                    val randomInt = (0..5).random()
+                    val pickedTask : Task
+                    // low tasks
+                    if (randomInt == 0){
+                        pickedTask = lowPriorityTasks.random()
+                    }
+                    else if (randomInt < 3){
+                        pickedTask = mediumPriorityTasks.random()
+                    }
+                    else{
+                        pickedTask = highPriorityTasks.random()
+                    }
+
+                    pickedTasks.add(pickedTask)
+                    currentDuration.plus(mandatoryTasks[index].duration)
+                }
+            }
 
             // tasks -> scheduledTask
             val pickedScheduledTasks = taskToScheduledTask(pickedTasks,sessionDuration)
