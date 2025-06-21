@@ -67,6 +67,8 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 
+
+
 object SessionDestination : NavigationDestination {
     override val route = "session_screen"
     override val titleRes = R.string.session_screen
@@ -202,19 +204,22 @@ fun SessionCreationPage(
             initialHour = initialEndHour,
             initialMinute = initialEndMinute,
             onTimeSelected = { hour, minute ->
-                val newEndTime = sessionEndTime.updateTime(hour, minute)
+                var newEndTime = sessionEndTime.updateTime(hour, minute)
                 // Ensure end time is after start time
-                if (newEndTime.after(sessionStartTime)) {
+
+                val inter_sessionStartTimeCal = Calendar.getInstance()
+                inter_sessionStartTimeCal.time = sessionStartTime
+                inter_sessionStartTimeCal.add(Calendar.DAY_OF_MONTH, 1)
+
+                Log.d("SessionCreationPage", "New start time Before: ${inter_sessionStartTimeCal.time}")
+                Log.d("SessionCreationPage", "New end time Before: $newEndTime")
+                if (newEndTime.after(inter_sessionStartTimeCal.time)) {
+                    newEndTime = adjustEndDateBy24Hours(sessionStartTime, newEndTime)
+                    //Log.d("SessionCreationPage", "New end time: $newEndTime")
                     onEndTimeChange(newEndTime)
                 } else {
-                    // Handle invalid selection (end time is before or same as start time)
-                    // For example, show a toast, or don't update, or auto-adjust
-                    // For now, let's just log it or you could prevent the update.
-                    // A better UX would be to provide feedback.
-                    // Or, as done above for start time, auto-adjust.
-                    // For simplicity, we can choose not to update if invalid or adjust start time.
-                    // To prevent end time being before start:
-                    // onEndTimeChange(sessionStartTime.updateTime( (hour+1)%24, minute)) // or some logic
+                    newEndTime = adjustEndDateIfBeforeStartDate(sessionStartTime, newEndTime)
+                    onEndTimeChange(newEndTime)
                 }
             }
         )
@@ -244,7 +249,6 @@ fun TimerPicker(
 
     // Call callback with current LocalTime
     LaunchedEffect(selectedHour.value, selectedMinute.value) {
-        Log.d("TimerPicker", "Time changed: Hour=${selectedHour.value}, Minute=${selectedMinute.value}")
         onTimeSelected(selectedHour.value, selectedMinute.value)
     }
 
@@ -313,5 +317,31 @@ fun TimeWheel(
                 .border(1.dp, Color.Gray, RectangleShape)
         )
     }
+}
+
+fun adjustEndDateIfBeforeStartDate(startDate: Date, endDate: Date): Date {
+    // Create Calendar instances to avoid modifying the original Date objects directly
+    val startCal = Calendar.getInstance()
+    startCal.time = startDate
+
+    val endCal = Calendar.getInstance()
+    endCal.time = endDate
+
+    if (endDate.before(startDate)) {
+        endCal.add(Calendar.DAY_OF_MONTH, 1)
+        return endCal.time
+    }
+    return endDate
+}
+
+fun adjustEndDateBy24Hours(startDate: Date, endDate: Date): Date {
+
+    val endCal = Calendar.getInstance()
+    endCal.time = endDate
+
+    endCal.add(Calendar.DAY_OF_MONTH,-1)
+    Log.d("SessionCreationPage", "FINAL end time After: ${endCal.time}")
+    return endCal.time
+
 }
 
