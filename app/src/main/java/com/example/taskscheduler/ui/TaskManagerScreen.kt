@@ -32,6 +32,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -41,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +67,8 @@ import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.viewModel.TaskListUiState
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import com.example.taskscheduler.ui.viewModel.TaskViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlin.time.Duration
 
 
@@ -82,10 +88,18 @@ fun TaskManagerScreen(
     viewModel: TaskManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
 
+    // Snackbar
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val uiState by viewModel.taskListUiState.collectAsState()
 
     Scaffold(
+
+
+
         modifier = Modifier,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TaskTopAppBar(
                 title = "Task Manager",
@@ -102,7 +116,7 @@ fun TaskManagerScreen(
                         val selectedTaskIdsString = selectedTasks.map { it.id }.joinToString(",")
                         navigateToTSessionManager(selectedTaskIdsString)
                     } else {
-
+                        showNoTaskSelected(snackbarHostState,coroutineScope)
                     }
                 },
                 modifier = Modifier
@@ -119,6 +133,18 @@ fun TaskManagerScreen(
         TaskManagerScreen(
             modifier = Modifier.padding(innerPadding),
             uiState = uiState
+        )
+    }
+}
+
+
+fun showNoTaskSelected(snackbarHostState: SnackbarHostState,
+                   coroutineScope: CoroutineScope
+) {
+    coroutineScope.launch {
+        snackbarHostState.showSnackbar(
+            message = "No task selected, please select at least one task",
+            duration = SnackbarDuration.Short
         )
     }
 }
@@ -171,9 +197,9 @@ fun TaskManagerScreen(
 
         Box(
             modifier = Modifier
-                    .height(20.dp)
-                    .fillMaxWidth()
-                    .background(color = Color.DarkGray)
+                .height(20.dp)
+                .fillMaxWidth()
+                .background(color = Color.DarkGray)
         ){
             Text(
                 text= "List of Tasks",
@@ -431,14 +457,15 @@ fun TaskItem(task: Task,
                 if (task.icon != null) {
                     Image(
                         painter = painterResource(id = task.icon!!),
-
                         contentDescription = "Task logo", // Consider making this more descriptive if possible
                         modifier = Modifier
                             .width(32.dp)
                             .height(32.dp)
                     )
                 } else {
-                    Spacer(modifier = Modifier.width(32.dp).height(32.dp))
+                    Spacer(modifier = Modifier
+                        .width(32.dp)
+                        .height(32.dp))
                 }
             }
 

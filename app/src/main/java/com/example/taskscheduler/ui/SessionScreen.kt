@@ -211,11 +211,8 @@ fun SessionCreationPage(
                 inter_sessionStartTimeCal.time = sessionStartTime
                 inter_sessionStartTimeCal.add(Calendar.DAY_OF_MONTH, 1)
 
-                Log.d("SessionCreationPage", "New start time Before: ${inter_sessionStartTimeCal.time}")
-                Log.d("SessionCreationPage", "New end time Before: $newEndTime")
                 if (newEndTime.after(inter_sessionStartTimeCal.time)) {
                     newEndTime = adjustEndDateBy24Hours(sessionStartTime, newEndTime)
-                    //Log.d("SessionCreationPage", "New end time: $newEndTime")
                     onEndTimeChange(newEndTime)
                 } else {
                     newEndTime = adjustEndDateIfBeforeStartDate(sessionStartTime, newEndTime)
@@ -340,7 +337,7 @@ fun adjustEndDateBy24Hours(startDate: Date, endDate: Date): Date {
     endCal.time = endDate
 
     endCal.add(Calendar.DAY_OF_MONTH,-1)
-    Log.d("SessionCreationPage", "FINAL end time After: ${endCal.time}")
+
     return endCal.time
 
 }
