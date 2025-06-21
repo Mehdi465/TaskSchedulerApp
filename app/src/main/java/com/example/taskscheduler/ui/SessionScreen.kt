@@ -1,6 +1,7 @@
 package com.example.taskscheduler.ui
 
 import android.R.attr.textSize
+import android.app.Application
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +21,14 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -93,15 +97,39 @@ fun SessionScreen(
 
     val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
     val context = LocalContext.current
+    val application = context.applicationContext as Application
     val taskRepository = (context.applicationContext as TaskApplication).container.tasksRepository
-    val factory = SessionViewModelFactory(taskRepository, savedStateRegistryOwner)
+    val factory = SessionViewModelFactory(application,taskRepository, savedStateRegistryOwner)
     val sessionViewModel: SessionViewModel = viewModel(factory = factory)
-    val uiState by sessionViewModel.uiState.collectAsState()
+    val uiStateTasks by sessionViewModel.uiState.collectAsState()
 
-    val selectedTasks = uiState.loadedSelectedTasks
+    val selectedTasks = uiStateTasks.loadedSelectedTasks
     var sessionStartTime by remember { mutableStateOf(Date())}
     var sessionEndTime by remember { mutableStateOf(Date())}
 
+    val isSaving by sessionViewModel.isSavingSession.collectAsState()
+    val navigateToHomeTrigger by sessionViewModel.sessionSaveCompleteAndNavigate.collectAsState()
+    val errorMessage by sessionViewModel.saveErrorMessage.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // handle navigation
+    LaunchedEffect(navigateToHomeTrigger) {
+        if (navigateToHomeTrigger) {
+            navigateToSchedulePage() // Call the navigation lambda passed from NavHost
+            sessionViewModel.onNavigationToScheduleHomeComplete() // Reset the trigger in VM
+        }
+    }
+
+    // handle error messages
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Short
+            )
+            sessionViewModel.clearSaveErrorMessage() // Clear message after showing
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -114,15 +142,26 @@ fun SessionScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = navigateToSchedulePage,
+                onClick = {if (!isSaving) { // Prevent multiple clicks while saving
+                    // Pass the current start time, end time, and selected tasks
+                    // to the ViewModel function.
+                    sessionViewModel.onConfirmAndSaveSession(
+                        sessionStartTime = sessionStartTime,
+                        sessionEndTime = sessionEndTime,
+                        tasks = selectedTasks
+                    )}},
                 modifier = Modifier
                     .padding(16.dp),
                 containerColor = MaterialTheme.colorScheme.secondary
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Create Session"
-                )
+                if (isSaving) {
+                    CircularProgressIndicator()
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Create Session"
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -212,10 +251,10 @@ fun SessionCreationPage(
                 inter_sessionStartTimeCal.add(Calendar.DAY_OF_MONTH, 1)
 
                 if (newEndTime.after(inter_sessionStartTimeCal.time)) {
-                    newEndTime = adjustEndDateBy24Hours(sessionStartTime, newEndTime)
+                    newEndTime = adjustendTimeBy24Hours(sessionStartTime, newEndTime)
                     onEndTimeChange(newEndTime)
                 } else {
-                    newEndTime = adjustEndDateIfBeforeStartDate(sessionStartTime, newEndTime)
+                    newEndTime = adjustendTimeIfBeforestartTime(sessionStartTime, newEndTime)
                     onEndTimeChange(newEndTime)
                 }
             }
@@ -316,25 +355,25 @@ fun TimeWheel(
     }
 }
 
-fun adjustEndDateIfBeforeStartDate(startDate: Date, endDate: Date): Date {
+fun adjustendTimeIfBeforestartTime(startTime: Date, endTime: Date): Date {
     // Create Calendar instances to avoid modifying the original Date objects directly
     val startCal = Calendar.getInstance()
-    startCal.time = startDate
+    startCal.time = startTime
 
     val endCal = Calendar.getInstance()
-    endCal.time = endDate
+    endCal.time = endTime
 
-    if (endDate.before(startDate)) {
+    if (endTime.before(startTime)) {
         endCal.add(Calendar.DAY_OF_MONTH, 1)
         return endCal.time
     }
-    return endDate
+    return endTime
 }
 
-fun adjustEndDateBy24Hours(startDate: Date, endDate: Date): Date {
+fun adjustendTimeBy24Hours(startTime: Date, endTime: Date): Date {
 
     val endCal = Calendar.getInstance()
-    endCal.time = endDate
+    endCal.time = endTime
 
     endCal.add(Calendar.DAY_OF_MONTH,-1)
 

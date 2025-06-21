@@ -94,7 +94,7 @@ fun ScheduleScreen(
 fun TimelineScreen(session: Session,
                    modifier: Modifier = Modifier,
 ) {
-    var tasks by remember { mutableStateOf(session.tasks)}//sortedBy { it.task.durationStamp }) }
+    var tasks by remember { mutableStateOf(session.scheduledTasks)}//sortedBy { it.task.durationStamp }) }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -126,13 +126,13 @@ fun TaskItem(scheduledTask: ScheduledTask, onClick: () -> Unit = {}) {
         ) {
             Text(
                 modifier = Modifier.padding(top = 8.dp),
-                text = "${getHoursString(scheduledTask.startDate)} : ${getMinutesString(scheduledTask.startDate)}",
+                text = "${getHoursString(scheduledTask.startTime)} : ${getMinutesString(scheduledTask.startTime)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
             Text(
                 modifier = Modifier.padding(bottom = 8.dp),
-                text = "${getHoursString(scheduledTask.endDate)} : ${getMinutesString(scheduledTask.endDate)}",
+                text = "${getHoursString(scheduledTask.endTime)} : ${getMinutesString(scheduledTask.endTime)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
@@ -216,7 +216,7 @@ fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
                     color = Color.Gray // Example: Gray text for duration
                 )
                 Text(
-                    text = "From: ${scheduledTask.startDate.hours}h ${scheduledTask.startDate.minutes}m - To: ${scheduledTask.endDate.hours}h ${scheduledTask.endDate.minutes}m", // Use a locale-aware date format
+                    text = "From: ${scheduledTask.startTime.hours}h ${scheduledTask.startTime.minutes}m - To: ${scheduledTask.endTime.hours}h ${scheduledTask.endTime.minutes}m", // Use a locale-aware date format
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

@@ -1,8 +1,14 @@
 package com.example.taskscheduler.ui.viewModel
 
+import android.app.Application
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskscheduler.data.ActiveSessionStore
+import com.example.taskscheduler.data.ScheduledTask
+import com.example.taskscheduler.data.ScheduledTask.Companion.scheduleTasks
+import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
 import com.example.taskscheduler.ui.SessionDestination
@@ -13,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Date
 
 
 data class SessionUiState(
@@ -22,6 +29,7 @@ data class SessionUiState(
 )
 
 class SessionViewModel(
+    application: Application,
     private val tasksRepository: TaskRepository,
     savedStateHandle: SavedStateHandle // To access navigation arguments
 ) : ViewModel() {
@@ -30,6 +38,16 @@ class SessionViewModel(
     val uiState: StateFlow<SessionUiState> = _uiState.asStateFlow()
 
     private var loadTasksJob: Job? = null // To manage the collection coroutine
+    private val activeSessionStore = ActiveSessionStore(application.applicationContext)
+
+    private val _isSavingSession = MutableStateFlow(false)
+    val isSavingSession: StateFlow<Boolean> = _isSavingSession.asStateFlow()
+
+    private val _sessionSaveCompleteAndNavigate = MutableStateFlow<Boolean>(false)
+    val sessionSaveCompleteAndNavigate: StateFlow<Boolean> = _sessionSaveCompleteAndNavigate.asStateFlow()
+
+    private val _saveErrorMesssage = MutableStateFlow<String?>(null)
+    val saveErrorMessage: StateFlow<String?> = _saveErrorMesssage.asStateFlow()
 
     init {
         val taskIdsString: String? = savedStateHandle[SessionDestination.SELECTED_TASK_IDS_ARG]
@@ -72,9 +90,51 @@ class SessionViewModel(
         }
     }
 
-    // Optional: It's good practice to cancel the job if the ViewModel is cleared
+    fun onConfirmAndSaveSession(
+        sessionStartTime: Date,
+        sessionEndTime: Date,
+        tasks: List<Task>
+    ) {
+        viewModelScope.launch {
+            _isSavingSession.value = true
+            _saveErrorMesssage.value = null
+            try {
+                val scheduledTask = ScheduledTask.scheduleTasks(tasks,sessionStartTime,sessionEndTime)
+                val newSession = Session(
+                    scheduledTasks = scheduledTask,
+                    startTime = sessionStartTime,
+                    endTime = sessionEndTime
+                )
+
+                activeSessionStore.saveActiveSession(newSession)
+                _uiState.value =
+                    SessionUiState(isLoading = false)
+                Log.d("SessionPageVM", "Session construction and save initiated.")
+
+                _sessionSaveCompleteAndNavigate.value = true // Signal UI to navigate
+
+            } catch (e: Exception) {
+                Log.e("SessionViewModel", "Error saving session", e)
+                _saveErrorMesssage.value = "Error: ${e.message}"
+            } finally {
+                _isSavingSession.value = false
+            }
+        }
+    }
+
+    fun onNavigationToScheduleHomeComplete() {
+        _sessionSaveCompleteAndNavigate.value = false
+    }
+
+    fun clearSaveErrorMessage() {
+        _saveErrorMesssage.value = null
+    }
+
+    // TODO: cancel the job if the ViewModel is cleared
     override fun onCleared() {
         super.onCleared()
         loadTasksJob?.cancel()
     }
+
+
 }

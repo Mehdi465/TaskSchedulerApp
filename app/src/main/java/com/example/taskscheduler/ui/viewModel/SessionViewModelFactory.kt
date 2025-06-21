@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.viewModel
 
+import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
@@ -8,6 +9,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import com.example.taskscheduler.data.TaskRepository
 
 class SessionViewModelFactory(
+    private val application: Application,
     private val taskRepository: TaskRepository,
     owner: SavedStateRegistryOwner,
     defaultArgs: Bundle? = null
@@ -19,7 +21,7 @@ class SessionViewModelFactory(
     ): T {
         if (modelClass.isAssignableFrom(SessionViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SessionViewModel(taskRepository, handle) as T
+            return SessionViewModel(application,taskRepository, handle) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

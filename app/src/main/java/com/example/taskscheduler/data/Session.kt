@@ -4,17 +4,14 @@ import java.util.Calendar
 import java.util.Date
 
 data class Session(
-    var tasks: List<ScheduledTask>,
-    val startDate: Date,
-    val endDate: Date,
+    var scheduledTasks: List<ScheduledTask>,
+    val startTime: Date,
+    val endTime: Date,
 ) {
     fun isExpired(): Boolean {
-        return Date().after(endDate)
+        return Date().after(endTime)
     }
 
-    fun randomizeTasks(){
-        this.tasks = this.tasks.shuffled()
-    }
 
     companion object {
         val start = Date()
@@ -26,9 +23,9 @@ data class Session(
         }
 
         val sessionWithDefaults = Session(
-            tasks = ScheduledTask.DEFAULT_TASKS_SCHEDULED,
-            startDate = start,
-            endDate = calendar.time
+            scheduledTasks = ScheduledTask.DEFAULT_TASKS_SCHEDULED,
+            startTime = start,
+            endTime = calendar.time
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.example.taskscheduler.data
 
 import android.graphics.drawable.Icon
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.example.taskscheduler.R
 import java.util.Date
@@ -8,15 +9,15 @@ import kotlin.time.Duration
 import java.time.Instant
 import java.time.Duration as JavaTimeDuration
 
-class ScheduledTask(
+data class ScheduledTask(
     val task: Task,
-    val startDate: Date,
-    val endDate: Date,
+    val startTime: Date,
+    val endTime: Date,
     var isCompleted: Boolean = false
 ){
     fun isCurrentlyActive(): Boolean{
         val currentDate = Date()
-        return currentDate.after(startDate) && currentDate.before(endDate)
+        return currentDate.after(startTime) && currentDate.before(endTime)
     }
 
     val name: String
@@ -24,9 +25,9 @@ class ScheduledTask(
 
     companion object{
 
-        fun getDurationFromDates(startDate: Date, endDate: Date): Duration {
+        fun getDurationFromDates(startTime: Date, endTime: Date): Duration {
             val javaSessionDuration : JavaTimeDuration = JavaTimeDuration.between(
-                startDate.toInstant(),endDate.toInstant())
+                startTime.toInstant(),endTime.toInstant())
             return Duration.parse(javaSessionDuration.toString())
         }
 
@@ -80,23 +81,27 @@ class ScheduledTask(
 
                 while(currentDuration < sessionDuration){
                     val randomInt = (0..5).random()
-                    val pickedTask : Task
+                    var pickedTask : Task = Task.DEFAULT_TASK
                     // low tasks
-                    if (randomInt == 0){
+                    if (randomInt == 0 && !lowPriorityTasks.isEmpty()){
                         pickedTask = lowPriorityTasks.random()
                     }
-                    else if (randomInt < 3){
+                    else if (randomInt < 3 && !mediumPriorityTasks.isEmpty()){
                         pickedTask = mediumPriorityTasks.random()
                     }
                     else{
-                        pickedTask = highPriorityTasks.random()
+                        if (!highPriorityTasks.isEmpty()) {
+                            pickedTask = highPriorityTasks.random()
+                        }
                     }
 
                     pickedTasks.add(pickedTask)
-                    currentDuration.plus(mandatoryTasks[index].duration)
+                    currentDuration.plus(pickedTask.duration)
+                    Log.d("Current Duration :",currentDuration.toString())
+                    Log.d("TARGET Duration :",sessionDuration.toString())
                 }
             }
-
+            Log.d("DONE :","FINISHED")
             // tasks -> scheduledTask
             val pickedScheduledTasks = taskToScheduledTask(pickedTasks,sessionDuration)
 

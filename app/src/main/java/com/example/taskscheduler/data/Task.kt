@@ -19,7 +19,7 @@ enum class Priority {
 }
 
 @Entity(tableName="tasks")
-class Task(
+data class Task(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     var name: String,
@@ -27,14 +27,6 @@ class Task(
     var duration : Duration = Duration.ZERO,
     var icon : Int? = null,
     var color : Color = Color(0xFFE57373),
-
-    /*
-    @ColumnInfo(name = "icon")
-    var iconResId : Int,
-
-    @ColumnInfo(name = "color")
-    var colorLong : ULong,
-    */
     )
 {
     // Inject context when needed to generate icons
@@ -63,6 +55,11 @@ class Task(
             }
             return calendar.timeInMillis
         }
+
+        val DEFAULT_TASK = Task(
+            name = "Default",
+            priority = Priority.LOW
+        )
 
         val PREPARATION_TASK = Task(
             name = "Preparation",

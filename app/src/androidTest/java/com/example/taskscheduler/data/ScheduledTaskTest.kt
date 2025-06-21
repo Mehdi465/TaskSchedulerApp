@@ -60,9 +60,9 @@ class ScheduledTaskTest {
     @Test
     fun scheduleTasksInSession_with_no_tasks_returns_empty_list0() {
         val tasks = emptyList<Task>()
-        val startDate = createDate(2023, 1, 1, 10, 0)
-        val endDate = createDate(2023, 1, 1, 11, 0)
-        val duration = getDurationFromDates(startDate,endDate)
+        val startTime = createDate(2023, 1, 1, 10, 0)
+        val endTime = createDate(2023, 1, 1, 11, 0)
+        val duration = getDurationFromDates(startTime,endTime)
         val scheduled = ScheduledTask.taskToScheduledTask(tasks, duration)
         assertTrue(scheduled.isEmpty())
     }
