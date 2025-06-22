@@ -68,7 +68,6 @@ data class ScheduledTask(
                 pickedTasks.add(mandatoryTasks[index])
                 currentDuration.plus(mandatoryTasks[index].duration)
                 index ++
-
             }
 
             if (currentDuration < sessionDuration){
@@ -78,7 +77,6 @@ data class ScheduledTask(
                 val mediumPriorityTasks = tasks.filter {it.priority == Priority.MEDIUM}
                 val lowPriorityTasks = tasks.filter {it.priority == Priority.LOW}
 
-
                 while(currentDuration < sessionDuration){
                     val randomInt = (0..5).random()
                     var pickedTask : Task = Task.DEFAULT_TASK
@@ -86,9 +84,11 @@ data class ScheduledTask(
                     if (randomInt == 0 && !lowPriorityTasks.isEmpty()){
                         pickedTask = lowPriorityTasks.random()
                     }
+                    // medium tasks
                     else if (randomInt < 3 && !mediumPriorityTasks.isEmpty()){
                         pickedTask = mediumPriorityTasks.random()
                     }
+                    // high tasks
                     else{
                         if (!highPriorityTasks.isEmpty()) {
                             pickedTask = highPriorityTasks.random()
@@ -96,9 +96,11 @@ data class ScheduledTask(
                     }
 
                     pickedTasks.add(pickedTask)
+                    
+                    Log.d("PICKED Task DURATION :",pickedTask.duration.inWholeMilliseconds.toString())
                     currentDuration.plus(pickedTask.duration)
-                    Log.d("Current Duration :",currentDuration.toString())
-                    Log.d("TARGET Duration :",sessionDuration.toString())
+                    Log.d("Current Duration :",currentDuration.inWholeMilliseconds.toString())
+                    Log.d("TARGET Duration :",sessionDuration.inWholeMilliseconds.toString())
                 }
             }
             Log.d("DONE :","FINISHED")

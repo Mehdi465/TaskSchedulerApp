@@ -6,7 +6,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.ActiveSessionStore
-import com.example.taskscheduler.data.ScheduledTask
 import com.example.taskscheduler.data.ScheduledTask.Companion.scheduleTasks
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.Task
@@ -14,24 +13,29 @@ import com.example.taskscheduler.data.TaskRepository
 import com.example.taskscheduler.ui.SessionDestination
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
+import kotlin.text.get
 
 
 data class SessionUiState(
     val loadedSelectedTasks: List<Task> = emptyList(),
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val taskIdsString: String? = null
 )
 
 class SessionViewModel(
     application: Application,
     private val tasksRepository: TaskRepository,
-    savedStateHandle: SavedStateHandle // To access navigation arguments
+    initialTaskIdsString: String?
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SessionUiState())
@@ -46,11 +50,13 @@ class SessionViewModel(
     private val _sessionSaveCompleteAndNavigate = MutableStateFlow<Boolean>(false)
     val sessionSaveCompleteAndNavigate: StateFlow<Boolean> = _sessionSaveCompleteAndNavigate.asStateFlow()
 
-    private val _saveErrorMesssage = MutableStateFlow<String?>(null)
-    val saveErrorMessage: StateFlow<String?> = _saveErrorMesssage.asStateFlow()
+    private val _saveErrorMessage = MutableStateFlow<String?>(null)
+    val saveErrorMessage: StateFlow<String?> = _saveErrorMessage.asStateFlow()
+
+    var taskIdsString: String? = null
 
     init {
-        val taskIdsString: String? = savedStateHandle[SessionDestination.SELECTED_TASK_IDS_ARG]
+        val taskIdsString: String? = initialTaskIdsString
         if (!taskIdsString.isNullOrBlank()) {
             val ids = taskIdsString.split(",").mapNotNull { it.toIntOrNull() }
             if (ids.isNotEmpty()) {
@@ -97,9 +103,9 @@ class SessionViewModel(
     ) {
         viewModelScope.launch {
             _isSavingSession.value = true
-            _saveErrorMesssage.value = null
+            _saveErrorMessage.value = null
             try {
-                val scheduledTask = ScheduledTask.scheduleTasks(tasks,sessionStartTime,sessionEndTime)
+                val scheduledTask = scheduleTasks(tasks,sessionStartTime,sessionEndTime)
                 val newSession = Session(
                     scheduledTasks = scheduledTask,
                     startTime = sessionStartTime,
@@ -115,7 +121,7 @@ class SessionViewModel(
 
             } catch (e: Exception) {
                 Log.e("SessionViewModel", "Error saving session", e)
-                _saveErrorMesssage.value = "Error: ${e.message}"
+                _saveErrorMessage.value = "Error: ${e.message}"
             } finally {
                 _isSavingSession.value = false
             }
@@ -127,7 +133,7 @@ class SessionViewModel(
     }
 
     fun clearSaveErrorMessage() {
-        _saveErrorMesssage.value = null
+        _saveErrorMessage.value = null
     }
 
     // TODO: cancel the job if the ViewModel is cleared

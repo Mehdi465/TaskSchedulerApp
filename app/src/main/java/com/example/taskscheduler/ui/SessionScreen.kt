@@ -50,7 +50,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.room.util.TableInfo
@@ -59,18 +61,13 @@ import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Task
+import com.example.taskscheduler.data.TaskRepository
 import com.example.taskscheduler.ui.viewModel.SessionViewModel
 import com.example.taskscheduler.ui.viewModel.SessionViewModelFactory
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-
-
 
 
 object SessionDestination : NavigationDestination {
@@ -93,17 +90,32 @@ fun SessionScreen(
     navigateToSchedulePage: () -> Unit,
     canNavigateBack: Boolean = true,
     navigateBack: () -> Unit,
+    application: Application = LocalContext.current.applicationContext as Application,
+    tasksRepository: TaskRepository = (LocalContext.current.applicationContext as TaskApplication).container.tasksRepository
 ) {
 
-    val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
+    val sessionViewModel : SessionViewModel = viewModel(
+        factory = SessionViewModelFactory(
+            application = application,
+            taskRepository = tasksRepository,
+            owner = LocalSavedStateRegistryOwner.current, // For SavedStateHandle if factory/VM uses it for OTHER things
+            defaultArgs = (LocalViewModelStoreOwner.current as? NavBackStackEntry)?.arguments, // Pass bundle for SSH
+            initialTaskIdsString = selectedTaskIdsString
+        )
+    )
+
+
+    //val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
     val context = LocalContext.current
-    val application = context.applicationContext as Application
-    val taskRepository = (context.applicationContext as TaskApplication).container.tasksRepository
-    val factory = SessionViewModelFactory(application,taskRepository, savedStateRegistryOwner)
-    val sessionViewModel: SessionViewModel = viewModel(factory = factory)
+    //val application = context.applicationContext as Application
+    //val taskRepository = (context.applicationContext as TaskApplication).container.tasksRepository
+    //val factory = SessionViewModelFactory(application,taskRepository, savedStateRegistryOwner)
+    //val sessionViewModel: SessionViewModel = viewModel(factory = factory)
+
     val uiStateTasks by sessionViewModel.uiState.collectAsState()
 
     val selectedTasks = uiStateTasks.loadedSelectedTasks
+
     var sessionStartTime by remember { mutableStateOf(Date())}
     var sessionEndTime by remember { mutableStateOf(Date())}
 
@@ -142,9 +154,7 @@ fun SessionScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {if (!isSaving) { // Prevent multiple clicks while saving
-                    // Pass the current start time, end time, and selected tasks
-                    // to the ViewModel function.
+                onClick = {if (!isSaving) {
                     sessionViewModel.onConfirmAndSaveSession(
                         sessionStartTime = sessionStartTime,
                         sessionEndTime = sessionEndTime,

@@ -12,7 +12,8 @@ class SessionViewModelFactory(
     private val application: Application,
     private val taskRepository: TaskRepository,
     owner: SavedStateRegistryOwner,
-    defaultArgs: Bundle? = null
+    defaultArgs: Bundle? = null,
+    private val initialTaskIdsString: String?
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
     override fun <T : ViewModel> create(
         key: String,
@@ -21,7 +22,7 @@ class SessionViewModelFactory(
     ): T {
         if (modelClass.isAssignableFrom(SessionViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SessionViewModel(application,taskRepository, handle) as T
+            return SessionViewModel(application,taskRepository, initialTaskIdsString) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

@@ -1,6 +1,7 @@
 package com.example.taskscheduler.ui
 
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -42,6 +43,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -75,15 +77,15 @@ import kotlin.time.Duration
 object TaskManagerDestination : NavigationDestination {
     override val route = "Task_manager"
     override val titleRes = R.string.task_manager_screen
-    const val itemIdArg = "itemId"
-    val routeWithArgs = "${route}/{$itemIdArg}"
+    //const val itemIdArg = "itemId"
+    //val routeWithArgs = "${route}/{$itemIdArg}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskManagerScreen(
     navigateBack: () -> Unit,
-    navigateToTSessionManager: (selecteTaskIdsString: String) -> Unit,
+    navigateToTSessionManager: (selectedTaskIdsString: String) -> Unit,
     canNavigateBack: Boolean = true,
     viewModel: TaskManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
@@ -95,9 +97,6 @@ fun TaskManagerScreen(
     val uiState by viewModel.taskListUiState.collectAsState()
 
     Scaffold(
-
-
-
         modifier = Modifier,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
@@ -171,7 +170,7 @@ fun TaskManagerScreen(
     var selectedPriority by remember { mutableStateOf(Priority.LOW) }
     var selectedDuration by remember { mutableStateOf(Duration.ZERO) }
     var selectedColor by remember { mutableStateOf(Color(0xFFE57373)) }
-    var selectedIcon by remember { mutableStateOf(R.drawable.pen) }
+    var selectedIcon by remember { mutableIntStateOf(R.drawable.pen) }
 
     // --- Observe Task List from ViewModel ---
     val uiState by viewModel.taskListUiState.collectAsStateWithLifecycle() // Use lifecycle-aware collector
