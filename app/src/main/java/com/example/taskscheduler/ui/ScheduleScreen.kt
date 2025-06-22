@@ -178,7 +178,11 @@ fun getMinutesString(date: Date): String {
 
 
 @Composable
-fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
+fun TaskCard(
+            scheduledTask: ScheduledTask,
+            modifier: Modifier
+    )
+{
     Card(
         modifier = Modifier
             .fillMaxWidth()

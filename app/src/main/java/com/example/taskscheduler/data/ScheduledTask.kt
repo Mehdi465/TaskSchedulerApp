@@ -47,9 +47,14 @@ data class ScheduledTask(
 
             // no reducing task duration // TODO: make the last task duration flexible
             for (task in tasks){
+                if (cumulDuration + task.duration > duration){
+                    task.duration = duration - cumulDuration
+                }
+                Log.d("DURATION", "${task.duration}")
                 val scheduledTask = ScheduledTask(
                     task,Date(System.currentTimeMillis() + cumulDuration.inWholeMilliseconds),
                     Date(System.currentTimeMillis() + task.duration.inWholeMilliseconds + cumulDuration.inWholeMilliseconds))
+
                 result.add(scheduledTask)
                 cumulDuration += task.duration
             }

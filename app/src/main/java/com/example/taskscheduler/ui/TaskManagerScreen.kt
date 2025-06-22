@@ -77,8 +77,6 @@ import kotlin.time.Duration
 object TaskManagerDestination : NavigationDestination {
     override val route = "Task_manager"
     override val titleRes = R.string.task_manager_screen
-    //const val itemIdArg = "itemId"
-    //val routeWithArgs = "${route}/{$itemIdArg}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,7 +133,6 @@ fun TaskManagerScreen(
         )
     }
 }
-
 
 fun showNoTaskSelected(snackbarHostState: SnackbarHostState,
                    coroutineScope: CoroutineScope
@@ -426,7 +423,6 @@ private fun SwipableTaskItem(task: Task,
     }
 }
 
-
 @Composable
 fun TaskItem(task: Task,
              isSelected: Boolean,
@@ -438,7 +434,7 @@ fun TaskItem(task: Task,
             .fillMaxWidth()
             .padding(vertical = 1.dp)
             .height(80.dp),
-        colors = CardDefaults.cardColors(
+            colors = CardDefaults.cardColors(
             containerColor = Color.White
         )
     ) {
@@ -484,6 +480,12 @@ fun TaskItem(task: Task,
 
                 Text(
                     text = "Duration: ${task.duration}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+
+                Text(
+                    text = "Priority: ${task.priority}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
