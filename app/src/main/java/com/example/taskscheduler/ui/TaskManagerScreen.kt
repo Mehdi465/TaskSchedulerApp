@@ -356,7 +356,7 @@ private fun SwipableTaskItem(task: Task,
             }
         },
         // Positional threshold can be adjusted if needed
-        // positionalThreshold = { distance -> distance * 0.5f } // Example: 50% swipe needed
+        positionalThreshold = { distance -> distance * 0.5f } // Example: 50% swipe needed
     )
 
     SwipeToDismissBox(
@@ -381,7 +381,7 @@ private fun SwipableTaskItem(task: Task,
                             Icons.Default.Edit,
                             contentDescription = "Modify Icon",
                             tint = Color.White,
-                            modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) 1f else 0.75f)
+                            modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) 1.25f else 0.75f)
                         )
                         Text(
                             "Modify",
@@ -392,7 +392,7 @@ private fun SwipableTaskItem(task: Task,
                     }
                 }
             }
-            // Background for swipe left (Delete)
+            // Background for swipe left for Delete
             else if (direction == SwipeToDismissBoxValue.EndToStart) {
                 Box(
                     Modifier
@@ -412,7 +412,7 @@ private fun SwipableTaskItem(task: Task,
                             Icons.Default.Delete,
                             contentDescription = "Delete Icon",
                             tint = Color.White,
-                            modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) 1f else 0.75f)
+                            modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) 1.25f else 0.75f)
                         )
                     }
                 }
