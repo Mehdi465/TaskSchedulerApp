@@ -46,16 +46,6 @@ data class Task(
 
     companion object{
 
-        fun durationToTime(hours: Int, minutes: Int): Long {
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hours)
-                set(Calendar.MINUTE, minutes)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }
-            return calendar.timeInMillis
-        }
-
         val DEFAULT_TASK = Task(
             name = "Default",
             priority = Priority.LOW

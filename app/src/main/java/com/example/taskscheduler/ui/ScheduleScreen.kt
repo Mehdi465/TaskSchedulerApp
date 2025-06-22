@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,17 +42,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.data.ScheduledTask
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import java.util.Date
 import com.example.taskscheduler.R
+import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
+import com.example.taskscheduler.ui.viewModel.ScheduleViewModel
+import com.example.taskscheduler.ui.viewModel.ScheduleViewModelFactory
+import androidx.compose.ui.platform.LocalContext
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
     override val titleRes = R.string.app_name
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,8 +64,14 @@ object HomeDestination : NavigationDestination {
 fun ScheduleScreen(
     navigateToTaskManager: () -> Unit,
     modifier: Modifier = Modifier,
-    session: Session
+    session: Session,
+    scheduleViewModel: ScheduleViewModel = viewModel(
+        factory = ScheduleViewModelFactory(
+            (LocalContext.current.applicationContext as TaskApplication).activeSessionStore))
 ){
+    val uiState by scheduleViewModel.uiState.collectAsState()
+    uiState.session
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -83,10 +94,15 @@ fun ScheduleScreen(
             }
         },
     ) { innerPadding ->
-        TimelineScreen(
-            session = session,
-            modifier = Modifier.padding(innerPadding),
+        if (uiState.session == null){
+            Text("No session selected")
+        }
+        else {
+            TimelineScreen(
+                session = uiState.session!!,
+                modifier = Modifier.padding(innerPadding),
             )
+        }
     }
 }
 
@@ -179,15 +195,15 @@ fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
 
             Box(
                 modifier = Modifier
-                    .fillMaxHeight() // Fill the height of the Row
-                    .width(56.dp) // Give it a fixed width (adjust as needed)
-                    .background(color = Color.Red)//Color(scheduledTask.task.getColor())) // Set the background color from the task
-                    .padding(8.dp) // Add some padding inside the box
-                    .align(Alignment.CenterVertically), // Align this box vertically in the center of the Row
-                contentAlignment = Alignment.Center // Center the content (the icon) within the Box
+                    .fillMaxHeight()
+                    .width(56.dp)
+                    .background(color = scheduledTask.task.color)
+                    .padding(8.dp)
+                    .align(Alignment.CenterVertically),
+                contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(R.drawable.pen),
+                    painter = painterResource(R.drawable.book),//scheduledTask.task.icon!!),
                     contentDescription = "Task logo",
                     modifier = Modifier
                         .width(32.dp)
@@ -211,7 +227,7 @@ fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
                 )
 
                 Text(
-                    text = "Duration: Not yet implemented",//${Date(scheduledTask.task.durationStamp).hours}h ${Date(scheduledTask.task.durationStamp).minutes}m", // Display duration in minutes
+                    text = "Duration: ${scheduledTask.task.duration}", // Display duration in minutes
                     style = MaterialTheme.typography.bodySmall, // Use a smaller typography style
                     color = Color.Gray // Example: Gray text for duration
                 )

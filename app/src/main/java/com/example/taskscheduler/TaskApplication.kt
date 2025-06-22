@@ -1,6 +1,7 @@
 package com.example.taskscheduler
 
 import android.app.Application
+import com.example.taskscheduler.data.ActiveSessionStore
 import com.example.taskscheduler.data.AppContainer
 import com.example.taskscheduler.data.AppDataContainer
 import com.example.taskscheduler.data.OfflineTasksRepository
@@ -14,7 +15,6 @@ class TaskApplication: Application() {
     private val database by lazy { TaskDatabase.getDatabase(this) }
 
     // Lazy initialization for the repository
-    // It depends on the DAO, which comes from the database
     val tasksRepository: TaskRepository by lazy {
         OfflineTasksRepository(database.taskDao())
     }
@@ -22,5 +22,9 @@ class TaskApplication: Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppDataContainer(this)
+    }
+
+    val activeSessionStore: ActiveSessionStore by lazy {
+        ActiveSessionStore(applicationContext.applicationContext)
     }
 }

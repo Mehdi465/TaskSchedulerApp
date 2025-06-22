@@ -3,6 +3,7 @@ package com.example.taskscheduler.data
 import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -15,6 +16,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
 import java.io.IOException
 import androidx.datastore.preferences.core.Preferences
+import kotlin.collections.get
 
 // Top-level property to create the DataStore instance (once per app process)
 // The name "active_session_store_prefs" will be the filename for the DataStore file.

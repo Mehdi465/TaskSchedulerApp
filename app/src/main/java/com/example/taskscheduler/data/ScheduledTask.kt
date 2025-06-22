@@ -23,7 +23,17 @@ data class ScheduledTask(
     val name: String
         get() = task.name
 
+    fun getDurationInTime(): String{
+        val duration = endTime.time - startTime.time
+        val hours = duration / (1000*60*60)
+        val minutes = (duration % (1000*60*60)) / (1000*60)
+        return "$hours h : $minutes m"
+    }
+
     companion object{
+        fun addDuration(duration1: Duration, duration2: Duration): Duration {
+            return duration1 + duration2
+        }
 
         fun getDurationFromDates(startTime: Date, endTime: Date): Duration {
             val javaSessionDuration : JavaTimeDuration = JavaTimeDuration.between(
@@ -60,13 +70,13 @@ data class ScheduledTask(
             // get mandatory tasks
             val mandatoryTasks = tasks.filter {it.priority == Priority.MANDATORY}
             mandatoryTasks.shuffled()
-            val currentDuration = Duration.ZERO
+            var currentDuration = Duration.ZERO
 
             // add mandatory tasks
             var index : Int = 0
             while (currentDuration < sessionDuration && index < mandatoryTasks.size) {
                 pickedTasks.add(mandatoryTasks[index])
-                currentDuration.plus(mandatoryTasks[index].duration)
+                currentDuration = addDuration(currentDuration,mandatoryTasks[index].duration)
                 index ++
             }
 
@@ -96,9 +106,9 @@ data class ScheduledTask(
                     }
 
                     pickedTasks.add(pickedTask)
-                    
+
                     Log.d("PICKED Task DURATION :",pickedTask.duration.inWholeMilliseconds.toString())
-                    currentDuration.plus(pickedTask.duration)
+                    currentDuration = addDuration(currentDuration,pickedTask.duration)
                     Log.d("Current Duration :",currentDuration.inWholeMilliseconds.toString())
                     Log.d("TARGET Duration :",sessionDuration.inWholeMilliseconds.toString())
                 }
@@ -109,8 +119,6 @@ data class ScheduledTask(
 
             return pickedScheduledTasks
         }
-
-
 
         val PREPARATION_TASK_SCHEDULED = ScheduledTask(task = Task.PREPARATION_TASK,Date(System.currentTimeMillis()),Date(System.currentTimeMillis() + 60 * 60 * 1000))
 

@@ -104,14 +104,6 @@ fun SessionScreen(
         )
     )
 
-
-    //val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
-    val context = LocalContext.current
-    //val application = context.applicationContext as Application
-    //val taskRepository = (context.applicationContext as TaskApplication).container.tasksRepository
-    //val factory = SessionViewModelFactory(application,taskRepository, savedStateRegistryOwner)
-    //val sessionViewModel: SessionViewModel = viewModel(factory = factory)
-
     val uiStateTasks by sessionViewModel.uiState.collectAsState()
 
     val selectedTasks = uiStateTasks.loadedSelectedTasks
