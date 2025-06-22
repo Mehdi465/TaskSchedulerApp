@@ -87,34 +87,36 @@ data class ScheduledTask(
                 val mediumPriorityTasks = tasks.filter {it.priority == Priority.MEDIUM}
                 val lowPriorityTasks = tasks.filter {it.priority == Priority.LOW}
 
-                while(currentDuration < sessionDuration){
+                // do not fall in forever loop
+                val isAllEmpty : Boolean = highPriorityTasks.isEmpty() && mediumPriorityTasks.isEmpty() && lowPriorityTasks.isEmpty()
+
+                while(currentDuration < sessionDuration && !isAllEmpty){
                     val randomInt = (0..5).random()
                     var pickedTask : Task = Task.DEFAULT_TASK
+
                     // low tasks
                     if (randomInt == 0 && !lowPriorityTasks.isEmpty()){
                         pickedTask = lowPriorityTasks.random()
+                        pickedTasks.add(pickedTask)
+                        currentDuration = addDuration(currentDuration,pickedTask.duration)
                     }
                     // medium tasks
                     else if (randomInt < 3 && !mediumPriorityTasks.isEmpty()){
                         pickedTask = mediumPriorityTasks.random()
+                        pickedTasks.add(pickedTask)
+                        currentDuration = addDuration(currentDuration,pickedTask.duration)
                     }
                     // high tasks
                     else{
                         if (!highPriorityTasks.isEmpty()) {
                             pickedTask = highPriorityTasks.random()
+                            pickedTasks.add(pickedTask)
+                            currentDuration = addDuration(currentDuration,pickedTask.duration)
                         }
                     }
-
-                    pickedTasks.add(pickedTask)
-
-                    Log.d("PICKED Task DURATION :",pickedTask.duration.inWholeMilliseconds.toString())
-                    currentDuration = addDuration(currentDuration,pickedTask.duration)
-                    Log.d("Current Duration :",currentDuration.inWholeMilliseconds.toString())
-                    Log.d("TARGET Duration :",sessionDuration.inWholeMilliseconds.toString())
                 }
             }
-            Log.d("DONE :","FINISHED")
-            // tasks -> scheduledTask
+            
             val pickedScheduledTasks = taskToScheduledTask(pickedTasks,sessionDuration)
 
             return pickedScheduledTasks
