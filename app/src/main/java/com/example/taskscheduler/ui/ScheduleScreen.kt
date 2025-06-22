@@ -64,7 +64,6 @@ object HomeDestination : NavigationDestination {
 fun ScheduleScreen(
     navigateToTaskManager: () -> Unit,
     modifier: Modifier = Modifier,
-    session: Session,
     scheduleViewModel: ScheduleViewModel = viewModel(
         factory = ScheduleViewModelFactory(
             (LocalContext.current.applicationContext as TaskApplication).activeSessionStore))
@@ -211,25 +210,24 @@ fun TaskCard(scheduledTask: ScheduledTask,modifier: Modifier) {
                 )
             }
 
-            // The existing Column for task details
             Column(
                 modifier = Modifier
-                    .weight(1f) // Take up the remaining width
-                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp) // Add padding
+                    .weight(1f)
+                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                     .align(Alignment.CenterVertically)
             ) {
 
                 Text(
                     text = scheduledTask.name,
-                    style = MaterialTheme.typography.titleMedium, // Use a MaterialTheme typography style
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray
                 )
 
                 Text(
-                    text = "Duration: ${scheduledTask.task.duration}", // Display duration in minutes
-                    style = MaterialTheme.typography.bodySmall, // Use a smaller typography style
-                    color = Color.Gray // Example: Gray text for duration
+                    text = "Duration: ${scheduledTask.task.duration}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
                 )
                 Text(
                     text = "From: ${scheduledTask.startTime.hours}h ${scheduledTask.startTime.minutes}m - To: ${scheduledTask.endTime.hours}h ${scheduledTask.endTime.minutes}m", // Use a locale-aware date format
@@ -261,9 +259,9 @@ fun getCardHeightInDp(scheduledTask: ScheduledTask): Dp {
     val minThreshold  = getRelativeDuration(Date(System.currentTimeMillis() + 15 * 60 * 1000))
     val maxThreshold = getRelativeDuration(Date(System.currentTimeMillis() + 180 * 60 * 1000))
 
-     if (relativeDuration < minThreshold){
+    if (relativeDuration < minThreshold){
          return 90.dp
-     }
+    }
     else if (relativeDuration > maxThreshold) {
         return 200.dp
     }
@@ -272,34 +270,3 @@ fun getCardHeightInDp(scheduledTask: ScheduledTask): Dp {
         return finalDp
     }
 }
-
-@Preview
-@Composable
-fun ScheduleScreenPreview(){
-    ScheduleScreen(
-        session = Session.sessionWithDefaults,
-        navigateToTaskManager = {})
-}
-
-/*
-@Preview
-@Composable
-fun ScheduleScreenPreview(){
-    TimelineScreen(session = Session.sessionWithDefaults)
-}*/
-/*
-@Preview
-@Composable
-fun TaskItemPreview(){
-    TaskItem(scheduledTask = ScheduledTask.REVIEW_TASK_SCHEDULED)
-}
-*/
-
-/*
-@Preview
-@Composable
-fun TaskCardPreview(){
-    TaskCard(
-        ScheduledTask(task = Task.EXECUTION_TASK, Date(), Calendar.getInstance().apply { add(Calendar.HOUR_OF_DAY,1 ) }.time))
-}
-*/

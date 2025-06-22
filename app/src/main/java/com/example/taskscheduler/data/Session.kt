@@ -11,21 +11,4 @@ data class Session(
     fun isExpired(): Boolean {
         return Date().after(endTime)
     }
-
-
-    companion object {
-        val start = Date()
-
-        val calendar = Calendar.getInstance().apply {
-            time = start
-            add(Calendar.HOUR_OF_DAY, 2)
-            add(Calendar.MINUTE, 15)
-        }
-
-        val sessionWithDefaults = Session(
-            scheduledTasks = ScheduledTask.DEFAULT_TASKS_SCHEDULED,
-            startTime = start,
-            endTime = calendar.time
-        )
-    }
 }

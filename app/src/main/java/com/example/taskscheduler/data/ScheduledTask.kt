@@ -49,7 +49,7 @@ data class ScheduledTask(
             for (task in tasks){
                 val scheduledTask = ScheduledTask(
                     task,Date(System.currentTimeMillis() + cumulDuration.inWholeMilliseconds),
-                    Date(System.currentTimeMillis() + duration.inWholeMilliseconds + cumulDuration.inWholeMilliseconds))
+                    Date(System.currentTimeMillis() + task.duration.inWholeMilliseconds + cumulDuration.inWholeMilliseconds))
                 result.add(scheduledTask)
                 cumulDuration += task.duration
             }
@@ -116,31 +116,11 @@ data class ScheduledTask(
                     }
                 }
             }
-            
+
             val pickedScheduledTasks = taskToScheduledTask(pickedTasks,sessionDuration)
 
             return pickedScheduledTasks
         }
-
-        val PREPARATION_TASK_SCHEDULED = ScheduledTask(task = Task.PREPARATION_TASK,Date(System.currentTimeMillis()),Date(System.currentTimeMillis() + 60 * 60 * 1000))
-
-        val EXECUTION_TASK_SCHEDULED = ScheduledTask(task = Task.EXECUTION_TASK,Date(System.currentTimeMillis() + 60 * 60 * 1000),Date(System.currentTimeMillis() + 210 * 60 * 1000))
-
-        val REVIEW_TASK_SCHEDULED = ScheduledTask(task = Task.REVIEW_TASK,Date(System.currentTimeMillis() + 210 * 60 * 1000),Date(System.currentTimeMillis() + 215 * 60 * 1000))
-
-        val COMPLETION_TASK_SCHEDULED = ScheduledTask(task = Task.COMPLETION_TASK,Date(System.currentTimeMillis() + 215 * 60 * 1000),Date(System.currentTimeMillis() + 235 * 60 * 1000))
-
-        val DEFAULT_TASKS_SCHEDULED = listOf(
-            PREPARATION_TASK_SCHEDULED,
-            EXECUTION_TASK_SCHEDULED,
-            REVIEW_TASK_SCHEDULED,
-            COMPLETION_TASK_SCHEDULED,
-            REVIEW_TASK_SCHEDULED,
-            REVIEW_TASK_SCHEDULED,
-            REVIEW_TASK_SCHEDULED,
-            REVIEW_TASK_SCHEDULED,
-            REVIEW_TASK_SCHEDULED
-        )
     }
 
 }

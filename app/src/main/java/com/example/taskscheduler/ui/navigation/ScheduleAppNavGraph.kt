@@ -31,7 +31,6 @@ fun TaskAppNavHost(
         ) {
             ScheduleScreen(
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
-                session = Session.sessionWithDefaults
             )
         }
         composable(
