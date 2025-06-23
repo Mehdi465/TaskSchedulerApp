@@ -37,7 +37,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -55,7 +53,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.room.util.TableInfo
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
@@ -64,10 +61,13 @@ import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
 import com.example.taskscheduler.ui.viewModel.SessionViewModel
 import com.example.taskscheduler.ui.viewModel.SessionViewModelFactory
-import java.text.SimpleDateFormat
-import java.time.LocalTime
+import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
+import kotlin.time.Duration.Companion.days
+import com.example.taskscheduler.ui.TimePickerV2
+import kotlin.text.get
+import kotlin.text.set
 
 
 object SessionDestination : NavigationDestination {
@@ -184,7 +184,7 @@ fun SessionScreen(
 
 fun Date.updateTime(hour: Int, minute: Int): Date {
     val calendar = Calendar.getInstance()
-    calendar.time = this // Set calendar to current date object
+    calendar.time = this
     calendar.set(Calendar.HOUR_OF_DAY, hour)
     calendar.set(Calendar.MINUTE, minute)
     calendar.set(Calendar.SECOND, 0)
@@ -218,168 +218,107 @@ fun SessionCreationPage(
             .padding(16.dp)
     ) {
 
-        Spacer(modifier = Modifier.height(32.dp))
+        fun displayTime(currentDateTime: Date): String {
+            val parts = currentDateTime.toString().split(" ")
 
-        TimerPicker(
-            initialHour = initialStartHour,
-            initialMinute = initialStartMinute,
-            onTimeSelected = { hour, minute ->
-                val newStartTime = sessionStartTime.updateTime(hour, minute)
-                if (newStartTime.before(sessionEndTime) || newStartTime == sessionEndTime) {
-                    onStartTimeChange(newStartTime)
-                } else {
-                    onStartTimeChange(newStartTime)
-                    val suggestedEndTime = Calendar.getInstance().apply {
-                        time = newStartTime
-                        add(Calendar.HOUR_OF_DAY, 1)
-                    }.time
-                    onEndTimeChange(suggestedEndTime)
-                }
-            }
-        )
-        Text("Selected Start: $sessionStartTime")
+            val first = parts.getOrNull(0)
+            val third = parts.getOrNull(2)
+            val fourth = parts.getOrNull(3)
+                ?.split(":")
+                ?.dropLast(1)
+                ?.joinToString(":")
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        TimerPicker(
-            initialHour = initialEndHour,
-            initialMinute = initialEndMinute,
-            onTimeSelected = { hour, minute ->
-                var newEndTime = sessionEndTime.updateTime(hour, minute)
-                // Ensure end time is after start time
-
-                val inter_sessionStartTimeCal = Calendar.getInstance()
-                inter_sessionStartTimeCal.time = sessionStartTime
-                inter_sessionStartTimeCal.add(Calendar.DAY_OF_MONTH, 1)
-
-                if (newEndTime.after(inter_sessionStartTimeCal.time)) {
-                    newEndTime = adjustendTimeBy24Hours(sessionStartTime, newEndTime)
-                    onEndTimeChange(newEndTime)
-                } else {
-                    newEndTime = adjustendTimeIfBeforestartTime(sessionStartTime, newEndTime)
-                    onEndTimeChange(newEndTime)
-                }
-            }
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Text("Selected End: $sessionEndTime")
-    }
-}
-
-@Composable
-fun TimerPicker(
-    modifier: Modifier = Modifier,
-    initialHour: Int,
-    initialMinute: Int,
-    onTimeSelected: (hour: Int, minute: Int) -> Unit
-) {
-    val hours = (0..23).toList()
-    val minutes = (0..59).toList()
-
-    val validInitialHour = initialHour.coerceIn(0, 23)
-    val validInitialMinute = initialMinute.coerceIn(0, 59)
-
-    val hourState = rememberLazyListState(validInitialHour)
-    val minuteState = rememberLazyListState(validInitialMinute)
-
-    val selectedHour = remember { derivedStateOf { hours.getOrElse(hourState.firstVisibleItemIndex) { 0 } } }
-    val selectedMinute = remember { derivedStateOf { minutes.getOrElse(minuteState.firstVisibleItemIndex) { 0 } } }
-
-    // Call callback with current LocalTime
-    LaunchedEffect(selectedHour.value, selectedMinute.value) {
-        onTimeSelected(selectedHour.value, selectedMinute.value)
-    }
-
-    LaunchedEffect(validInitialHour) {
-        hourState.scrollToItem(validInitialHour)
-    }
-    LaunchedEffect(validInitialMinute) {
-        minuteState.scrollToItem(validInitialMinute)
-    }
-
-    Row(
-        modifier = modifier
-            .height(200.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TimeWheel(
-            values = hours.map { it.toString().padStart(2, '0') },
-            state = hourState,
-        )
-        TimeWheel(
-            values = minutes.map { it.toString().padStart(2, '0') },
-            state = minuteState,
-        )
-    }
-}
-
-@Composable
-fun TimeWheel(
-    values: List<String>,
-    state: LazyListState,
-) {
-    Box(modifier = Modifier.width(80.dp)) {
-        LazyColumn(
-            state = state,
-            modifier = Modifier
-                .fillMaxHeight()
-                .align(Alignment.Center),
-            contentPadding = PaddingValues(vertical = 70.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            items(values.size) { index ->
-                val isActuallySelected = (state.firstVisibleItemIndex +
-                        (state.layoutInfo.visibleItemsInfo.size / 2)) == index
-                Text(
-                    text = values[index],
-                    fontSize = if (isActuallySelected) 32.sp else 24.sp,
-                    fontWeight = if (isActuallySelected) FontWeight.Bold else FontWeight.Normal,
-                    color = if (isActuallySelected) MaterialTheme.colorScheme.primary else Color.Gray,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
+            return listOfNotNull(first, third, fourth).joinToString(" ")
         }
 
-        // Overlay to indicate selection area
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth()
-                .height(48.dp)
-                .border(1.dp, Color.Gray, RectangleShape)
+        //Text("Selected Start: ${displayTime(sessionStartTime)}")
+        TimePickerV2(
+            initialStartTime = initialStartHour*60+initialStartMinute,
+            initialEndTime = initialEndHour*60+initialEndMinute,
+            onTimeChange = { startTime, endTime ->
+
+                val (newStartDate, newEndDate) = convertMinutesToStartEndDates(
+                    currentStartDate = sessionStartTime,
+                    newStartTimeMinutes = startTime,
+                    newEndTimeMinutes = endTime
+                )
+
+                onStartTimeChange(newStartDate)
+                onEndTimeChange(newEndDate)
+            }
         )
     }
 }
 
-fun adjustendTimeIfBeforestartTime(startTime: Date, endTime: Date): Date {
-    // Create Calendar instances to avoid modifying the original Date objects directly
-    val startCal = Calendar.getInstance()
-    startCal.time = startTime
+fun convertMinutesToStartEndDates(
+    currentStartDate: Date, // Pass the current sessionStartTime to base the new dates on its day
+    newStartTimeMinutes: Int,
+    newEndTimeMinutes: Int
+): Pair<Date, Date> {
+    if (newStartTimeMinutes !in 0 until (24 * 60) || newEndTimeMinutes !in 0 until (24 * 60)) {
+        // Log an error or handle it, maybe return current dates to avoid crash
+        Log.e("TimeConversion", "Invalid input minutes: start=$newStartTimeMinutes, end=$newEndTimeMinutes")
+        // Fallback to avoid crashing, though ideally the TimePickerV2 should prevent this.
+        // Or you might want to signal an error to the user.
+        val tempCal = Calendar.getInstance()
+        tempCal.time = currentStartDate
+        val currentStartHour = tempCal.get(Calendar.HOUR_OF_DAY)
+        val currentStartMinute = tempCal.get(Calendar.MINUTE)
 
-    val endCal = Calendar.getInstance()
-    endCal.time = endTime
+        tempCal.time = currentStartDate // Assuming currentStartDate is the reference for current "end time" before change
+        val currentEndHour = tempCal.get(Calendar.HOUR_OF_DAY) // This logic for fallback end date might need refinement
+        val currentEndMinute = tempCal.get(Calendar.MINUTE)
+        tempCal.add(Calendar.HOUR_OF_DAY, 1) // Default to 1 hour after current start if invalid
 
-    if (endTime.before(startTime)) {
-        endCal.add(Calendar.DAY_OF_MONTH, 1)
-        return endCal.time
+        return Pair(
+            currentStartDate.updateTime(currentStartHour, currentStartMinute),
+            currentStartDate.updateTime(currentEndHour, currentEndMinute).let {
+                if (newEndTimeMinutes < newStartTimeMinutes && it.before(currentStartDate.updateTime(currentStartHour,currentStartMinute))) {
+                    val cal = Calendar.getInstance()
+                    cal.time = it
+                    cal.add(Calendar.DAY_OF_MONTH, 1)
+                    cal.time
+                } else {
+                    it
+                }
+            }
+        )
     }
-    return endTime
+
+    val calendar = Calendar.getInstance()
+
+    // --- Create Start Date ---
+    // Use the day from currentStartDate as the base for the new startTime
+    calendar.time = currentStartDate // Set calendar to the day of the existing sessionStartTime
+    calendar.set(Calendar.HOUR_OF_DAY, newStartTimeMinutes / 60)
+    calendar.set(Calendar.MINUTE, newStartTimeMinutes % 60)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    val resultingStartDate: Date = calendar.time
+
+    // --- Create End Date ---
+    // Use the day from currentStartDate as the base initially
+    calendar.time = currentStartDate // Reset to the day of the existing sessionStartTime
+    calendar.set(Calendar.HOUR_OF_DAY, newEndTimeMinutes / 60)
+    calendar.set(Calendar.MINUTE, newEndTimeMinutes % 60)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+
+    if (newEndTimeMinutes < newStartTimeMinutes) {
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+    }
+    // If startTime and endTime are the same, and it's not 00:00 (which could be a 0-minute session)
+    // assume it's a 24-hour session ending on the next day.
+    // Adjust this specific condition (&& newStartTimeMinutes != 0) if 00:00 to 00:00 should always be 24h.
+    else if (newEndTimeMinutes == newStartTimeMinutes && newStartTimeMinutes != 0) {
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+    }
+
+
+    val resultingEndDate: Date = calendar.time
+
+    return Pair(resultingStartDate, resultingEndDate)
 }
 
-fun adjustendTimeBy24Hours(startTime: Date, endTime: Date): Date {
 
-    val endCal = Calendar.getInstance()
-    endCal.time = endTime
-
-    endCal.add(Calendar.DAY_OF_MONTH,-1)
-
-    return endCal.time
-
-}
 

@@ -3,7 +3,6 @@ package com.example.taskscheduler.data
 import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -11,12 +10,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.decodeFromString
 import java.io.IOException
 import androidx.datastore.preferences.core.Preferences
-import kotlin.collections.get
+
 
 // Top-level property to create the DataStore instance (once per app process)
 // The name "active_session_store_prefs" will be the filename for the DataStore file.
@@ -47,10 +44,8 @@ class ActiveSessionStore(private val context: Context) {
             context.sessionPrefsDataStore.edit { preferences ->
                 preferences[PreferencesKeys.ACTIVE_SESSION_JSON] = sessionJsonString
             }
-            Log.d("ActiveSessionStore", "Session saved successfully.")
         } catch (e: Exception) {
             Log.e("ActiveSessionStore", "Error saving session to DataStore", e)
-            // Optionally rethrow or handle more gracefully (e.g., show user feedback)
         }
     }
 

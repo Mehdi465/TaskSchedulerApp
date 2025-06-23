@@ -45,43 +45,6 @@ data class Task(
     }
 
     companion object{
-
-        val DEFAULT_TASK = Task(
-            name = "Default",
-            priority = Priority.LOW
-        )
-
-        val PREPARATION_TASK = Task(
-            name = "Preparation",
-            priority = Priority.MEDIUM
-        )
-
-        val EXECUTION_TASK = Task(
-            name = "Execution",
-            priority = Priority.HIGH
-        )
-
-        val REVIEW_TASK = Task(
-            name = "Review",
-            priority = Priority.MEDIUM
-        )
-
-        val COMPLETION_TASK = Task(
-            name = "Completion",
-            priority = Priority.LOW
-        )
-
-        val DEFAULT_TASKS = listOf(
-            PREPARATION_TASK,
-            EXECUTION_TASK,
-            REVIEW_TASK,
-            COMPLETION_TASK,
-            EXECUTION_TASK,
-            EXECUTION_TASK,
-            EXECUTION_TASK,
-            EXECUTION_TASK,
-            EXECUTION_TASK,
-            EXECUTION_TASK
-        )
+        val DEFAULT_TASK = Task(name = "Default Task", priority = Priority.LOW)
     }
 }

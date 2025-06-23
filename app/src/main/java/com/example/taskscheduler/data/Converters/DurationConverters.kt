@@ -15,7 +15,6 @@ class DurationConverters {
     @TypeConverter
     fun fromDuration(duration: Duration?): Long? {
         return duration?.inWholeSeconds // Stores the duration as total seconds
-        // Alternatively, for milliseconds: return duration?.inWholeMilliseconds
     }
 
     /**
