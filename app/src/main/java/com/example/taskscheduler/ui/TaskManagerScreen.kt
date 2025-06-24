@@ -425,8 +425,7 @@ private fun SwipableTaskItem(task: Task,
 
 @Composable
 fun TaskItem(task: Task,
-             isSelected: Boolean,
-             modifier: Modifier = Modifier,
+             isSelected: Boolean = true,
              viewModel: TaskManagerViewModel
 ) {
     Card(
@@ -492,17 +491,18 @@ fun TaskItem(task: Task,
             }
 
             Checkbox(
-                checked = isSelected,
-                onCheckedChange =  {viewModel.toggleTaskSelection(task.id) }, //TODO : make the card change color when clicked,
-                colors = CheckboxDefaults.colors(
-                    uncheckedColor = task.color,
-                    checkedColor = task.color,
-                    checkmarkColor = MaterialTheme.colorScheme.onPrimary
+                    checked = isSelected,
+                    onCheckedChange = { viewModel.toggleTaskSelection(task.id) }, //TODO : make the card change color when clicked,
+                    colors = CheckboxDefaults.colors(
+                        uncheckedColor = task.color,
+                        checkedColor = task.color,
+                        checkmarkColor = MaterialTheme.colorScheme.onPrimary
                     ),
 
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-            )
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                )
+
         }
     }
 }

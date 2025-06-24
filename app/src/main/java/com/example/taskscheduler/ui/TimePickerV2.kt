@@ -86,7 +86,7 @@ fun TimePickerV2(
                         val startTime = angleToTimeInt(startAngle)
                         val endTime = angleToTimeInt(endAngle)
 
-                        Log.d("TimePickerV2", "Time changed: start=$startTime, end=$endTime")
+
                         onTimeChange(startTime, endTime)
                     }
                 )
@@ -94,20 +94,23 @@ fun TimePickerV2(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val center = Offset(size.width / 2f, size.height / 2f)
-            val radius = size.minDimension / 2.5f
-            val arcThickness = 40f
+            val radius = size.minDimension / 2.4f
+            val arcThickness = 35f
 
             //  Graduation 0 -> 23
-            val newRadius = size.minDimension / 2.4f
+            val newRadius = size.minDimension / 2.3f
             for (i in 0 until 24) {
                 val angleRad = Math.toRadians((i * 15f - 90).toDouble())
+
+                val tick_center = center.plus(Offset(0f,-2f))
+                //tick drawing
                 val tickStart = Offset(
-                    x = center.x + cos(angleRad).toFloat() * (newRadius + 10f),
-                    y = center.y + sin(angleRad).toFloat() * (newRadius + 10f)
+                    x = tick_center.x + cos(angleRad).toFloat() * (newRadius + 10f),
+                    y = tick_center.y + sin(angleRad).toFloat() * (newRadius + 10f)
                 )
                 val tickEnd = Offset(
-                    x = center.x + cos(angleRad).toFloat() * (newRadius + 20f),
-                    y = center.y + sin(angleRad).toFloat() * (newRadius + 20f)
+                    x = tick_center.x + cos(angleRad).toFloat() * (newRadius + 20f),
+                    y = tick_center.y + sin(angleRad).toFloat() * (newRadius + 20f)
                 )
                 drawLine(Color.Gray, tickStart, tickEnd, strokeWidth = 2f)
 
@@ -122,7 +125,7 @@ fun TimePickerV2(
                         android.graphics.Paint().apply {
                             color = android.graphics.Color.LTGRAY
                             textAlign = android.graphics.Paint.Align.CENTER
-                            textSize = 28f
+                            textSize = 40f
                             isAntiAlias = true
                         }
                     )
@@ -152,8 +155,8 @@ fun TimePickerV2(
             )
 
             // Draw handles
-            drawHandleWithIcon(center, radius, startAngle, Color(0xFFFF9800), Icons.Default.Build)
-            drawHandleWithIcon(center, radius, endAngle, Color(0xFFFFC107), Icons.Default.Add)
+            drawHandleWithIcon(center, radius, startAngle, Color(0xFFFFC107), Icons.Default.Build)
+            drawHandleWithIcon(center, radius, endAngle, Color(0xFFFF8000), Icons.Default.Add)
         }
 
         // Center time info

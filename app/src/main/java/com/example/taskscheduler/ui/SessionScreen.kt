@@ -3,6 +3,8 @@ package com.example.taskscheduler.ui
 import android.R.attr.textSize
 import android.app.Application
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,14 +20,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -44,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -61,13 +70,8 @@ import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
 import com.example.taskscheduler.ui.viewModel.SessionViewModel
 import com.example.taskscheduler.ui.viewModel.SessionViewModelFactory
-import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
-import kotlin.time.Duration.Companion.days
-import com.example.taskscheduler.ui.TimePickerV2
-import kotlin.text.get
-import kotlin.text.set
 
 
 object SessionDestination : NavigationDestination {
@@ -109,7 +113,14 @@ fun SessionScreen(
     val selectedTasks = uiStateTasks.loadedSelectedTasks
 
     var sessionStartTime by remember { mutableStateOf(Date())}
-    var sessionEndTime by remember { mutableStateOf(Date())}
+    var sessionEndTime by remember {
+        mutableStateOf(
+            Calendar.getInstance().apply {
+                time = sessionStartTime
+                add(Calendar.HOUR_OF_DAY, 2)
+            }.time
+        )
+    }
 
     val isSaving by sessionViewModel.isSavingSession.collectAsState()
     val navigateToHomeTrigger by sessionViewModel.sessionSaveCompleteAndNavigate.collectAsState()
@@ -147,6 +158,7 @@ fun SessionScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {if (!isSaving) {
+                    Log.d("SessionScreen", "$sessionStartTime:$sessionEndTime")
                     sessionViewModel.onConfirmAndSaveSession(
                         sessionStartTime = sessionStartTime,
                         sessionEndTime = sessionEndTime,
@@ -176,7 +188,7 @@ fun SessionScreen(
             onEndTimeChange = { updatedEndTime : Date ->
                 sessionEndTime = updatedEndTime
             },
-            selectedTasks = emptyList(),
+            selectedTasks = selectedTasks,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -207,6 +219,7 @@ fun SessionCreationPage(
     val initialStartMinute = startCalendar.get(Calendar.MINUTE)
 
     val endCalendar = Calendar.getInstance().apply { time = sessionEndTime }
+    endCalendar.add(Calendar.HOUR_OF_DAY, 2)
     val initialEndHour = endCalendar.get(Calendar.HOUR_OF_DAY)
     val initialEndMinute = endCalendar.get(Calendar.MINUTE)
 
@@ -220,33 +233,48 @@ fun SessionCreationPage(
 
         TimePickerV2(
             initialStartTime = initialStartHour*60+initialStartMinute,
-            initialEndTime = (((1+initialEndHour)*60)%24+initialEndMinute),
+            initialEndTime = (((initialEndHour)*60)%24+initialEndMinute),
             onTimeChange = { startTime, endTime ->
-                Log.d("SessionCreationPage", "Time changed: start=$startTime, end=$endTime")
-
                 val (newStartDate, newEndDate) = convertMinutesToStartEndDates(
                     currentStartDate = sessionStartTime,
                     newStartTimeMinutes = startTime,
                     newEndTimeMinutes = endTime
                 )
-
                 onStartTimeChange(newStartDate)
                 onEndTimeChange(newEndDate)
             }
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        DisplaySelectedTasks(selectedTasks = selectedTasks)
+    }
+}
+
+@Composable
+fun DisplaySelectedTasks(
+    selectedTasks: List<Task>
+) {
+    Text("Selected Tasks")
+
+    LazyColumn(
+        modifier = Modifier,
+    ) {
+        items(selectedTasks) { task ->
+            TaskItemNoCheckBox(
+                task = task,
+            )
+        }
     }
 }
 
 fun convertMinutesToStartEndDates(
-    currentStartDate: Date, // Pass the current sessionStartTime to base the new dates on its day
+    currentStartDate: Date,
     newStartTimeMinutes: Int,
     newEndTimeMinutes: Int
 ): Pair<Date, Date> {
     if (newStartTimeMinutes !in 0 until (24 * 60) || newEndTimeMinutes !in 0 until (24 * 60)) {
-        // Log an error or handle it, maybe return current dates to avoid crash
-        Log.e("TimeConversion", "Invalid input minutes: start=$newStartTimeMinutes, end=$newEndTimeMinutes")
-        // Fallback to avoid crashing, though ideally the TimePickerV2 should prevent this.
-        // Or you might want to signal an error to the user.
+
         val tempCal = Calendar.getInstance()
         tempCal.time = currentStartDate
         val currentStartHour = tempCal.get(Calendar.HOUR_OF_DAY)
@@ -306,6 +334,77 @@ fun convertMinutesToStartEndDates(
 
     return Pair(resultingStartDate, resultingEndDate)
 }
+
+@Composable
+fun TaskItemNoCheckBox(task: Task) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 1.dp)
+            .height(80.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+        Row(
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(56.dp)
+                    .background(color = task.color)
+                    .padding(8.dp)
+                    .align(Alignment.CenterVertically),
+                contentAlignment = Alignment.Center
+            ) {
+                if (task.icon != null) {
+                    Image(
+                        painter = painterResource(R.drawable.dumbbell),//id = task.icon!!),
+                        contentDescription = "Task logo",
+                        modifier = Modifier
+                            .width(32.dp)
+                            .height(32.dp)
+                    )
+                } else {
+                    Spacer(
+                        modifier = Modifier
+                            .width(32.dp)
+                            .height(32.dp)
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
+
+                Text(
+                    text = task.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray
+                )
+
+                Text(
+                    text = "Duration: ${task.duration}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+
+                Text(
+                    text = "Priority: ${task.priority}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+        }
+    }
+}
+
+
 
 
 
