@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
@@ -49,17 +50,17 @@ fun TimePickerV2(
     onTimeChange: (Int, Int) -> Unit
 ) {
 
-    val initialSleepAngle = timeToAngle(initialStartTime)
-    val initialWakeAngle = timeToAngle(initialEndTime)
+    val initialStartAngle = timeToAngle(initialStartTime)
+    val initialEndAngle = timeToAngle(initialEndTime)
 
-    var sleepAngle by remember { mutableStateOf(initialSleepAngle) }
-    var wakeAngle by remember { mutableStateOf(initialWakeAngle) }
+    var startAngle by remember { mutableStateOf(initialStartAngle) }
+    var endAngle by remember { mutableStateOf(initialEndAngle) }
     var draggingHandle by remember { mutableStateOf<HandleType?>(null) }
 
-    val sweep = ((wakeAngle - sleepAngle + 360f) % 360f)
+    val sweep = ((endAngle - startAngle + 360f) % 360f)
 
-    val sleepTime = angleToTimeInt(sleepAngle)
-    val wakeTime = angleToTimeInt(wakeAngle)
+    var startTime = angleToTimeInt(startAngle)
+    var endTime = angleToTimeInt(endAngle)
 
     Box(
         modifier = modifier
@@ -69,19 +70,24 @@ fun TimePickerV2(
                 detectDragGestures(
                     onDragEnd = {
                         draggingHandle = null
-                        onTimeChange(sleepTime, wakeTime)
                                 },
                     onDrag = { change, _ ->
                         val center = Offset(size.width / 2f, size.height / 2f)
                         val angle = getAngle(center, change.position)
                         when (draggingHandle) {
-                            HandleType.SLEEP -> sleepAngle = angle
-                            HandleType.WAKE -> wakeAngle = angle
+                            HandleType.START -> startAngle = angle
+                            HandleType.END -> endAngle = angle
                             null -> {
-                                if (isNear(angle, sleepAngle)) draggingHandle = HandleType.SLEEP
-                                else if (isNear(angle, wakeAngle)) draggingHandle = HandleType.WAKE
+                                if (isNear(angle, startAngle)) draggingHandle = HandleType.START
+                                else if (isNear(angle, endAngle)) draggingHandle = HandleType.END
                             }
                         }
+
+                        val startTime = angleToTimeInt(startAngle)
+                        val endTime = angleToTimeInt(endAngle)
+
+                        Log.d("TimePickerV2", "Time changed: start=$startTime, end=$endTime")
+                        onTimeChange(startTime, endTime)
                     }
                 )
             }
@@ -114,7 +120,7 @@ fun TimePickerV2(
                         labelX,
                         labelY,
                         android.graphics.Paint().apply {
-                            color = android.graphics.Color.DKGRAY
+                            color = android.graphics.Color.LTGRAY
                             textAlign = android.graphics.Paint.Align.CENTER
                             textSize = 28f
                             isAntiAlias = true
@@ -137,7 +143,7 @@ fun TimePickerV2(
                     colors = listOf(Color(0xFFFF9800), Color(0xFFFFC107)),
                     center = center
                 ),
-                startAngle = sleepAngle,
+                startAngle = startAngle,
                 sweepAngle = sweep,
                 useCenter = false,
                 topLeft = Offset(center.x - radius, center.y - radius),
@@ -146,22 +152,22 @@ fun TimePickerV2(
             )
 
             // Draw handles
-            drawHandleWithIcon(center, radius, sleepAngle, Color(0xFFFF9800), Icons.Default.Build)
-            drawHandleWithIcon(center, radius, wakeAngle, Color(0xFFFFC107), Icons.Default.Add)
+            drawHandleWithIcon(center, radius, startAngle, Color(0xFFFF9800), Icons.Default.Build)
+            drawHandleWithIcon(center, radius, endAngle, Color(0xFFFFC107), Icons.Default.Add)
         }
 
         // Center time info
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.Center)) {
-            Icon(Icons.Default.Settings, contentDescription = null, tint = Color.Black)
-            Text("Session starts at ${displayTime(sleepTime)}", fontSize = 20.sp, color = Color.Black)
+            Icon(Icons.Default.Settings, contentDescription = null, tint = Color.LightGray)
+            Text("Session starts at ${displayTime(startTime)}", fontSize = 20.sp, color = Color.LightGray)
             Spacer(Modifier.height(8.dp))
-            Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.Black)
-            Text("Session ends at ${displayTime(wakeTime)}", fontSize = 20.sp, color = Color.Black)
+            Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.LightGray)
+            Text("Session ends at ${displayTime(endTime)}", fontSize = 20.sp, color = Color.LightGray)
         }
     }
 }
 
-private enum class HandleType { SLEEP, WAKE }
+private enum class HandleType { START, END }
 
 private fun angleToTimeString(angle: Float): String {
     val totalMinutes = ((angle + 90) % 360) * 4

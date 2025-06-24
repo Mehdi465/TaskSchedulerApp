@@ -218,24 +218,11 @@ fun SessionCreationPage(
             .padding(16.dp)
     ) {
 
-        fun displayTime(currentDateTime: Date): String {
-            val parts = currentDateTime.toString().split(" ")
-
-            val first = parts.getOrNull(0)
-            val third = parts.getOrNull(2)
-            val fourth = parts.getOrNull(3)
-                ?.split(":")
-                ?.dropLast(1)
-                ?.joinToString(":")
-
-            return listOfNotNull(first, third, fourth).joinToString(" ")
-        }
-
-        //Text("Selected Start: ${displayTime(sessionStartTime)}")
         TimePickerV2(
             initialStartTime = initialStartHour*60+initialStartMinute,
-            initialEndTime = initialEndHour*60+initialEndMinute,
+            initialEndTime = (((1+initialEndHour)*60)%24+initialEndMinute),
             onTimeChange = { startTime, endTime ->
+                Log.d("SessionCreationPage", "Time changed: start=$startTime, end=$endTime")
 
                 val (newStartDate, newEndDate) = convertMinutesToStartEndDates(
                     currentStartDate = sessionStartTime,
