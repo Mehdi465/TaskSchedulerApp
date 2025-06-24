@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,6 +54,10 @@ import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.ui.viewModel.ScheduleViewModel
 import com.example.taskscheduler.ui.viewModel.ScheduleViewModelFactory
 import androidx.compose.ui.platform.LocalContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.DurationUnit
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
@@ -109,19 +114,24 @@ fun ScheduleScreen(
 fun TimelineScreen(session: Session,
                    modifier: Modifier = Modifier,
 ) {
-    var tasks by remember { mutableStateOf(session.scheduledTasks)}//sortedBy { it.task.durationStamp }) }
-
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        itemsIndexed(tasks) { index, task ->
-            TaskItem(task)
-            if (index < tasks.size - 1) {
-                Spacer(modifier = Modifier
-                    .height(10.dp)
+    var tasks by remember { mutableStateOf(session.scheduledTasks)}
+    if (!tasks.isEmpty()){
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+        ) {
+            itemsIndexed(tasks) { index, task ->
+                TaskItem(task)
+                if (index < tasks.size - 1) {
+                    Spacer(
+                        modifier = Modifier
+                            .height(10.dp)
                     )//TODO : Implement dynamic spacer
+                }
             }
         }
+    }
+    else {
+        Text("No tasks scheduled, click on the floating button to add a task") // TODO : no inspiration
     }
 }
 
@@ -187,7 +197,7 @@ fun TaskCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 1.dp)
-            .height(80.dp),//getCardHeightInDp(scheduledTask)), // TODO: Calculate the height based on the duration
+            .height(getCardHeightInDp(scheduledTask)), // TODO: Calculate the height based on the duration
 
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFFFFFF)
@@ -251,26 +261,27 @@ fun TaskCard(
     }
 }
 
-// TODO : Check why flexible height does not work
-fun getRelativeDuration(date: Date): Int {
-    val currentDate = Date()
-    val duration = date.time - currentDate.time
-    return (duration / (1000 * 60)).toInt()
+
+fun getRelativeDuration(duration: Duration): Int {
+    val result = duration.toLong(DurationUnit.MINUTES)
+    Log.d("TaskCard", "Current date: ${duration.toLong(DurationUnit.MINUTES)}")
+    Log.d("TaskCard", "Relative duration: $result")
+    return (result).toInt()
 }
 
 fun getCardHeightInDp(scheduledTask: ScheduledTask): Dp {
-    val relativeDuration =  10//getRelativeDuration(Date(scheduledTask.task.durationStamp))
-    val minThreshold  = getRelativeDuration(Date(System.currentTimeMillis() + 15 * 60 * 1000))
-    val maxThreshold = getRelativeDuration(Date(System.currentTimeMillis() + 180 * 60 * 1000))
+    val minThreshold = 15.minutes
+    val maxThreshold = 3.hours
 
-    if (relativeDuration < minThreshold){
-         return 90.dp
+    if (scheduledTask.task.duration < minThreshold){
+         return 80.dp
     }
-    else if (relativeDuration > maxThreshold) {
-        return 200.dp
+    else if (scheduledTask.task.duration  > maxThreshold) {
+        return 80.dp
     }
     else {
-        val finalDp = (1.04*(relativeDuration)+11.42).dp
+        val finalDp = (0.727*(getRelativeDuration(scheduledTask.task.duration))+69.1).dp
+        Log.d("TaskCard", "Card height in dp: $finalDp")
         return finalDp
     }
 }

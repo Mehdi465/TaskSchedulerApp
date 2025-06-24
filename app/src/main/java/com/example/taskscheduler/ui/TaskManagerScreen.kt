@@ -502,7 +502,6 @@ fun TaskItem(task: Task,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                 )
-
         }
     }
 }
