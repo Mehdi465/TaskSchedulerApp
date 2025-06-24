@@ -206,7 +206,7 @@ fun TaskCard(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(R.drawable.book),//scheduledTask.task.icon!!),
+                    painter = painterResource(scheduledTask.task.icon!!),
                     contentDescription = "Task logo",
                     modifier = Modifier
                         .width(32.dp)

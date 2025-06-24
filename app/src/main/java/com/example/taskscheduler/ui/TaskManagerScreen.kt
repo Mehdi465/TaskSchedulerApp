@@ -450,7 +450,7 @@ fun TaskItem(task: Task,
             ) {
                 if (task.icon != null) {
                     Image(
-                        painter = painterResource(R.drawable.dumbbell),//id = task.icon!!),
+                        painter = painterResource(id = task.icon!!),
                         contentDescription = "Task logo",
                         modifier = Modifier
                             .width(32.dp)
