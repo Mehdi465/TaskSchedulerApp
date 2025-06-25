@@ -24,10 +24,8 @@ class ScheduleViewModel(
     val uiState: StateFlow<ScheduleUiState> = activeSessionStore.activeSessionFlow
         .map { session ->
             if (session != null) {
-                Log.d("ScheduleViewModel", "Session loaded: ${session.scheduledTasks.size} tasks")
                 ScheduleUiState(isLoading = false, session = session)
             } else {
-                Log.d("ScheduleViewModel", "No active session found.")
                 ScheduleUiState(
                     isLoading = false,
                     session = null,

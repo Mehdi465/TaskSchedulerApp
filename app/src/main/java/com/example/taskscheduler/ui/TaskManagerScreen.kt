@@ -93,13 +93,13 @@ fun TaskManagerScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val uiState by viewModel.taskListUiState.collectAsState()
-
+    val message = stringResource(R.string.no_tasks_selected)
     Scaffold(
         modifier = Modifier,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TaskTopAppBar(
-                title = "Task Manager",
+                title = stringResource(R.string.task_manager),
                 canNavigateBack = canNavigateBack,
                 navigateUp = navigateBack
             )
@@ -113,7 +113,7 @@ fun TaskManagerScreen(
                         val selectedTaskIdsString = selectedTasks.map { it.id }.joinToString(",")
                         navigateToTSessionManager(selectedTaskIdsString)
                     } else {
-                        showNoTaskSelected(snackbarHostState,coroutineScope)
+                        showNoTaskSelected(snackbarHostState,coroutineScope, message = message)
                     }
                 },
                 modifier = Modifier
@@ -135,11 +135,11 @@ fun TaskManagerScreen(
 }
 
 fun showNoTaskSelected(snackbarHostState: SnackbarHostState,
-                   coroutineScope: CoroutineScope
+                   coroutineScope: CoroutineScope, message:String
 ) {
     coroutineScope.launch {
         snackbarHostState.showSnackbar(
-            message = "No task selected, please select at least one task",
+            message = message,
             duration = SnackbarDuration.Short
         )
     }
@@ -198,7 +198,7 @@ fun TaskManagerScreen(
                 .background(color = Color.DarkGray)
         ){
             Text(
-                text= "List of Tasks",
+                text= stringResource(R.string.list_of_task),
                 modifier = Modifier.align(Alignment.Center)
             )
         }
@@ -247,7 +247,6 @@ fun TaskManagerScreen(
                 onIconChange = { selectedIcon = it },
                 onDismiss = {
                     showNewTaskDialog = false
-                    println("Dialog dismissed")
                 },
                 onSave = {
                     showNewTaskDialog = false
@@ -287,7 +286,6 @@ private fun TaskListBody(
                 },
                 onStartModifyTask = { task ->
                     // For now, just print or set state to show a dialog/navigate
-                    println("UI: Start modifying task: ${task.name}")
                     taskToModify = task // You would use this to show a dialog or navigate
                 },
                 contentPadding = contentPadding,
@@ -379,7 +377,7 @@ private fun SwipableTaskItem(task: Task,
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             Icons.Default.Edit,
-                            contentDescription = "Modify Icon",
+                            contentDescription = stringResource(R.string.modifiy),
                             tint = Color.White,
                             modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) 1.25f else 0.75f)
                         )
@@ -410,7 +408,7 @@ private fun SwipableTaskItem(task: Task,
                         )
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "Delete Icon",
+                            contentDescription = stringResource(R.string.delete),
                             tint = Color.White,
                             modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) 1.25f else 0.75f)
                         )

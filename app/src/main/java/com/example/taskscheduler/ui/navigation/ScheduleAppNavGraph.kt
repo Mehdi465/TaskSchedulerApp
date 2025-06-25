@@ -47,10 +47,8 @@ fun TaskAppNavHost(
             arguments = SessionDestination.arguments
             )
          { navBackStackEntry ->
-            Log.d("NAV_ARG_ACCESS", "Accessing navBackStackEntry.arguments at time: ${System.currentTimeMillis()}")
             val selectedTaskIdsString =
                 navBackStackEntry.arguments?.getString(SessionDestination.SELECTED_TASK_IDS_ARG)
-            Log.d("NAV_ARG_VALUE", "Value from navBackStackEntry.arguments: $selectedTaskIdsString")
             SessionScreen(
                 selectedTaskIdsString = selectedTaskIdsString,
                 navigateToSchedulePage = { navController.navigate(HomeDestination.route) },

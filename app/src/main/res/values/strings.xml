@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">TaskScheduler</string>
 
+    <string name="home_screen">Schedule</string>
+    <string name="settings_screen">Settings Screen</string>
+    <string name="task_manager">Task Manager</string>
+
     <string name="schedule_screen">Schedule Screen</string>
     <string name="task_manager_screen">Task Manager Screen</string>
     <string name="session_screen">Session Screen</string>
@@ -10,4 +14,27 @@
     <string name="back_button">back button</string>
 
     <string name="create_new_task">Create New Task</string>
+    <string name="task_name">Task Name</string>
+    <string name="pick_duration">Pick duration</string>
+    <string name="pick_color">Pick color</string>
+    <string name="list_of_task">List of tasks</string>
+
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="no_section_selected">No section selected</string>
+    <string name="no_tasks_scheduled_etc">"No tasks scheduled,
+        click on the floating button to add a task"</string>
+
+    <string name="no_tasks_selected">No task selected,
+        please select at least one task</string>string>
+
+    <string name="create_session">Create Session</string>
+    <string name="modifiy">Modify</string>
+    <string name="delete">Delete</string>
+
+    <string name="session_starts_at">Session starts at</string>
+    <string name="session_ends_at">Session ends at</string>
+
+
 </resources>

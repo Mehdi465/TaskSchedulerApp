@@ -115,7 +115,6 @@ class SessionViewModel(
                 activeSessionStore.saveActiveSession(newSession)
                 _uiState.value =
                     SessionUiState(isLoading = false)
-                Log.d("SessionPageVM", "Session construction and save initiated.")
 
                 _sessionSaveCompleteAndNavigate.value = true // Signal UI to navigate
 

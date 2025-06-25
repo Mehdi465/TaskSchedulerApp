@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -158,7 +159,6 @@ fun SessionScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {if (!isSaving) {
-                    Log.d("SessionScreen", "$sessionStartTime:$sessionEndTime")
                     sessionViewModel.onConfirmAndSaveSession(
                         sessionStartTime = sessionStartTime,
                         sessionEndTime = sessionEndTime,
@@ -173,7 +173,7 @@ fun SessionScreen(
                 } else {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = "Create Session"
+                        contentDescription = stringResource(R.string.create_session)
                     )
                 }
             }

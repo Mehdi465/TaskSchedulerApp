@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -103,14 +104,14 @@ fun NewTaskDialog(
         ) {
             Column() {
                 Text(
-                    text = "Create a new Task",
+                    text = stringResource(R.string.create_new_task),
                     color = Color.White
                 )
 
                 TextField(
                     value = taskNameInput,
                     onValueChange = onNameChange,
-                    label = { Text("Task Name") },
+                    label = { Text(stringResource(R.string.task_name))},
                     singleLine = true
                 )
                 Row() {
@@ -119,12 +120,12 @@ fun NewTaskDialog(
                             showColorPickerDialog = true
                         }
                     ) {
-                        Text("Pick Color")
+                        Text(stringResource(R.string.pick_color))
                     }
                     ColorCircleMenu(selectedColor, onClick = {},true)
                 }
                 Button(onClick = { showPicker = true }) {
-                    Text( if (selectedDuration == Duration.ZERO) "Pick Duration"
+                    Text( if (selectedDuration == Duration.ZERO) stringResource(R.string.pick_duration)
                     else "Duration: ${selectedDuration.toComponents { h, m, _, _ -> "${h}h ${m}m" }}")
                 }
                 IconDropdown(iconList,
@@ -155,14 +156,14 @@ fun NewTaskDialog(
                         }
                     ) {
                         Text(
-                            text = "Create"
+                            text = stringResource(R.string.create)
                         )
                     }
                     Button(
                         onClick = onDismiss
                     ) {
                         Text(
-                            text = "Cancel"
+                            text = stringResource(R.string.cancel)
                         )
                     }
                 }

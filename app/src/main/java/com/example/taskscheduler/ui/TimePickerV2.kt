@@ -34,9 +34,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.taskscheduler.R
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -162,10 +164,12 @@ fun TimePickerV2(
         // Center time info
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.Center)) {
             Icon(Icons.Default.Settings, contentDescription = null, tint = Color.LightGray)
-            Text("Session starts at ${displayTime(startTime)}", fontSize = 20.sp, color = Color.LightGray)
+            Text(stringResource(R.string.session_starts_at) + "${displayTime(startTime)}",
+                fontSize = 20.sp, color = Color.LightGray)
             Spacer(Modifier.height(8.dp))
             Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.LightGray)
-            Text("Session ends at ${displayTime(endTime)}", fontSize = 20.sp, color = Color.LightGray)
+            Text(stringResource(R.string.session_ends_at) +  "${displayTime(endTime)}",
+                fontSize = 20.sp, color = Color.LightGray)
         }
     }
 }
@@ -191,7 +195,7 @@ private fun angleToTimeInt(angle: Float): Int {
 }
 
 private fun timeToAngle(time: Int): Float {
-    if (time < 0 || time >= 24 * 60) {} // TODO: Handle invalid time
+    if (time < 0 || time >= 24 * 60) {}
     return (time / 4.0f) - 90.0f
 }
 

@@ -54,6 +54,7 @@ import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.ui.viewModel.ScheduleViewModel
 import com.example.taskscheduler.ui.viewModel.ScheduleViewModelFactory
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -99,7 +100,7 @@ fun ScheduleScreen(
         },
     ) { innerPadding ->
         if (uiState.session == null){
-            Text("No session selected")
+            Text(stringResource(R.string.no_section_selected))
         }
         else {
             TimelineScreen(
@@ -131,7 +132,7 @@ fun TimelineScreen(session: Session,
         }
     }
     else {
-        Text("No tasks scheduled, click on the floating button to add a task") // TODO : no inspiration
+        Text(stringResource(R.string.no_tasks_scheduled_etc)) // TODO : no inspiration
     }
 }
 
@@ -197,7 +198,7 @@ fun TaskCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 1.dp)
-            .height(getCardHeightInDp(scheduledTask)), // TODO: Calculate the height based on the duration
+            .height(getCardHeightInDp(scheduledTask)),
 
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFFFFFF)
@@ -264,8 +265,6 @@ fun TaskCard(
 
 fun getRelativeDuration(duration: Duration): Int {
     val result = duration.toLong(DurationUnit.MINUTES)
-    Log.d("TaskCard", "Current date: ${duration.toLong(DurationUnit.MINUTES)}")
-    Log.d("TaskCard", "Relative duration: $result")
     return (result).toInt()
 }
 
@@ -281,7 +280,6 @@ fun getCardHeightInDp(scheduledTask: ScheduledTask): Dp {
     }
     else {
         val finalDp = (0.727*(getRelativeDuration(scheduledTask.task.duration))+69.1).dp
-        Log.d("TaskCard", "Card height in dp: $finalDp")
         return finalDp
     }
 }

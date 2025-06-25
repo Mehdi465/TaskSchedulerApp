@@ -83,7 +83,6 @@ class ActiveSessionStore(private val context: Context) {
             context.sessionPrefsDataStore.edit { preferences ->
                 preferences.remove(PreferencesKeys.ACTIVE_SESSION_JSON)
             }
-            Log.d("ActiveSessionStore", "Active session cleared successfully.")
         } catch (e: Exception) {
             Log.e("ActiveSessionStore", "Error clearing session from DataStore", e)
         }
