@@ -8,7 +8,7 @@ data class TaskPersistence(
     val name: String,
     val priorityName: String,
     val durationMillis: Long,
-    val iconResId: Int?,
+    val iconResName: String?,
     val colorArgb: Long
 )
 

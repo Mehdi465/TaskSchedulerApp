@@ -358,13 +358,7 @@ fun TaskItemNoCheckBox(task: Task) {
                 contentAlignment = Alignment.Center
             ) {
                 if (task.icon != null) {
-                    Image(
-                        painter = painterResource(R.drawable.dumbbell),//id = task.icon!!),
-                        contentDescription = "Task logo",
-                        modifier = Modifier
-                            .width(32.dp)
-                            .height(32.dp)
-                    )
+                    IconTask(task.icon)
                 } else {
                     Spacer(
                         modifier = Modifier

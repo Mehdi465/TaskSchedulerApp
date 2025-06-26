@@ -2,6 +2,7 @@ package com.example.taskscheduler.data
 
 import android.content.Context
 import android.graphics.drawable.Icon
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
 import java.util.Date
@@ -25,14 +26,10 @@ data class Task(
     var name: String,
     var priority : Priority,
     var duration : Duration = Duration.ZERO,
-    var icon : Int? = null,
+    var icon : String? = null,
     var color : Color = Color(0xFFE57373),
     )
 {
-    // Inject context when needed to generate icons
-    @Ignore
-    var context: Context? = null
-
 
     fun durationToTime(hours: Int, minutes: Int): Date {
         val calendar = Calendar.getInstance().apply {
@@ -46,5 +43,27 @@ data class Task(
 
     companion object{
         val DEFAULT_TASK = Task(name = "Default Task", priority = Priority.LOW)
+
+        object IconMap {
+            val drawableMap: Map<String, Int> = mapOf(
+                "pen" to R.drawable.pen, // Ensure these R.drawable.xxx exist
+                "book" to R.drawable.book,
+                "language" to R.drawable.language,
+                "runner" to R.drawable.runner,
+                "dumbbell" to R.drawable.dumbbell,
+                // Add all your possible icons here
+            )
+
+            // Optional: A default if the name isn't found
+            private val defaultIcon = R.drawable.runner
+
+            fun getIconResId(iconName: String?): Int {
+                return if (iconName != null) {
+                    drawableMap[iconName] ?: defaultIcon
+                } else {
+                    defaultIcon
+                }
+            }
+        }
     }
 }

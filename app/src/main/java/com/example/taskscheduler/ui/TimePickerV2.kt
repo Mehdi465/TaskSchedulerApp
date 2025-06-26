@@ -164,11 +164,11 @@ fun TimePickerV2(
         // Center time info
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.Center)) {
             Icon(Icons.Default.Settings, contentDescription = null, tint = Color.LightGray)
-            Text(stringResource(R.string.session_starts_at) + "${displayTime(startTime)}",
+            Text(stringResource(R.string.session_starts_at) + " ${displayTime(startTime)}",
                 fontSize = 20.sp, color = Color.LightGray)
             Spacer(Modifier.height(8.dp))
             Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.LightGray)
-            Text(stringResource(R.string.session_ends_at) +  "${displayTime(endTime)}",
+            Text(stringResource(R.string.session_ends_at) +  " ${displayTime(endTime)}",
                 fontSize = 20.sp, color = Color.LightGray)
         }
     }

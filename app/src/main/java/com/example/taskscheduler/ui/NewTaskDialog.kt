@@ -44,6 +44,7 @@ import com.example.taskscheduler.ui.HelperDialog.ColorPickerDialog
 import com.example.taskscheduler.R
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.data.Task
+import com.example.taskscheduler.data.Task.Companion.IconMap
 import com.example.taskscheduler.ui.HelperDialog.ColorCircle
 import com.example.taskscheduler.ui.HelperDialog.ColorCircleMenu
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
@@ -61,22 +62,16 @@ fun NewTaskDialog(
     taskNameInput : String,
     selectedDuration: Duration,
     selectedColor: Color,
-    selectedIcon: Int,
-    onIconChange : (Int) -> Unit,
+    selectedIcon: String,
+    onIconChange : (String) -> Unit,
     onColorChange : (Color) -> Unit,
-    onConfirm: (name: String, priority: Priority, duration: Duration, color: Color, icon: Int) -> Unit,
+    onConfirm: (name: String, priority: Priority, duration: Duration, color: Color, icon: String) -> Unit,
     onDurationChange : (Duration) -> Unit,
     onNameChange : (String) -> Unit,
     onPriorityChange : (Priority) -> Unit,
     onDismiss : () -> Unit,
     onSave: () -> Unit
 ) {
-    val iconList = listOf(
-        R.drawable.pen,
-        R.drawable.book,
-        R.drawable.language,
-        R.drawable.runner
-    )
 
     val listPriority = listOf(
         Priority.LOW,
@@ -128,7 +123,7 @@ fun NewTaskDialog(
                     Text( if (selectedDuration == Duration.ZERO) stringResource(R.string.pick_duration)
                     else "Duration: ${selectedDuration.toComponents { h, m, _, _ -> "${h}h ${m}m" }}")
                 }
-                IconDropdown(iconList,
+                IconDropdown(IconMap.drawableMap.keys.toList(),
                     selectedIcon = selectedIcon,
                     onIconSelected = onIconChange,
                 )
@@ -235,15 +230,13 @@ fun PriorityDropdown(
             }
         }
     }
-
-
 }
 
 @Composable
 fun IconDropdown(
-    icons: List<Int>,                     // List of drawable resource IDs
-    selectedIcon: Int,
-    onIconSelected: (Int) -> Unit,
+    icons: List<String>,                     // List of drawable resource IDs
+    selectedIcon: String,
+    onIconSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -260,7 +253,7 @@ fun IconDropdown(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
-                painter = painterResource(id = selectedIcon),
+                painter = painterResource(IconMap.getIconResId(selectedIcon)),
                 contentDescription = "Selected Icon",
                 modifier = Modifier.size(32.dp)
             )
@@ -276,17 +269,17 @@ fun IconDropdown(
             modifier = Modifier.zIndex(2f),
             containerColor = Color.White
         ) {
-            icons.forEach { iconResId ->
+            icons.forEach { iconResName ->
                 DropdownMenuItem(
                     text = { /* No text needed */ },
                     onClick = {
-                        onIconSelected(iconResId)
+                        onIconSelected(iconResName)
                         expanded = false
                     },
                     leadingIcon = {
                         Image(
-                            painter = painterResource(id = iconResId),
-                            contentDescription = "Icon Option  $iconResId",
+                            painter = painterResource(IconMap.getIconResId(iconResName)),
+                            contentDescription = "Icon Option  $iconResName",
                             modifier = Modifier.size(32.dp)
                         )
                     }

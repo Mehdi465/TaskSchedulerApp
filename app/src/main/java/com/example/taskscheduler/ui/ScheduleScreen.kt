@@ -55,6 +55,8 @@ import com.example.taskscheduler.ui.viewModel.ScheduleViewModel
 import com.example.taskscheduler.ui.viewModel.ScheduleViewModelFactory
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.example.taskscheduler.data.Task
+import com.example.taskscheduler.data.Task.Companion.IconMap
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -164,7 +166,10 @@ fun TaskItem(scheduledTask: ScheduledTask, onClick: () -> Unit = {}) {
             )
         }
 
+        val cardColor by remember { mutableStateOf(Color.White) }
+
         TaskCard(
+            backgroundColor = cardColor,
             scheduledTask,
             modifier = Modifier.clickable(onClick = onClick)
         )
@@ -190,8 +195,10 @@ fun getMinutesString(date: Date): String {
 
 @Composable
 fun TaskCard(
+            backgroundColor: Color,
             scheduledTask: ScheduledTask,
             modifier: Modifier
+            //onColorChange
     )
 {
     Card(
@@ -201,7 +208,7 @@ fun TaskCard(
             .height(getCardHeightInDp(scheduledTask)),
 
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFFFFF)
+            containerColor = backgroundColor
         )
     ) {
         Row(
@@ -216,13 +223,7 @@ fun TaskCard(
                     .align(Alignment.CenterVertically),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(scheduledTask.task.icon!!),
-                    contentDescription = "Task logo",
-                    modifier = Modifier
-                        .width(32.dp)
-                        .height(32.dp)
-                )
+                IconTask(scheduledTask.task.icon)
             }
 
             Column(
@@ -260,6 +261,17 @@ fun TaskCard(
             )
         }
     }
+}
+
+
+@Composable
+fun IconTask(iconName:String?) {
+    val iconResId = IconMap.getIconResId(iconName)
+
+    Image(
+        painter = painterResource(id = iconResId),
+        contentDescription = "Task icon"
+    )
 }
 
 

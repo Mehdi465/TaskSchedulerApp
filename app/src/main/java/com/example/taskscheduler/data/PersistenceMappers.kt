@@ -15,7 +15,7 @@ fun Task.toPersistence(): TaskPersistence {
         name = this.name,
         priorityName = this.priority.name,
         durationMillis = this.duration.inWholeMilliseconds,
-        iconResId = this.icon,
+        iconResName = this.icon,
         colorArgb = this.color.toArgb().toLong()
     )
 }
@@ -45,7 +45,7 @@ fun TaskPersistence.toDomain(): Task {
         name = this.name,
         priority = try { Priority.valueOf(this.priorityName) } catch (e: IllegalArgumentException) { Priority.MEDIUM /* Provide a sensible default */ },
         duration = this.durationMillis.milliseconds,
-        icon = this.iconResId,
+        icon = this.iconResName,
         color =  Color(this.colorArgb.toInt())
     )
 }

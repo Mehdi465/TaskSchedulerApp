@@ -167,7 +167,7 @@ fun TaskManagerScreen(
     var selectedPriority by remember { mutableStateOf(Priority.LOW) }
     var selectedDuration by remember { mutableStateOf(Duration.ZERO) }
     var selectedColor by remember { mutableStateOf(Color(0xFFE57373)) }
-    var selectedIcon by remember { mutableIntStateOf(R.drawable.pen) }
+    var selectedIcon by remember { mutableStateOf("pen") }
 
     // --- Observe Task List from ViewModel ---
     val uiState by viewModel.taskListUiState.collectAsStateWithLifecycle() // Use lifecycle-aware collector
@@ -447,13 +447,15 @@ fun TaskItem(task: Task,
                 contentAlignment = Alignment.Center
             ) {
                 if (task.icon != null) {
-                    Image(
+
+                    IconTask(task.icon)
+                    /*Image(
                         painter = painterResource(id = task.icon!!),
                         contentDescription = "Task logo",
                         modifier = Modifier
                             .width(32.dp)
                             .height(32.dp)
-                    )
+                    )*/
                 } else {
                     Spacer(modifier = Modifier
                         .width(32.dp)

@@ -15,7 +15,7 @@ import com.example.taskscheduler.data.Converters.DurationConverters
 
 @Database(
     entities = [Task::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(DurationConverters::class, ColorConverters::class)
@@ -42,8 +42,6 @@ abstract class TaskDatabase : RoomDatabase(){
                 val defaultColorArgb =
                     Color.White.toArgb()
                 database.execSQL("ALTER TABLE tasks ADD COLUMN Color INTEGER NOT NULL DEFAULT $defaultColorArgb")
-
-
                 database.execSQL("ALTER TABLE tasks ADD COLUMN icon INTEGER DEFAULT NULL")
             }
         }
