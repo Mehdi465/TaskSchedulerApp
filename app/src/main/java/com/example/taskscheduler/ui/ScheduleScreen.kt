@@ -166,12 +166,15 @@ fun TaskItem(scheduledTask: ScheduledTask, onClick: () -> Unit = {}) {
             )
         }
 
-        val cardColor by remember { mutableStateOf(Color.White) }
+        var cardColor by remember { mutableStateOf(Color.White) }
 
         TaskCard(
             backgroundColor = cardColor,
             scheduledTask,
-            modifier = Modifier.clickable(onClick = onClick)
+            modifier = Modifier.clickable(onClick = onClick),
+            onColorChange = { newColor ->
+                cardColor = newColor
+            }
         )
     }
 }
@@ -197,8 +200,8 @@ fun getMinutesString(date: Date): String {
 fun TaskCard(
             backgroundColor: Color,
             scheduledTask: ScheduledTask,
-            modifier: Modifier
-            //onColorChange
+            modifier: Modifier,
+            onColorChange : (Color) -> Unit
     )
 {
     Card(
@@ -254,7 +257,9 @@ fun TaskCard(
 
             Checkbox(
                 checked = false,
-                onCheckedChange = {}, //TODO : make the card change color when clicked,
+                onCheckedChange = {
+                    onColorChange(if (backgroundColor == Color.White) Color.Gray else Color.White)
+                                  },
                 colors = CheckboxDefaults.colors(Color.Red),
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
