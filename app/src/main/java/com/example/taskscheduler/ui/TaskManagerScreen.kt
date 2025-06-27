@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,6 +40,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -264,8 +266,22 @@ private fun TaskListBody(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: TaskManagerViewModel,
 ) {
-
+    var taskToDelete by remember { mutableStateOf<Task?>(null) }
     var taskToModify by remember { mutableStateOf<Task?>(null) }
+
+    // --- Confirmation Dialog ---
+    if (taskToDelete != null) {
+        DeleteConfirmationDialog(
+            task = taskToDelete!!,
+            onConfirm = {
+                viewModel.deleteTask(taskToDelete!!)
+                taskToDelete = null // Hide dialog
+            },
+            onDismiss = {
+                taskToDelete = null
+            }
+        )
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -281,8 +297,8 @@ private fun TaskListBody(
         } else {
             TaskList(
                 uiState = uiState,
-                onDeleteTask = { task ->
-                    viewModel.deleteTask(task)
+                onAttemptDeleteTask = { task ->
+                    taskToDelete = task
                 },
                 onStartModifyTask = { task ->
                     // For now, just print or set state to show a dialog/navigate
@@ -299,7 +315,7 @@ private fun TaskListBody(
 @Composable
 private fun TaskList(
     uiState: TaskListUiState,
-    onDeleteTask: (Task) -> Unit,
+    onAttemptDeleteTask: (Task) -> Unit,
     onStartModifyTask: (Task) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
@@ -315,8 +331,7 @@ private fun TaskList(
         ) { task ->
             SwipableTaskItem(task = task,
                 isSelected = task.id in uiState.checkedTasks,
-                //onSelectChange = { viewModel.toggleTaskSelection(task.id) },
-                onDelete = { onDeleteTask(task) },
+                onAttemptToDelete =  {onAttemptDeleteTask(task)},
                 onModify = { onStartModifyTask(task) },
                 modifier = Modifier
                     .padding(8.dp),
@@ -329,7 +344,7 @@ private fun TaskList(
 @Composable
 private fun SwipableTaskItem(task: Task,
                              isSelected: Boolean,
-                             onDelete: () -> Unit,
+                             onAttemptToDelete: () -> Unit,
                              onModify: () -> Unit,
                              modifier: Modifier = Modifier,
                              viewModel: TaskManagerViewModel){
@@ -339,7 +354,7 @@ private fun SwipableTaskItem(task: Task,
         confirmValueChange = { dismissValue ->
             when (dismissValue) {
                 SwipeToDismissBoxValue.EndToStart -> { // Swiped from End (right) to Start (left) -> Delete
-                    onDelete()
+                    onAttemptToDelete()
                     return@rememberSwipeToDismissBoxState true // Confirm dismiss
                 }
                 SwipeToDismissBoxValue.StartToEnd -> { // Swiped from Start (left) to End (right) -> Modify
@@ -504,4 +519,28 @@ fun TaskItem(task: Task,
                 )
         }
     }
+}
+
+
+@Composable
+private fun DeleteConfirmationDialog(
+    task: Task,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.delete_alert_title)) },
+        text = { Text(stringResource(R.string.delete_alert_message, task.name)) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(R.string.yes))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.no))
+            }
+        }
+    )
 }
