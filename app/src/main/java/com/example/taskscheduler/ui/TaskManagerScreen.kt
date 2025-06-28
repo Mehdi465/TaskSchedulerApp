@@ -165,19 +165,11 @@ fun TaskManagerScreen(
         factory = TaskViewModelFactory(tasksRepository)
     )
 
-    // --- State for Input Fields ---
-    var taskNameInput by remember { mutableStateOf("") }
-    var selectedPriority by remember { mutableStateOf(Priority.LOW) }
-    var selectedDuration by remember { mutableStateOf(Duration.ZERO) }
-    var selectedColor by remember { mutableStateOf(Color(0xFFE57373)) }
-    var selectedIcon by remember { mutableStateOf("pen") }
-
     // --- Observe Task List from ViewModel ---
     val uiState by viewModel.taskListUiState.collectAsStateWithLifecycle() // Use lifecycle-aware collector
     val tasks = uiState.tasks
     val isLoading = uiState.isLoading
-    
-    var showNewTaskDialog by remember { mutableStateOf(false) }
+
 
     Column() {
         Box(
@@ -220,43 +212,6 @@ fun TaskManagerScreen(
                 modifier = Modifier.fillMaxSize(),
             )
         }
-        /*
-        if (showNewTaskDialog) {
-            NewTaskDialog(
-                viewModel = viewModel,
-                selectedPriority = selectedPriority,
-                taskNameInput = taskNameInput,
-                selectedDuration = selectedDuration,
-                selectedColor = selectedColor,
-                selectedIcon = selectedIcon,
-                onDurationChange = { updatedDuration ->
-                    selectedDuration = updatedDuration // Update parent's state when dialog reports change
-                },
-                onColorChange = { updatedColor ->
-                    selectedColor = updatedColor // Update parent's state when dialog reports change
-                },
-                onConfirm = { name, priority, durationFromDialog, color, icon ->
-                    val newTask = Task(
-                        name = name,
-                        priority = priority,
-                        duration = durationFromDialog,
-                        color = color,
-                        icon = icon
-                    )
-                    viewModel.addTask(newTask)
-                    showNewTaskDialog = false
-                },
-                onNameChange = { taskNameInput = it },
-                onPriorityChange = { selectedPriority = it },
-                onIconChange = { selectedIcon = it },
-                onDismiss = {
-                    showNewTaskDialog = false
-                },
-                onSave = {
-                    showNewTaskDialog = false
-                }
-            )
-        }*/
     }
 }
 

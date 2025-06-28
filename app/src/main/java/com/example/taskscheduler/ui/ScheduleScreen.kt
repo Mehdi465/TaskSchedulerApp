@@ -240,27 +240,33 @@ fun TaskCard(
                     text = scheduledTask.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
 
                 Text(
                     text = "Duration: ${scheduledTask.task.duration}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
                 Text(
                     text = "From: ${scheduledTask.startTime.hours}h ${scheduledTask.startTime.minutes}m - To: ${scheduledTask.endTime.hours}h ${scheduledTask.endTime.minutes}m", // Use a locale-aware date format
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
             }
 
+            var isChecked by remember { mutableStateOf(false) }
+
             Checkbox(
-                checked = false,
+                checked = isChecked,
                 onCheckedChange = {
-                    onColorChange(if (backgroundColor == Color.White) Color.Gray else Color.White)
+                    isChecked = !isChecked
+                    onColorChange(if (backgroundColor == Color.White) Color.LightGray else Color.White)
                                   },
-                colors = CheckboxDefaults.colors(Color.Red),
+                colors  = CheckboxDefaults.colors(
+                    checkedColor = scheduledTask.task.color,
+                    checkmarkColor = Color.White
+                ),
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             )
