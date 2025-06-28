@@ -219,7 +219,6 @@ fun SessionCreationPage(
     val initialStartMinute = startCalendar.get(Calendar.MINUTE)
 
     val endCalendar = Calendar.getInstance().apply { time = sessionEndTime }
-    endCalendar.add(Calendar.HOUR_OF_DAY, 2)
     val initialEndHour = endCalendar.get(Calendar.HOUR_OF_DAY)
     val initialEndMinute = endCalendar.get(Calendar.MINUTE)
 
@@ -233,7 +232,7 @@ fun SessionCreationPage(
 
         TimePickerV2(
             initialStartTime = initialStartHour*60+initialStartMinute,
-            initialEndTime = (((initialEndHour)*60)%24+initialEndMinute),
+            initialEndTime = initialEndHour*60+initialEndMinute,
             onTimeChange = { startTime, endTime ->
                 val (newStartDate, newEndDate) = convertMinutesToStartEndDates(
                     currentStartDate = sessionStartTime,
