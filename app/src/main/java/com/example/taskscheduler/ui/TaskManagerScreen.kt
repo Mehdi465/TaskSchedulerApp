@@ -84,7 +84,8 @@ object TaskManagerDestination : NavigationDestination {
 fun TaskManagerScreen(
     navigateBack: () -> Unit,
     navigateToTSessionManager: (selectedTaskIdsString: String) -> Unit,
-    canNavigateBack: Boolean = true,
+    navigateToNewTaskScreen: () -> Unit,
+     canNavigateBack: Boolean = true,
     viewModel: TaskManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
 
@@ -129,7 +130,8 @@ fun TaskManagerScreen(
     ){innerPadding ->
         TaskManagerScreen(
             modifier = Modifier.padding(innerPadding),
-            uiState = uiState
+            uiState = uiState,
+            navigateToNewTaskScreen = navigateToNewTaskScreen
         )
     }
 }
@@ -149,7 +151,8 @@ fun showNoTaskSelected(snackbarHostState: SnackbarHostState,
 @Composable
 fun TaskManagerScreen(
     modifier: Modifier,
-    uiState: TaskListUiState
+    uiState: TaskListUiState,
+    navigateToNewTaskScreen : () -> Unit
 ){
 
     // --- Get Repository from Application context ---
@@ -184,7 +187,7 @@ fun TaskManagerScreen(
             contentAlignment = Alignment.Center
         ) {
             Button(
-                onClick = { showNewTaskDialog = true },
+                onClick = navigateToNewTaskScreen,
                 Modifier.widthIn(min = 250.dp)
             ) {
                 Text(stringResource(R.string.create_new_task))
@@ -217,6 +220,7 @@ fun TaskManagerScreen(
                 modifier = Modifier.fillMaxSize(),
             )
         }
+        /*
         if (showNewTaskDialog) {
             NewTaskDialog(
                 viewModel = viewModel,
@@ -252,7 +256,7 @@ fun TaskManagerScreen(
                     showNewTaskDialog = false
                 }
             )
-        }
+        }*/
     }
 }
 

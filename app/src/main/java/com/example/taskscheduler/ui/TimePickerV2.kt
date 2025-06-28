@@ -222,6 +222,6 @@ private fun DrawScope.drawHandleWithIcon(center: Offset, radius: Float, angle: F
 
 @Composable
 @Preview
-fun preview(){
+fun Preview(){
     TimePickerV2(modifier = Modifier,0, 0, {_,_ ->})
 }

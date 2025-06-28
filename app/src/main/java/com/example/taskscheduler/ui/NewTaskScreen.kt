@@ -1,10 +1,6 @@
 package com.example.taskscheduler.ui
 
 import TimePickerDialog
-import android.content.Context
-import android.graphics.drawable.Icon
-import android.icu.text.ListFormatter
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,8 +16,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -31,48 +25,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
-import androidx.room.util.TableInfo
-import com.example.taskscheduler.ui.HelperDialog.ColorPickerDialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.R
+import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.Task.Companion.IconMap
-import com.example.taskscheduler.ui.HelperDialog.ColorCircle
 import com.example.taskscheduler.ui.HelperDialog.ColorCircleMenu
-import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
-import java.util.Date
-import kotlin.text.toInt
+import com.example.taskscheduler.ui.HelperDialog.ColorPickerDialog
+import com.example.taskscheduler.ui.navigation.NavigationDestination
+import com.example.taskscheduler.ui.viewModel.NewTaskViewModel
+import com.example.taskscheduler.ui.viewModel.NewTaskViewModelFactory
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
+object NewTaskScreenDestination : NavigationDestination {
+    override val route = "New_task"
+    override val titleRes = R.string.new_task_screen
+}
 
 @Composable
-fun NewTaskDialog(
-    viewModel: TaskManagerViewModel,
-    selectedPriority: Priority,
-    taskNameInput : String,
-    selectedDuration: Duration,
-    selectedColor: Color,
-    selectedIcon: String,
-    onIconChange : (String) -> Unit,
-    onColorChange : (Color) -> Unit,
-    onConfirm: (name: String, priority: Priority, duration: Duration, color: Color, icon: String) -> Unit,
-    onDurationChange : (Duration) -> Unit,
-    onNameChange : (String) -> Unit,
-    onPriorityChange : (Priority) -> Unit,
+fun NewTaskScreen(
     onDismiss : () -> Unit,
-    onSave: () -> Unit
 ) {
-
     val listPriority = listOf(
         Priority.LOW,
         Priority.MEDIUM,
@@ -80,102 +63,109 @@ fun NewTaskDialog(
         Priority.MANDATORY
     )
 
+    // --- Get Repository from Application context ---
+    val context = LocalContext.current
+    val application = context.applicationContext as TaskApplication // Cast to your Application class
+    val tasksRepository = application.tasksRepository
+
+    // --- Create the ViewModel using the Factory ---
+    val viewModel: NewTaskViewModel = viewModel(
+        factory = NewTaskViewModelFactory(tasksRepository)
+    )
+
+    // --- State for Input Fields ---
+    var taskNameInput by remember { mutableStateOf("") }
+    var selectedPriority by remember { mutableStateOf(Priority.LOW) }
+    var selectedDuration by remember { mutableStateOf(Duration.ZERO) }
+    var selectedColor by remember { mutableStateOf(Color(0xFFE57373)) }
+    var selectedIcon by remember { mutableStateOf("pen") }
+
     var showColorPickerDialog by remember { mutableStateOf(false) }
-    var showPicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        ) {
-        var contentOpacity : Float = 0.95f
-        Box(
-            modifier = Modifier
-                .wrapContentSize() // Or specific size
-                .alpha(contentOpacity) // Apply opacity to the content's root
-                .background(
-                    MaterialTheme.colorScheme.surface, // Or any color you want
-                    shape = MaterialTheme.shapes.medium // Optional: give it a shape
-                )
-                .padding(16.dp)
-        ) {
-            Column() {
+    Column() {
+        Text(
+            text = stringResource(R.string.create_new_task),
+            color = Color.White
+        )
+
+        TextField(
+            value = taskNameInput,
+            onValueChange = {taskNameInput = it},
+            label = { Text(stringResource(R.string.task_name)) },
+            singleLine = true
+        )
+        Row() {
+            Button(
+                onClick = {
+                    showColorPickerDialog = true
+                }
+            ) {
+                Text(stringResource(R.string.pick_color))
+            }
+            ColorCircleMenu(selectedColor, onClick = {}, true)
+        }
+        Button(onClick = { showTimePicker = true }) {
+            Text(
+                if (selectedDuration == Duration.ZERO) stringResource(R.string.pick_duration)
+                else "Duration: ${selectedDuration.toComponents { h, m, _, _ -> "${h}h ${m}m" }}"
+            )
+        }
+
+        IconDropdownScreen(
+            IconMap.drawableMap.keys.toList(),
+            selectedIcon = selectedIcon,
+            onIconSelected = { selectedIcon = it },
+        )
+
+        PriorityDropdownScreen(
+            priorities = listPriority,
+            selectedPriority = selectedPriority,
+            onPrioritySelected = { selectedPriority = it },
+            modifier = Modifier,
+        )
+        // Create and Cancel buttons
+
+        Row() {
+            Button(
+                onClick = {
+                    val newTask = Task(
+                        name = taskNameInput,
+                        priority = selectedPriority,
+                        duration = selectedDuration,
+                        color = selectedColor,
+                        icon = selectedIcon
+                    )
+                    viewModel.addTask(newTask)
+                    onDismiss() // close dialog
+                }
+            ) {
                 Text(
-                    text = stringResource(R.string.create_new_task),
-                    color = Color.White
+                    text = stringResource(R.string.create)
                 )
-
-                TextField(
-                    value = taskNameInput,
-                    onValueChange = onNameChange,
-                    label = { Text(stringResource(R.string.task_name))},
-                    singleLine = true
+            }
+            Button(
+                onClick = onDismiss
+            ) {
+                Text(
+                    text = stringResource(R.string.cancel)
                 )
-                Row() {
-                    Button(
-                        onClick = {
-                            showColorPickerDialog = true
-                        }
-                    ) {
-                        Text(stringResource(R.string.pick_color))
-                    }
-                    ColorCircleMenu(selectedColor, onClick = {},true)
-                }
-                Button(onClick = { showPicker = true }) {
-                    Text( if (selectedDuration == Duration.ZERO) stringResource(R.string.pick_duration)
-                    else "Duration: ${selectedDuration.toComponents { h, m, _, _ -> "${h}h ${m}m" }}")
-                }
-                IconDropdown(IconMap.drawableMap.keys.toList(),
-                    selectedIcon = selectedIcon,
-                    onIconSelected = onIconChange,
-                )
-
-                PriorityDropdown(
-                    priorities = listPriority,
-                    selectedPriority = selectedPriority,
-                    onPrioritySelected = onPriorityChange,
-                    modifier= Modifier,
-                )
-                // Create and Cancel buttons
-
-                Row() {
-                    Button(
-                        onClick = {
-                            val newTask = Task(
-                                name = taskNameInput,
-                                priority = selectedPriority,
-                                duration = selectedDuration,
-                                color = selectedColor,
-                                icon = selectedIcon
-                            )
-                            //viewModel.addTask(newTask)
-                            onDismiss() // close dialog
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.create)
-                        )
-                    }
-                    Button(
-                        onClick = onDismiss
-                    ) {
-                        Text(
-                            text = stringResource(R.string.cancel)
-                        )
-                    }
-                }
             }
         }
     }
 
-    if (showPicker) {
+
+
+    if (showTimePicker) {
         TimePickerDialog(
             initialHour = selectedDuration.toComponents { h, _, _, _ -> h.toInt() },
             initialMinute = selectedDuration.toComponents { _, m, _, _ -> m.toInt() },
             onTimeSelected = { h, m ->
                 val newDuration = h.hours + m.minutes
-                onDurationChange(newDuration)
-                showPicker = false
+                selectedDuration = newDuration
+                showTimePicker = false
             },
-            onDismissRequest = { showPicker = false }
+            onDismissRequest = { showTimePicker = false }
         )
     }
 
@@ -183,7 +173,7 @@ fun NewTaskDialog(
         showDialog = showColorPickerDialog,
         initialColor = selectedColor,
         onColorSelected = { newColor ->
-            onColorChange(newColor)
+            selectedColor = newColor
             showColorPickerDialog = false
         },
         onDismiss = {
@@ -192,14 +182,15 @@ fun NewTaskDialog(
     )
 }
 
+
 @Composable
-fun PriorityDropdown(
+fun PriorityDropdownScreen(
     priorities: List<Priority>,
     selectedPriority: Priority,
     onPrioritySelected: (Priority) -> Unit,
     modifier: Modifier = Modifier,
 ){
- var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier
         .wrapContentSize(Alignment.TopStart)
         .background(color = Color.White)
@@ -233,18 +224,19 @@ fun PriorityDropdown(
 }
 
 @Composable
-fun IconDropdown(
-    icons: List<String>,                     // List of drawable resource IDs
+fun IconDropdownScreen(
+    icons: List<String>,
     selectedIcon: String,
     onIconSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier
-        .wrapContentSize(Alignment.TopStart)
-        .background(color = Color.White)
-        .zIndex(1f)
+    Box(
+        modifier = Modifier
+            .wrapContentSize(Alignment.TopStart)
+            .background(color = Color.White)
+            .zIndex(1f)
     ) {
         Row(
             modifier = Modifier
@@ -287,6 +279,13 @@ fun IconDropdown(
             }
         }
     }
+}
+
+
+@Composable
+@Preview
+fun NewTaskScreenPreview() {
+    NewTaskScreen({})
 }
 
 

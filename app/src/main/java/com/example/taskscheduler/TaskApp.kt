@@ -23,8 +23,8 @@ import com.example.taskscheduler.ui.navigation.TaskAppNavHost
 enum class TaskScreens(@StringRes val title: Int){
     Schedule(title = R.string.schedule_screen),
     TaskManager(title = R.string.task_manager_screen),
+    NewTask(title = R.string.new_task_screen),
     SessionManager(title = R.string.session_screen)
-    // TODO add other screens
 }
 
 @Composable

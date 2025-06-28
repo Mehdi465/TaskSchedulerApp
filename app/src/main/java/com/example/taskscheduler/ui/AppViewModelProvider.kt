@@ -17,6 +17,5 @@ object AppViewModelProvider {
     }
 }
 
-
 fun CreationExtras.taskApplication(): TaskApplication =
     (this[AndroidViewModelFactory.APPLICATION_KEY] as TaskApplication)

@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.ui.HomeDestination
+import com.example.taskscheduler.ui.NewTaskScreen
+import com.example.taskscheduler.ui.NewTaskScreenDestination
 import com.example.taskscheduler.ui.ScheduleScreen
 import com.example.taskscheduler.ui.SessionDestination
 import com.example.taskscheduler.ui.SessionScreen
@@ -33,6 +35,8 @@ fun TaskAppNavHost(
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
             )
         }
+
+        // Task Manager Screen
         composable(
             route = TaskManagerDestination.route
         ) {
@@ -40,8 +44,24 @@ fun TaskAppNavHost(
                 navigateToTSessionManager = { selectedTaskIdsStr ->
                     navController.navigate(("${SessionDestination.route}/$selectedTaskIdsStr")) },
                 navigateBack = { navController.popBackStack() },
+                navigateToNewTaskScreen = {
+                    Log.d("FAEKYHBF","GO to DNBWL")
+                    navController.navigate(NewTaskScreenDestination.route)
+                                          },
             )
         }
+
+        // New Task Screen
+        composable(
+            route = NewTaskScreenDestination.route
+        ){
+            NewTaskScreen(
+                onDismiss = { navController.popBackStack() }
+            )
+
+        }
+
+        // Session Screen
         composable(
             route = SessionDestination.routeWithArgs,
             arguments = SessionDestination.arguments

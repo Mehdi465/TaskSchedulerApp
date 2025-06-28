@@ -63,25 +63,6 @@ class TaskManagerViewModel(
         )
 
     /**
-     * Adds a new task to the database.
-     *
-     * @param task The task to be added.
-     */
-    fun addTask(task: Task) {
-        if (task.name.isBlank()) {
-            println("TaskManagerViewModel: Task name cannot be blank.")
-            return
-        }
-        viewModelScope.launch {
-            try {
-                tasksRepository.insertTask(task)
-            } catch (e: Exception) {
-                println("TaskManagerViewModel: Error adding task - ${e.message}")
-            }
-        }
-    }
-
-    /**
      * Toggles the selection state of a task.
      * @param taskId The ID of the task to toggle.
      */
