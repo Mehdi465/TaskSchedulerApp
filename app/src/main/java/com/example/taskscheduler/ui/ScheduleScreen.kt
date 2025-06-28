@@ -57,6 +57,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.Task.Companion.IconMap
+import com.example.taskscheduler.ui.theme.lighten
+import com.example.taskscheduler.ui.theme.taskLighten
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -166,7 +168,7 @@ fun TaskItem(scheduledTask: ScheduledTask, onClick: () -> Unit = {}) {
             )
         }
 
-        var cardColor by remember { mutableStateOf(Color.White) }
+        var cardColor by remember { mutableStateOf(scheduledTask.task.color.taskLighten()) }
 
         TaskCard(
             backgroundColor = cardColor,
@@ -261,11 +263,12 @@ fun TaskCard(
                 checked = isChecked,
                 onCheckedChange = {
                     isChecked = !isChecked
-                    onColorChange(if (backgroundColor == Color.White) Color.LightGray else Color.White)
+                    onColorChange(if (isChecked) Color.LightGray else scheduledTask.task.color.taskLighten())
                                   },
                 colors  = CheckboxDefaults.colors(
                     checkedColor = scheduledTask.task.color,
-                    checkmarkColor = Color.White
+                    checkmarkColor = Color.White,
+                    uncheckedColor = Color.DarkGray
                 ),
                 modifier = Modifier
                     .align(Alignment.CenterVertically)

@@ -53,7 +53,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,14 +63,14 @@ import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
-import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.ui.navigation.NavigationDestination
+import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.TaskListUiState
 import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
 import com.example.taskscheduler.ui.viewModel.TaskViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.time.Duration
+
 
 
 object TaskManagerDestination : NavigationDestination {
@@ -85,7 +84,7 @@ fun TaskManagerScreen(
     navigateBack: () -> Unit,
     navigateToTSessionManager: (selectedTaskIdsString: String) -> Unit,
     navigateToNewTaskScreen: () -> Unit,
-     canNavigateBack: Boolean = true,
+    canNavigateBack: Boolean = true,
     viewModel: TaskManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
 
@@ -376,14 +375,26 @@ private fun SwipableTaskItem(task: Task,
             }
         }
     ) {
-        TaskItem(task = task,isSelected=isSelected,viewModel = viewModel)
+        var cardColor by remember { mutableStateOf(task.color.taskLighten()) }
+        TaskItem(
+            backgroundColor = cardColor,
+            task = task,
+            isSelected=isSelected,
+            viewModel = viewModel,
+            onColorChange = { newColor ->
+                cardColor = newColor
+            }
+        )
     }
 }
 
 @Composable
-fun TaskItem(task: Task,
+fun TaskItem(
+             backgroundColor : Color,
+             task: Task,
              isSelected: Boolean = true,
-             viewModel: TaskManagerViewModel
+             viewModel: TaskManagerViewModel,
+             onColorChange: (Color) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -391,7 +402,7 @@ fun TaskItem(task: Task,
             .padding(vertical = 1.dp)
             .height(80.dp),
             colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = backgroundColor
         )
     ) {
         Row(
@@ -406,15 +417,7 @@ fun TaskItem(task: Task,
                 contentAlignment = Alignment.Center
             ) {
                 if (task.icon != null) {
-
                     IconTask(task.icon)
-                    /*Image(
-                        painter = painterResource(id = task.icon!!),
-                        contentDescription = "Task logo",
-                        modifier = Modifier
-                            .width(32.dp)
-                            .height(32.dp)
-                    )*/
                 } else {
                     Spacer(modifier = Modifier
                         .width(32.dp)
@@ -433,25 +436,28 @@ fun TaskItem(task: Task,
                     text = task.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
 
                 Text(
                     text = "Duration: ${task.duration}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
 
                 Text(
                     text = "Priority: ${task.priority}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
             }
 
             Checkbox(
                     checked = isSelected,
-                    onCheckedChange = { viewModel.toggleTaskSelection(task.id) }, //TODO : make the card change color when clicked,
+                    onCheckedChange = {
+                        viewModel.toggleTaskSelection(task.id)
+                        onColorChange(if (isSelected) Color.LightGray else task.color.taskLighten())
+                                      },
                     colors = CheckboxDefaults.colors(
                         uncheckedColor = task.color,
                         checkedColor = task.color,

@@ -36,20 +36,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.taskscheduler.ui.theme.TaskColors
 import kotlin.collections.forEach
 
-val availableColors = listOf(
-    Color(0xFFE57373), // Light Red
-    Color(0xFF81C784), // Light Green
-    Color(0xFF64B5F6), // Light Blue
-    Color(0xFFFFD54F), // Light Yellow
-    Color(0xFFBA68C8), // Light Purple
-    Color(0xFF4FC3F7), // Light Cyan
-    Color(0xFFF06292), // Light Pink
-    Color(0xFFA1887F)  // Light Brown
-    // Add more colors here as needed
-)
-
+// import from Color.kt
+val availableColors = TaskColors
 
 @Composable
 fun ColorPickerDialog(

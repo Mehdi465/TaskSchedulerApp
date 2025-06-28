@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -15,7 +16,9 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -35,6 +38,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
+import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.Task.Companion.IconMap
@@ -52,8 +56,34 @@ object NewTaskScreenDestination : NavigationDestination {
     override val titleRes = R.string.new_task_screen
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewTaskScreen(
+    onDismiss : () -> Unit,
+    canNavigateBack: Boolean = true,
+){
+    Scaffold(
+        modifier = Modifier,
+        topBar = {
+            TaskTopAppBar(
+                title = stringResource(R.string.task_manager),
+                canNavigateBack = canNavigateBack,
+                navigateUp = onDismiss
+            )
+        },
+    ) {innerPadding ->
+        NewTaskContent(
+            modifier = Modifier.padding(innerPadding),
+            onDismiss = onDismiss
+        )
+    }
+}
+
+
+
+@Composable
+fun NewTaskContent(
+    modifier: Modifier,
     onDismiss : () -> Unit,
 ) {
     val listPriority = listOf(
@@ -83,7 +113,10 @@ fun NewTaskScreen(
     var showColorPickerDialog by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
-    Column() {
+    Column(
+        modifier = Modifier.padding(16.dp)
+            .fillMaxSize()
+    ) {
         Text(
             text = stringResource(R.string.create_new_task),
             color = Color.White
