@@ -128,7 +128,7 @@ fun TimelineScreen(session: Session,
                     Spacer(
                         modifier = Modifier
                             .height(10.dp)
-                    )
+                    )//TODO : Implement dynamic spacer
                 }
             }
         }
@@ -240,31 +240,27 @@ fun TaskCard(
                     text = scheduledTask.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.DarkGray
+                    color = Color.Gray
                 )
 
                 Text(
                     text = "Duration: ${scheduledTask.task.duration}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.DarkGray
+                    color = Color.Gray
                 )
                 Text(
                     text = "From: ${scheduledTask.startTime.hours}h ${scheduledTask.startTime.minutes}m - To: ${scheduledTask.endTime.hours}h ${scheduledTask.endTime.minutes}m", // Use a locale-aware date format
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.DarkGray
+                    color = Color.Gray
                 )
             }
-            var isChecked by remember { mutableStateOf(false) }
+
             Checkbox(
-                checked = isChecked,
+                checked = false,
                 onCheckedChange = {
-                    isChecked = !isChecked
-                    onColorChange(if (backgroundColor == Color.White) Color.LightGray else Color.White)
+                    onColorChange(if (backgroundColor == Color.White) Color.Gray else Color.White)
                                   },
-                colors = CheckboxDefaults.colors(
-                    checkedColor = scheduledTask.task.color,
-                    checkmarkColor = Color.White
-                ),
+                colors = CheckboxDefaults.colors(Color.Red),
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             )
