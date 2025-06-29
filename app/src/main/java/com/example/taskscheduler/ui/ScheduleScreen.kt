@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +64,8 @@ import com.example.taskscheduler.data.Task.Companion.IconMap
 import com.example.taskscheduler.ui.theme.highlight
 import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
+import kotlinx.coroutines.delay
+import java.util.Calendar
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -71,6 +74,13 @@ import kotlin.time.DurationUnit
 object HomeDestination : NavigationDestination {
     override val route = "home"
     override val titleRes = R.string.app_name
+}
+
+fun getCurrentTimeSnappedToMinute(): Date {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    return calendar.time
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,6 +94,21 @@ fun ScheduleScreen(
 ){
     val uiState by scheduleViewModel.uiState.collectAsState()
     uiState.session
+
+    val liveCurrentTime = remember { mutableStateOf(getCurrentTimeSnappedToMinute()) }
+
+    // --- LaunchedEffect to update liveCurrentTime every minute ---
+    LaunchedEffect(Unit) { // Keyed on Unit to run once and persist
+        while (true) {
+            liveCurrentTime.value = getCurrentTimeSnappedToMinute()
+            // Calculate delay until the start of the next minute
+            val now = Calendar.getInstance()
+            val secondsUntilNextMinute = 60 - now.get(Calendar.SECOND)
+            //delay to do it every minutes
+            delay(secondsUntilNextMinute * 1000L)
+        }
+    }
+    // --- End of Time Updater ---
 
     Scaffold(
         modifier = modifier,
@@ -114,6 +139,7 @@ fun ScheduleScreen(
             TimelineScreen(
                 session = uiState.session!!,
                 modifier = Modifier.padding(innerPadding),
+                currentTime = liveCurrentTime.value
             )
         }
     }
@@ -122,15 +148,19 @@ fun ScheduleScreen(
 @Composable
 fun TimelineScreen(session: Session,
                    modifier: Modifier = Modifier,
+                   currentTime : Date
 ) {
-    var tasks by remember { mutableStateOf(session.scheduledTasks)}
-    if (!tasks.isEmpty()){
+    var scheduledTasks by remember { mutableStateOf(session.scheduledTasks)}
+    if (!scheduledTasks.isEmpty()){
         LazyColumn(
             modifier = modifier.fillMaxSize(),
         ) {
-            itemsIndexed(tasks) { index, task ->
-                TaskItem(task)
-                if (index < tasks.size - 1) {
+            itemsIndexed(scheduledTasks) { index, scheduledTask ->
+                TaskItem(
+                    scheduledTask = scheduledTask,
+                    currentTime = currentTime
+                )
+                if (index < scheduledTasks.size - 1) {
                     Spacer(
                         modifier = Modifier
                             .height(10.dp)
@@ -145,13 +175,16 @@ fun TimelineScreen(session: Session,
 }
 
 @Composable
-fun TaskItem(scheduledTask: ScheduledTask, onClick: () -> Unit = {}) {
+fun TaskItem(
+    scheduledTask: ScheduledTask,
+    currentTime: Date,
+    onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 0.dp)
             .height(getCardHeightInDp(scheduledTask))
-            .background(if (scheduledTask.isCurrentTask(Date())) {Color.DarkGray}
+            .background(if (scheduledTask.isCurrentTask(currentTime)) {Color.DarkGray}
                         else {MaterialTheme.colorScheme.surface}),
     ) {
         Column(
