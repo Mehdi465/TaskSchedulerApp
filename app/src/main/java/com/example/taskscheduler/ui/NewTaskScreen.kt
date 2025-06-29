@@ -7,9 +7,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -66,7 +69,7 @@ fun NewTaskScreen(
         modifier = Modifier,
         topBar = {
             TaskTopAppBar(
-                title = stringResource(R.string.task_manager),
+                title = stringResource(R.string.new_task_screen),
                 canNavigateBack = canNavigateBack,
                 navigateUp = onDismiss
             )
@@ -117,10 +120,12 @@ fun NewTaskContent(
         modifier = Modifier.padding(16.dp)
             .fillMaxSize()
     ) {
-        Text(
-            text = stringResource(R.string.create_new_task),
-            color = Color.White
+
+        Spacer(modifier = Modifier
+            .width(32.dp)
+            .height(85.dp)
         )
+
 
         TextField(
             value = taskNameInput,

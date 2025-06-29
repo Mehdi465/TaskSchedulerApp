@@ -1,6 +1,13 @@
 package com.example.taskscheduler.ui.theme
 
+import android.graphics.Color as GraphicColor
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import kotlin.math.min
+import androidx.compose.ui.graphics.toArgb
+import android.graphics.Color as AndroidColor // Alias to avoid confusion
+import kotlin.math.max
 import kotlin.math.min
 
 val Purple80 = Color(0xF4A94995)
@@ -62,6 +69,40 @@ fun Color.lighten(factor: Float = 0.1f): Color {
     val g = min(1f, this.green + (1f - this.green) * factor)
     val b = min(1f, this.blue + (1f - this.blue) * factor)
     return Color(red = r, green = g, blue = b, alpha = this.alpha)
+}
+
+/**
+ * Adjusts the saturation of a color by a given factor.
+ * A factor > 1.0 increases saturation, < 1.0 decreases it.
+ *
+ * @param color The original color.
+ * @param factor The factor to adjust saturation by.
+ *               1.0 means no change.
+ *               Values > 1.0 increase saturation (e.g., 1.2 for 20% more saturated).
+ *               Values < 1.0 decrease saturation (e.g., 0.8 for 20% less saturated, towards grayscale).
+ *               Factor should be non-negative.
+ * @return The color with adjusted saturation.
+ */
+fun Color.highlight(factor: Float ): Color {
+    if (factor < 0f) return this // No change
+    if (factor == 1f) return this // No change
+
+    val hsv = FloatArray(3) // Hue, Saturation, Value
+    AndroidColor.colorToHSV(this.toArgb(), hsv) // Convert Compose Color (via Int ARGB) to HSV
+
+    // Adjust the Saturation component (hsv[1])
+    // Multiply by the factor and ensure it stays within the 0.0 to 1.0 range
+    hsv[1] = (hsv[1] * factor).coerceIn(0f, 1f)
+
+    // Convert back to ARGB Int, then to Compose Color, preserving original alpha
+    return Color(AndroidColor.HSVToColor(this.alpha.toIntArgbRepresentation(), hsv))
+}
+
+/**
+ * Helper to convert Compose alpha (0f-1f) to Android's alpha representation for HSVToColor (0-255).
+ */
+private fun Float.toIntArgbRepresentation(): Int {
+    return (this * 255.0f + 0.5f).toInt()
 }
 
 fun Color.taskLighten():Color{

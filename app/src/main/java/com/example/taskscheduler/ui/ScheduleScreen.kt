@@ -1,6 +1,8 @@
 package com.example.taskscheduler.ui
 
+import android.R.style
 import android.util.Log
+import androidx.compose.animation.core.copy
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,8 +57,10 @@ import com.example.taskscheduler.ui.viewModel.ScheduleViewModel
 import com.example.taskscheduler.ui.viewModel.ScheduleViewModelFactory
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.example.taskscheduler.data.Task
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import com.example.taskscheduler.data.Task.Companion.IconMap
+import com.example.taskscheduler.ui.theme.highlight
 import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
 import kotlin.time.Duration
@@ -219,11 +223,14 @@ fun TaskCard(
         Row(
         ) {
 
+            var isChecked by remember { mutableStateOf(false) }
+
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(56.dp)
-                    .background(color = scheduledTask.task.color)
+                    .background(if (!isChecked) scheduledTask.task.color
+                                else scheduledTask.task.color.lighten(0.7f))
                     .padding(8.dp)
                     .align(Alignment.CenterVertically),
                 contentAlignment = Alignment.Center
@@ -237,27 +244,29 @@ fun TaskCard(
                     .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                     .align(Alignment.CenterVertically)
             ) {
-
-                Text(
-                    text = scheduledTask.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.DarkGray
+                // Task Name text
+                StrikethroughText(
+                    scheduledTask.name,
+                    isStrikethrough = isChecked,
+                    style = MaterialTheme.typography.titleMedium
                 )
 
-                Text(
+                // Duration text
+                StrikethroughText(
                     text = "Duration: ${scheduledTask.task.duration}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.DarkGray
+                    isStrikethrough = isChecked,
+                    style = MaterialTheme.typography.bodySmall
                 )
-                Text(
-                    text = "From: ${scheduledTask.startTime.hours}h ${scheduledTask.startTime.minutes}m - To: ${scheduledTask.endTime.hours}h ${scheduledTask.endTime.minutes}m", // Use a locale-aware date format
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.DarkGray
+
+                // From - To text
+                StrikethroughText(
+                    text = "From: ${scheduledTask.startTime.hours}h ${scheduledTask.startTime.minutes}m - To: ${scheduledTask.endTime.hours}h ${scheduledTask.endTime.minutes}m",
+                    isStrikethrough = isChecked,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
 
-            var isChecked by remember { mutableStateOf(false) }
+
 
             Checkbox(
                 checked = isChecked,
@@ -267,7 +276,7 @@ fun TaskCard(
                                   },
                 colors  = CheckboxDefaults.colors(
                     checkedColor = scheduledTask.task.color,
-                    checkmarkColor = Color.White,
+                    checkmarkColor = Color.DarkGray,
                     uncheckedColor = Color.DarkGray
                 ),
                 modifier = Modifier
@@ -275,6 +284,23 @@ fun TaskCard(
             )
         }
     }
+}
+
+@Composable
+fun StrikethroughText(
+    text: String,
+    isStrikethrough: Boolean,
+    style: TextStyle
+) {
+    Text(
+        text = text,
+        style = if (isStrikethrough) {
+            style.copy(textDecoration = TextDecoration.LineThrough)
+        } else {
+            style.copy(textDecoration = TextDecoration.None)
+        },
+        color = Color.DarkGray
+    )
 }
 
 
