@@ -134,7 +134,7 @@ fun TimelineScreen(session: Session,
                     Spacer(
                         modifier = Modifier
                             .height(10.dp)
-                    )//TODO : Implement dynamic spacer
+                    )
                 }
             }
         }
@@ -151,6 +151,8 @@ fun TaskItem(scheduledTask: ScheduledTask, onClick: () -> Unit = {}) {
             .fillMaxWidth()
             .padding(vertical = 0.dp)
             .height(getCardHeightInDp(scheduledTask))
+            .background(if (scheduledTask.isCurrentTask(Date())) {Color.DarkGray}
+                        else {MaterialTheme.colorScheme.surface}),
     ) {
         Column(
             modifier = Modifier

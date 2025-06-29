@@ -196,6 +196,7 @@ fun TaskManagerScreen(
                 text= stringResource(R.string.list_of_task),
                 modifier = Modifier.align(Alignment.Center)
             )
+            Spacer(modifier = Modifier.height(30.dp))
         }
 
         if (tasks.isEmpty()){
@@ -244,8 +245,7 @@ private fun TaskListBody(
                     viewModel.deleteTask(task)
                 },
                 onStartModifyTask = { task ->
-                    // For now, just print or set state to show a dialog/navigate
-                    taskToModify = task // You would use this to show a dialog or navigate
+                    taskToModify = task
                 },
                 contentPadding = contentPadding,
                 modifier = Modifier.padding(horizontal = 8.dp),
@@ -274,13 +274,12 @@ private fun TaskList(
         ) { task ->
             SwipableTaskItem(task = task,
                 isSelected = task.id in uiState.checkedTasks,
-                //onSelectChange = { viewModel.toggleTaskSelection(task.id) },
                 onDelete = { onDeleteTask(task) },
                 onModify = { onStartModifyTask(task) },
                 modifier = Modifier
-                    .padding(8.dp),
+                    .padding(2.dp),
                 viewModel = viewModel
-                )
+            )
         }
     }
 }

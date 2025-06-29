@@ -30,6 +30,11 @@ data class ScheduledTask(
         return "$hours h : $minutes m"
     }
 
+    // passing through argument
+    fun isCurrentTask(currentDate:Date) : Boolean {
+        return currentDate.after(startTime) && currentDate.before(endTime)
+    }
+
     companion object{
         fun addDuration(duration1: Duration, duration2: Duration): Duration {
             return duration1 + duration2
