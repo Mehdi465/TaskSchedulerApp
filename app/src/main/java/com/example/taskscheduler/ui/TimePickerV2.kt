@@ -52,6 +52,9 @@ fun TimePickerV2(
     onTimeChange: (Int, Int) -> Unit
 ) {
 
+    // 5 minutes steps increments
+    val fiveMinutesStep : Float = 360f/288f // 360 degre, 288x5 minutes in 24h
+
     val initialStartAngle = timeToAngle(initialStartTime)
     val initialEndAngle = timeToAngle(initialEndTime)
 
@@ -64,6 +67,7 @@ fun TimePickerV2(
     var startTime = angleToTimeInt(startAngle)
     var endTime = angleToTimeInt(endAngle)
 
+
     Box(
         modifier = modifier
             .aspectRatio(1f)
@@ -75,10 +79,11 @@ fun TimePickerV2(
                                 },
                     onDrag = { change, _ ->
                         val center = Offset(size.width / 2f, size.height / 2f)
-                        val angle = getAngle(center, change.position)
+                        val angle = floorWithStep(getAngle(center, change.position),fiveMinutesStep)
+                        Log.d("angle", "angle: ${floorWithStep(getAngle(center, change.position),fiveMinutesStep)}")
                         when (draggingHandle) {
-                            HandleType.START -> startAngle = angle
-                            HandleType.END -> endAngle = angle
+                            HandleType.START -> startAngle = floorWithStep(angle,fiveMinutesStep)
+                            HandleType.END -> endAngle = floorWithStep(angle,fiveMinutesStep)
                             null -> {
                                 if (isNear(angle, startAngle)) draggingHandle = HandleType.START
                                 else if (isNear(angle, endAngle)) draggingHandle = HandleType.END
@@ -104,7 +109,7 @@ fun TimePickerV2(
                 val angleRad = Math.toRadians((i * 15f - 90).toDouble())
 
                 val tick_center = center.plus(Offset(0f,-2f))
-                //tick drawing
+                // tick drawing
                 val tickStart = Offset(
                     x = tick_center.x + cos(angleRad).toFloat() * (newRadius + 10f),
                     y = tick_center.y + sin(angleRad).toFloat() * (newRadius + 10f)
@@ -141,7 +146,7 @@ fun TimePickerV2(
                 style = Stroke(width = arcThickness)
             )
 
-            // Sleep filled arc
+            // Session filled arc
             drawArc(
                 brush = Brush.sweepGradient(
                     colors = listOf(Color(0xFFFF9800), Color(0xFFFFC107)),
@@ -156,8 +161,8 @@ fun TimePickerV2(
             )
 
             // Draw handles
-            drawHandleWithIcon(center, radius, startAngle, Color(0xFFFFC107), Icons.Default.Build)
-            drawHandleWithIcon(center, radius, endAngle, Color(0xFFFF8000), Icons.Default.Add)
+            drawHandleWithIcon(center, radius, floorWithStep(startAngle,fiveMinutesStep), Color(0xFFFFC107), Icons.Default.Build)
+            drawHandleWithIcon(center, radius,  floorWithStep(endAngle,fiveMinutesStep), Color(0xFFFF8000), Icons.Default.Add)
         }
 
         // Center time info
@@ -217,6 +222,13 @@ private fun DrawScope.drawHandleWithIcon(center: Offset, radius: Float, angle: F
     val y = center.y + sin(rad).toFloat() * radius
     drawCircle(color, radius = 28f, center = Offset(x, y))
     // You can overlay Compose Icon composable here for more accurate visuals
+}
+
+fun floorWithStep(value: Float, step: Float): Float {
+    if (step < 0f){
+        throw IllegalArgumentException("Step cannot be negative")
+    }
+    return (value/step).toInt() * step
 }
 
 @Composable
