@@ -88,7 +88,6 @@ fun TimePickerV2(
                         val startTime = angleToTimeInt(startAngle)
                         val endTime = angleToTimeInt(endAngle)
 
-
                         onTimeChange(startTime, endTime)
                     }
                 )

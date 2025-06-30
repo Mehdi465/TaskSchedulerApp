@@ -46,7 +46,7 @@ data class ScheduledTask(
             return Duration.parse(javaSessionDuration.toString())
         }
 
-        fun taskToScheduledTask(tasks: List<Task>,duration: Duration): List<ScheduledTask>{
+        fun taskToScheduledTask(tasks: List<Task>,startTime: Date,duration: Duration): List<ScheduledTask>{
             var result = mutableListOf<ScheduledTask>()
             var cumulDuration = Duration.ZERO
 
@@ -55,8 +55,9 @@ data class ScheduledTask(
                     task.duration = duration - cumulDuration
                 }
                 val scheduledTask = ScheduledTask(
-                    task,Date(System.currentTimeMillis() + cumulDuration.inWholeMilliseconds),
-                    Date(System.currentTimeMillis() + task.duration.inWholeMilliseconds + cumulDuration.inWholeMilliseconds))
+
+                    task,Date(startTime.time + cumulDuration.inWholeMilliseconds),
+                    Date(startTime.time + task.duration.inWholeMilliseconds + cumulDuration.inWholeMilliseconds))
 
                 result.add(scheduledTask)
                 cumulDuration += task.duration
@@ -125,7 +126,7 @@ data class ScheduledTask(
                 }
             }
 
-            val pickedScheduledTasks = taskToScheduledTask(pickedTasks,sessionDuration)
+            val pickedScheduledTasks = taskToScheduledTask(pickedTasks,startTime,sessionDuration)
 
             return pickedScheduledTasks
         }
