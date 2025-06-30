@@ -66,6 +66,7 @@ import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
 import kotlinx.coroutines.delay
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -287,15 +288,20 @@ fun TaskCard(
                 )
 
                 // Duration text
+                Log.d("duration", "TaskCard: ${scheduledTask.task.duration}")
+                Log.d("Starttime", "TaskCard: ${scheduledTask.startTime}")
+                Log.d("endTime", "TaskCard: ${scheduledTask.endTime}")
                 StrikethroughText(
-                    text = "Duration: ${scheduledTask.task.duration}",
+                    text = "Duration: ${getDurationAsString(scheduledTask.startTime,
+                        scheduledTask.endTime)}",
                     isStrikethrough = isChecked,
                     style = MaterialTheme.typography.bodySmall
                 )
 
                 // From - To text
                 StrikethroughText(
-                    text = "From: ${scheduledTask.startTime.hours}h ${scheduledTask.startTime.minutes}m - To: ${scheduledTask.endTime.hours}h ${scheduledTask.endTime.minutes}m",
+                    text = "From: ${scheduledTask.startTime.hours}h ${scheduledTask.startTime.minutes}m" +
+                            " - To: ${scheduledTask.endTime.hours}h ${scheduledTask.endTime.minutes}m",
                     isStrikethrough = isChecked,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -369,4 +375,22 @@ fun getCardHeightInDp(scheduledTask: ScheduledTask): Dp {
         val finalDp = (0.727*(getRelativeDuration(scheduledTask.task.duration))+69.1).dp
         return finalDp
     }
+}
+
+fun getDurationAsString(startTime: Date, endTime: Date): String {
+    if (endTime.before(startTime) || endTime == startTime) {
+        return "0h 0m" // No duration or negative duration
+    }
+
+    // Get the difference in milliseconds
+    val durationInMillis = endTime.time - startTime.time
+
+    // Convert milliseconds to hours and minutes
+    val hours = TimeUnit.MILLISECONDS.toHours(durationInMillis)
+    val remainingMillisAfterHours = durationInMillis - TimeUnit.HOURS.toMillis(hours)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(remainingMillisAfterHours)
+    if (hours == 0L){
+        return "${minutes}m"
+    }
+    return "${hours}h ${minutes}m"
 }
