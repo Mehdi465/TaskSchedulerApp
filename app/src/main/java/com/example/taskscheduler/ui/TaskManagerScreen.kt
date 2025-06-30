@@ -39,6 +39,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -192,6 +193,24 @@ fun TaskManagerScreen(
                 .fillMaxWidth()
                 .background(color = Color.DarkGray)
         ){
+
+            var checked by remember { mutableStateOf(false) }
+            val tasksCheckId = uiState.tasks
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    if (!checked){
+                        tasksCheckId.forEach {
+                            viewModel.toggleTaskSelection(it.id)
+                        }
+                    }
+                    else {
+                        viewModel.clearSelections()
+                    }
+                    checked = it
+                }
+            )
+
             Text(
                 text= stringResource(R.string.list_of_task),
                 modifier = Modifier.align(Alignment.Center)
@@ -312,7 +331,7 @@ private fun SwipableTaskItem(task: Task,
             }
         },
         // Positional threshold can be adjusted if needed
-        positionalThreshold = { distance -> distance * 0.5f } // Example: 50% swipe needed
+        positionalThreshold = { distance -> distance * 0.7f } // Example: 50% swipe needed
     )
 
     SwipeToDismissBox(
@@ -353,7 +372,7 @@ private fun SwipableTaskItem(task: Task,
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(Color.Red) // Red for Delete
+                        .background(Color.Red) // red for Delete
                         .padding(horizontal = 20.dp),
                     contentAlignment = Alignment.CenterEnd // Align content to the right
                 ) {
