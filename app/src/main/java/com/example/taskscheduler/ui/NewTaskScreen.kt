@@ -126,10 +126,15 @@ fun NewTaskContent(
             .height(85.dp)
         )
 
-
+        // max input char for textfield
+        val maxChar : Int = 40
         TextField(
             value = taskNameInput,
-            onValueChange = {taskNameInput = it},
+            onValueChange = {
+                if (it.length <= maxChar) {
+                    taskNameInput = it
+                }
+                            },
             label = { Text(stringResource(R.string.task_name)) },
             singleLine = true
         )
