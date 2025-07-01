@@ -4,6 +4,7 @@ import TimePickerDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -22,6 +24,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -31,12 +36,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.R
@@ -117,6 +125,7 @@ fun NewTaskContent(
     var showTimePicker by remember { mutableStateOf(false) }
 
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(16.dp)
             .fillMaxSize()
     ) {
@@ -138,6 +147,9 @@ fun NewTaskContent(
             label = { Text(stringResource(R.string.task_name)) },
             singleLine = true
         )
+
+        Spacer(modifier = Modifier.padding(8.dp))
+
         Row() {
             Button(
                 onClick = {
@@ -148,6 +160,7 @@ fun NewTaskContent(
             }
             ColorCircleMenu(selectedColor, onClick = {}, true)
         }
+
         Button(onClick = { showTimePicker = true }) {
             Text(
                 if (selectedDuration == Duration.ZERO) stringResource(R.string.pick_duration)
@@ -160,15 +173,14 @@ fun NewTaskContent(
             selectedIcon = selectedIcon,
             onIconSelected = { selectedIcon = it },
         )
-
-        PriorityDropdownScreen(
+        
+        PrioritySection(
+            themeColor = selectedColor,
             priorities = listPriority,
-            selectedPriority = selectedPriority,
             onPrioritySelected = { selectedPriority = it },
-            modifier = Modifier,
         )
-        // Create and Cancel buttons
 
+        // Create and Cancel buttons
         Row() {
             Button(
                 onClick = {
@@ -225,41 +237,65 @@ fun NewTaskContent(
     )
 }
 
+@Composable
+fun PrioritySection(
+    modifier: Modifier = Modifier,
+    themeColor: Color,
+    priorities: List<Priority>,
+    onPrioritySelected : (Priority) -> Unit,
+){
+    Column() {
+
+        Text(
+            text = stringResource(R.string.priority),
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+
+        PrioritySelector(
+            themeColor = themeColor,
+            priorities = priorities,
+            onPrioritySelected = onPrioritySelected
+        )
+    }
+}
 
 @Composable
-fun PriorityDropdownScreen(
+fun PrioritySelector(
+    themeColor: Color,
     priorities: List<Priority>,
-    selectedPriority: Priority,
-    onPrioritySelected: (Priority) -> Unit,
-    modifier: Modifier = Modifier,
-){
-    var expanded by remember { mutableStateOf(false) }
-    Box(modifier = Modifier
-        .wrapContentSize(Alignment.TopStart)
-        .background(color = Color.White)
-        .zIndex(1f)
+    onPrioritySelected: (Priority) -> Unit
+) {
+    var selected by remember { mutableStateOf(0) }
+
+    Row(
+        modifier = Modifier
+            .padding(8.dp)
+            .background(Color(0xFF2C2C2C), RoundedCornerShape(16.dp)),
+        //.fillMaxWidth()
+        //.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .clickable { expanded = true }
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(text=selectedPriority.toString(), color = Color.Black)
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.zIndex(2f),
-            containerColor = Color.White
-        ) {
-            priorities.forEach { prioRes ->
-                DropdownMenuItem(
-                    text = { Text(prioRes.toString(), color = Color.Black) },
-                    onClick = {
-                        onPrioritySelected(prioRes)
-                        expanded = false
-                    },
+        priorities.forEachIndexed { index, label ->
+            val isSelected = index == selected
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        if (isSelected) themeColor else Color(0xFF3C3C3C)
+                    )
+                    .clickable {
+                        selected = index
+                        onPrioritySelected(priorities[index])
+                    }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = label.toString(),
+                    color = if (isSelected) Color.Black else Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
                 )
             }
         }
@@ -325,10 +361,11 @@ fun IconDropdownScreen(
 }
 
 
+
 @Composable
 @Preview
 fun NewTaskScreenPreview() {
-    NewTaskScreen({})
+    //DurationSelector()
 }
 
 

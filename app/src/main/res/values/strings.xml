@@ -37,5 +37,7 @@
     <string name="session_starts_at">Session starts at</string>
     <string name="session_ends_at">Session ends at</string>
 
+    <string name="priority">Priority</string>
+
 
 </resources>
