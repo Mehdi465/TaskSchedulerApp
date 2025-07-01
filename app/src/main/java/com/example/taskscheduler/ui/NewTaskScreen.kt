@@ -4,20 +4,27 @@ import TimePickerDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -168,12 +176,14 @@ fun NewTaskContent(
             )
         }
 
-        IconDropdownScreen(
+        HorizontalIconWheel(
+            themeColor = selectedColor,
             IconMap.drawableMap.keys.toList(),
             selectedIcon = selectedIcon,
             onIconSelected = { selectedIcon = it },
         )
-        
+
+        // priority section
         PrioritySection(
             themeColor = selectedColor,
             priorities = listPriority,
@@ -302,61 +312,75 @@ fun PrioritySelector(
     }
 }
 
-@Composable
-fun IconDropdownScreen(
-    icons: List<String>,
-    selectedIcon: String,
-    onIconSelected: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    var expanded by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .wrapContentSize(Alignment.TopStart)
-            .background(color = Color.White)
-            .zIndex(1f)
-    ) {
+@Composable
+fun HorizontalIconWheel(
+    themeColor: Color,
+    icons: List<String>,
+    selectedIcon: String = icons[0],
+    onIconSelected: (String) -> Unit
+) {
+    val selectedIndex = icons.indexOf(selectedIcon)
+    var selected by remember { mutableStateOf(selectedIndex) }
+    val scrollState = rememberScrollState()
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        // Left Arrow Indicator
+        Icon(
+            imageVector = Icons.Default.KeyboardArrowLeft,
+            contentDescription = "Left",
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 4.dp)
+                .size(24.dp)
+                .alpha(0.6f),
+            tint = Color.White
+        )
+
+        // Icon Wheel
         Row(
             modifier = Modifier
-                .clickable { expanded = true }
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(horizontal = 32.dp)
+                .horizontalScroll(scrollState)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFF2C2C2C))
+                .padding(vertical = 8.dp, horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Image(
-                painter = painterResource(IconMap.getIconResId(selectedIcon)),
-                contentDescription = "Selected Icon",
-                modifier = Modifier.size(32.dp)
-            )
-            Icon(
-                imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = null
-            )
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.zIndex(2f),
-            containerColor = Color.White
-        ) {
-            icons.forEach { iconResName ->
-                DropdownMenuItem(
-                    text = { /* No text needed */ },
-                    onClick = {
-                        onIconSelected(iconResName)
-                        expanded = false
-                    },
-                    leadingIcon = {
-                        Image(
-                            painter = painterResource(IconMap.getIconResId(iconResName)),
-                            contentDescription = "Icon Option  $iconResName",
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                )
+            icons.forEachIndexed { index, icon ->
+                val isSelected = index == selected
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(if (isSelected) themeColor else Color(0xFF3C3C3C))
+                        .clickable {
+                            selected = index
+                            onIconSelected(icons[index])
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(IconMap.getIconResId(icon)),
+                        contentDescription = "Icon $index",
+                        //tint = if (isSelected) Color.Black else Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
+
+        // Right Arrow Indicator
+        Icon(
+            imageVector = Icons.Default.KeyboardArrowRight,
+            contentDescription = "Right",
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = 4.dp)
+                .size(24.dp)
+                .alpha(0.6f),
+            tint = Color.White
+        )
     }
 }
 
@@ -365,7 +389,8 @@ fun IconDropdownScreen(
 @Composable
 @Preview
 fun NewTaskScreenPreview() {
-    //DurationSelector()
+
+
 }
 
 
