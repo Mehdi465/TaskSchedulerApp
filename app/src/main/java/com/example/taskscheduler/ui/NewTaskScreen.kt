@@ -1,6 +1,5 @@
 package com.example.taskscheduler.ui
 
-import TimePickerDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +25,8 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,6 +64,7 @@ import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.Task.Companion.IconMap
 import com.example.taskscheduler.ui.HelperDialog.ColorCircleMenu
 import com.example.taskscheduler.ui.HelperDialog.ColorPickerDialog
+import com.example.taskscheduler.ui.HelperDialog.InfiniteTimePickerWheel
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.viewModel.NewTaskViewModel
 import com.example.taskscheduler.ui.viewModel.NewTaskViewModelFactory
@@ -160,6 +162,9 @@ fun NewTaskContent(
 
         Row() {
             Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = selectedColor
+                ),
                 onClick = {
                     showColorPickerDialog = true
                 }
@@ -169,19 +174,26 @@ fun NewTaskContent(
             ColorCircleMenu(selectedColor, onClick = {}, true)
         }
 
-        Button(onClick = { showTimePicker = true }) {
-            Text(
-                if (selectedDuration == Duration.ZERO) stringResource(R.string.pick_duration)
-                else "Duration: ${selectedDuration.toComponents { h, m, _, _ -> "${h}h ${m}m" }}"
-            )
-        }
 
-        HorizontalIconWheel(
+        DurationSection(
             themeColor = selectedColor,
-            IconMap.drawableMap.keys.toList(),
+            initialHour = selectedDuration.toComponents { h, _, _, _ -> h.toInt() },
+            initialMinute = selectedDuration.toComponents { _, m, _, _ -> m.toInt() },
+            onTimeSelected = { h, m ->
+                val newDuration = h.hours + m.minutes
+                selectedDuration = newDuration
+                showTimePicker = false
+            },
+        )
+
+        IconSection(
+            themeColor = selectedColor,
+            icons = IconMap.drawableMap.keys.toList(),
             selectedIcon = selectedIcon,
             onIconSelected = { selectedIcon = it },
         )
+
+        Spacer(modifier = Modifier.padding(8.dp))
 
         // priority section
         PrioritySection(
@@ -190,9 +202,14 @@ fun NewTaskContent(
             onPrioritySelected = { selectedPriority = it },
         )
 
+        Spacer(modifier = Modifier.padding(8.dp))
+
         // Create and Cancel buttons
         Row() {
             Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = selectedColor
+                ),
                 onClick = {
                     val newTask = Task(
                         name = taskNameInput,
@@ -209,7 +226,13 @@ fun NewTaskContent(
                     text = stringResource(R.string.create)
                 )
             }
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
             Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = selectedColor
+                ),
                 onClick = onDismiss
             ) {
                 Text(
@@ -219,20 +242,6 @@ fun NewTaskContent(
         }
     }
 
-
-
-    if (showTimePicker) {
-        TimePickerDialog(
-            initialHour = selectedDuration.toComponents { h, _, _, _ -> h.toInt() },
-            initialMinute = selectedDuration.toComponents { _, m, _, _ -> m.toInt() },
-            onTimeSelected = { h, m ->
-                val newDuration = h.hours + m.minutes
-                selectedDuration = newDuration
-                showTimePicker = false
-            },
-            onDismissRequest = { showTimePicker = false }
-        )
-    }
 
     ColorPickerDialog(
         showDialog = showColorPickerDialog,
@@ -245,6 +254,54 @@ fun NewTaskContent(
             showColorPickerDialog = false
         }
     )
+}
+
+@Composable
+fun DurationSection(
+    themeColor: Color,
+    initialHour: Int,
+    initialMinute: Int,
+    onTimeSelected: (hour: Int, minute: Int) -> Unit
+){
+    Column() {
+        Text(
+            text = stringResource(R.string.duration),
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+
+        InfiniteTimePickerWheel(
+            themeColor = themeColor,
+            initialHour = initialHour,
+            initialMinute = initialMinute,
+            onTimeSelected = onTimeSelected
+        )
+    }
+}
+
+@Composable
+fun IconSection(
+    modifier: Modifier = Modifier,
+    themeColor: Color,
+    icons: List<String>,
+    selectedIcon: String = icons[0],
+    onIconSelected: (String) -> Unit
+){
+    Column() {
+
+        Text(
+            text = stringResource(R.string.icons),
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+
+        HorizontalIconWheel(
+            themeColor = themeColor,
+            icons = icons,
+            selectedIcon = selectedIcon,
+            onIconSelected = onIconSelected
+        )
+    }
 }
 
 @Composable
@@ -270,54 +327,13 @@ fun PrioritySection(
     }
 }
 
-@Composable
-fun PrioritySelector(
-    themeColor: Color,
-    priorities: List<Priority>,
-    onPrioritySelected: (Priority) -> Unit
-) {
-    var selected by remember { mutableStateOf(0) }
-
-    Row(
-        modifier = Modifier
-            .padding(8.dp)
-            .background(Color(0xFF2C2C2C), RoundedCornerShape(16.dp)),
-        //.fillMaxWidth()
-        //.horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        priorities.forEachIndexed { index, label ->
-            val isSelected = index == selected
-
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        if (isSelected) themeColor else Color(0xFF3C3C3C)
-                    )
-                    .clickable {
-                        selected = index
-                        onPrioritySelected(priorities[index])
-                    }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = label.toString(),
-                    color = if (isSelected) Color.Black else Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-            }
-        }
-    }
-}
 
 
 @Composable
 fun HorizontalIconWheel(
     themeColor: Color,
     icons: List<String>,
-    selectedIcon: String = icons[0],
+    selectedIcon: String,
     onIconSelected: (String) -> Unit
 ) {
     val selectedIndex = icons.indexOf(selectedIcon)
@@ -384,12 +400,54 @@ fun HorizontalIconWheel(
     }
 }
 
+@Composable
+fun PrioritySelector(
+    themeColor: Color,
+    priorities: List<Priority>,
+    onPrioritySelected: (Priority) -> Unit
+) {
+    var selected by remember { mutableStateOf(0) }
+
+    Row(
+        modifier = Modifier
+            .padding(8.dp)
+            .background(Color(0xFF2C2C2C), RoundedCornerShape(16.dp)),
+        //.fillMaxWidth()
+        //.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        priorities.forEachIndexed { index, label ->
+            val isSelected = index == selected
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        if (isSelected) themeColor else Color(0xFF3C3C3C)
+                    )
+                    .clickable {
+                        selected = index
+                        onPrioritySelected(priorities[index])
+                    }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = label.toString(),
+                    color = if (isSelected) Color.Black else Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+        }
+    }
+}
+
+
 
 
 @Composable
 @Preview
 fun NewTaskScreenPreview() {
-
 
 }
 

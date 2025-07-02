@@ -38,6 +38,8 @@
     <string name="session_ends_at">Session ends at</string>
 
     <string name="priority">Priority</string>
+    <string name="icons">Icons</string>
+    <string name="duration">Duration</string>
 
 
 </resources>
