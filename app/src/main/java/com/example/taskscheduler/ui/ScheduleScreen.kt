@@ -57,6 +57,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import com.example.taskscheduler.data.Task.Companion.IconMap
+import com.example.taskscheduler.ui.HelperDialog.RemoveSessionDialog
 import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
 import kotlinx.coroutines.delay
@@ -87,9 +88,8 @@ fun ScheduleScreen(
     scheduleViewModel: ScheduleViewModel = viewModel(
         factory = ScheduleViewModelFactory(
             (LocalContext.current.applicationContext as TaskApplication).activeSessionStore))
-){
+) {
     val uiState by scheduleViewModel.uiState.collectAsState()
-    uiState.session
 
     val liveCurrentTime = remember { mutableStateOf(getCurrentTimeSnappedToMinute()) }
 
@@ -100,11 +100,22 @@ fun ScheduleScreen(
             // Calculate delay until the start of the next minute
             val now = Calendar.getInstance()
             val secondsUntilNextMinute = 60 - now.get(Calendar.SECOND)
-            //delay to do it every minutes
+            // delay to do it every minutes
             delay(secondsUntilNextMinute * 1000L)
         }
     }
     // --- End of Time Updater ---
+    var hasAsked by remember { mutableStateOf(false) }
+    var showDisplaySessionDialog by remember { mutableStateOf(false) }
+    var showDisplaySessionDialogAnswer by remember { mutableStateOf(false) }
+
+
+    if (uiState.session != null) {
+        if (!showDisplaySessionDialogAnswer && !hasAsked){
+        showDisplaySessionDialog = liveCurrentTime.value
+            .after(uiState.session!!.endTime)
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -128,16 +139,30 @@ fun ScheduleScreen(
             }
         },
     ) { innerPadding ->
-        if (uiState.session == null){
-            Text(stringResource(R.string.no_section_selected))
-        }
-        else {
+        Log.d("NFDKJABEKLJFB","$showDisplaySessionDialogAnswer")
+        if (showDisplaySessionDialogAnswer || uiState.session == null) {
+            Text(stringResource(R.string.no_session_found))
+        } else {
             TimelineScreen(
                 session = uiState.session!!,
                 modifier = Modifier.padding(innerPadding),
                 currentTime = liveCurrentTime.value
             )
         }
+    }
+
+    if (showDisplaySessionDialog) {
+        RemoveSessionDialog(
+            onDismiss = {
+                showDisplaySessionDialog = false
+                hasAsked = true
+                        },
+            onConfirm = {
+                showDisplaySessionDialogAnswer = true
+                showDisplaySessionDialog = false
+                hasAsked = true
+            }
+        )
     }
 }
 

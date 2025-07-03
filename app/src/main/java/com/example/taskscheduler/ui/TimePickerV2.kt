@@ -73,8 +73,6 @@ fun TimePickerV2(
     var endTime = angleToTimeInt(endAngle)
 
     val currentTime = getCurrentTimeInMinutesOfDayJavaTime()
-    Log.d("currentTime", "currentTime: $currentTime")
-    Log.d("startTime", "startTime: $startTime")
 
     Box(
         modifier = modifier
