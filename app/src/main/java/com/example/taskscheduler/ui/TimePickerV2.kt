@@ -39,6 +39,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.taskscheduler.R
+import java.time.LocalTime
+import java.time.temporal.ChronoField
+import java.util.Calendar
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -67,6 +72,9 @@ fun TimePickerV2(
     var startTime = angleToTimeInt(startAngle)
     var endTime = angleToTimeInt(endAngle)
 
+    val currentTime = getCurrentTimeInMinutesOfDayJavaTime()
+    Log.d("currentTime", "currentTime: $currentTime")
+    Log.d("startTime", "startTime: $startTime")
 
     Box(
         modifier = modifier
@@ -80,7 +88,7 @@ fun TimePickerV2(
                     onDrag = { change, _ ->
                         val center = Offset(size.width / 2f, size.height / 2f)
                         val angle = floorWithStep(getAngle(center, change.position),fiveMinutesStep)
-                        Log.d("angle", "angle: ${floorWithStep(getAngle(center, change.position),fiveMinutesStep)}")
+
                         when (draggingHandle) {
                             HandleType.START -> startAngle = floorWithStep(angle,fiveMinutesStep)
                             HandleType.END -> endAngle = floorWithStep(angle,fiveMinutesStep)
@@ -168,11 +176,13 @@ fun TimePickerV2(
         // Center time info
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.Center)) {
             Icon(Icons.Default.Settings, contentDescription = null, tint = Color.LightGray)
-            Text(stringResource(R.string.session_starts_at) + " ${displayTime(startTime)}",
+            Text(stringResource(R.string.session_starts_at) + " ${displayTime(startTime)}" +
+                    if (startTime < currentTime) "⁺¹" else "",
                 fontSize = 20.sp, color = Color.LightGray)
             Spacer(Modifier.height(8.dp))
             Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.LightGray)
-            Text(stringResource(R.string.session_ends_at) +  " ${displayTime(endTime)}",
+            Text(stringResource(R.string.session_ends_at) +  " ${displayTime(endTime)}" +
+                    if (endTime < currentTime) "⁺¹" else "",
                 fontSize = 20.sp, color = Color.LightGray)
         }
     }
@@ -229,6 +239,12 @@ fun floorWithStep(value: Float, step: Float): Float {
         throw IllegalArgumentException("Step cannot be negative")
     }
     return (value/step).toInt() * step
+}
+
+fun getCurrentTimeInMinutesOfDayJavaTime(): Int {
+    val now = LocalTime.now()
+    val minutesOfDay = now.hour * 60 + now.minute
+    return minutesOfDay
 }
 
 @Composable

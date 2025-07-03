@@ -62,7 +62,9 @@ fun ColorPickerDialog(
                     },
                     currentlySelectedInPicker = currentlySelectedInPicker
                 )
-                Row(){
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
                     Button(onClick = {
                         onDismiss
                     }){

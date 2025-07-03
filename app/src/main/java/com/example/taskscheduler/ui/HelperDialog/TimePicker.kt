@@ -58,6 +58,7 @@ fun InfiniteTimePickerWheel(
         horizontalArrangement = Arrangement.Center
     ) {
         LoopingTimeWheelColumn(
+            selectedValue = selectedHour,
             items = hours,
             onItemSelected = {
                 selectedHour = it
@@ -81,6 +82,7 @@ fun InfiniteTimePickerWheel(
         }
 
         LoopingTimeWheelColumn(
+            selectedValue = selectedMinute,
             items = minutes,
             onItemSelected = {
                 selectedMinute = it
@@ -94,13 +96,22 @@ fun InfiniteTimePickerWheel(
 @Composable
 fun LoopingTimeWheelColumn(
     items: List<String>,
+    selectedValue: Int,
     onItemSelected: (Int) -> Unit,
     themeColor: Color,
     visibleItems: Int = 3,
     itemHeight: Dp = 32.dp
 ) {
     val infiniteItems = List(1000) { index -> items[index % items.size] }
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = 500)
+
+    // Calculate a center-friendly initial index for the selected value
+    val initialCenter = 500
+    val initialIndex = remember(selectedValue) {
+        val offset = selectedValue % items.size
+        initialCenter - (initialCenter % items.size) + offset
+    }
+
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
 
     val density = LocalDensity.current
 
@@ -109,21 +120,17 @@ fun LoopingTimeWheelColumn(
             val index = listState.firstVisibleItemIndex
             val offset = listState.firstVisibleItemScrollOffset
 
-            // Convert itemHeight to px inside a density scope
             val pxPerItem = with(density) { itemHeight.toPx() }
-
             if (offset < pxPerItem / 2) index else index + 1
         }
     }
 
-    val selectedValue by remember {
-        derivedStateOf {
-            centerIndex % items.size
-        }
+    val currentSelectedValue by remember {
+        derivedStateOf { centerIndex % items.size }
     }
 
     LaunchedEffect(centerIndex) {
-        onItemSelected(selectedValue)
+        onItemSelected(currentSelectedValue)
     }
 
     Box(
