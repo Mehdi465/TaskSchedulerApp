@@ -1,8 +1,6 @@
 package com.example.taskscheduler.ui
 
-import android.R.style
 import android.util.Log
-import androidx.compose.animation.core.copy
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,8 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,14 +50,13 @@ import java.util.Date
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
-import com.example.taskscheduler.ui.viewModel.ScheduleViewModel
-import com.example.taskscheduler.ui.viewModel.ScheduleViewModelFactory
+import com.example.taskscheduler.ui.viewModel.schedule.ScheduleViewModel
+import com.example.taskscheduler.ui.viewModel.schedule.ScheduleViewModelFactory
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import com.example.taskscheduler.data.Task.Companion.IconMap
-import com.example.taskscheduler.ui.theme.highlight
 import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
 import kotlinx.coroutines.delay
@@ -287,10 +282,6 @@ fun TaskCard(
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                // Duration text
-                Log.d("duration", "TaskCard: ${scheduledTask.task.duration}")
-                Log.d("Starttime", "TaskCard: ${scheduledTask.startTime}")
-                Log.d("endTime", "TaskCard: ${scheduledTask.endTime}")
                 StrikethroughText(
                     text = "Duration: ${getDurationAsString(scheduledTask.startTime,
                         scheduledTask.endTime)}",

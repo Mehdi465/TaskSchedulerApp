@@ -1,4 +1,4 @@
-package com.example.taskscheduler.ui.viewModel
+package com.example.taskscheduler.ui.viewModel.schedule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

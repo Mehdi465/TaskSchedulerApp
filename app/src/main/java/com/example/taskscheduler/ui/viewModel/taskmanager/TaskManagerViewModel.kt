@@ -1,14 +1,12 @@
-package com.example.taskscheduler.ui.viewModel
+package com.example.taskscheduler.ui.viewModel.taskmanager
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.combine

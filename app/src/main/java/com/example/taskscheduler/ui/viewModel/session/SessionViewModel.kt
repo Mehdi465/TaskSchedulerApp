@@ -1,8 +1,7 @@
-package com.example.taskscheduler.ui.viewModel
+package com.example.taskscheduler.ui.viewModel.session
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.ActiveSessionStore
@@ -10,19 +9,14 @@ import com.example.taskscheduler.data.ScheduledTask.Companion.scheduleTasks
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
-import com.example.taskscheduler.ui.SessionDestination
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
-import kotlin.text.get
 
 
 data class SessionUiState(

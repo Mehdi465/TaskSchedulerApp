@@ -2,7 +2,6 @@ package com.example.taskscheduler.ui
 
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Box
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,7 +43,6 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -67,16 +64,16 @@ import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.taskLighten
-import com.example.taskscheduler.ui.viewModel.TaskListUiState
-import com.example.taskscheduler.ui.viewModel.TaskManagerViewModel
-import com.example.taskscheduler.ui.viewModel.TaskViewModelFactory
+import com.example.taskscheduler.ui.viewModel.taskmanager.TaskListUiState
+import com.example.taskscheduler.ui.viewModel.taskmanager.TaskManagerViewModel
+import com.example.taskscheduler.ui.viewModel.taskmanager.TaskViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
 
 object TaskManagerDestination : NavigationDestination {
-    override val route = "Task_manager"
+    override val route = "task_manager"
     override val titleRes = R.string.task_manager_screen
 }
 
@@ -86,6 +83,7 @@ fun TaskManagerScreen(
     navigateBack: () -> Unit,
     navigateToTSessionManager: (selectedTaskIdsString: String) -> Unit,
     navigateToNewTaskScreen: () -> Unit,
+    navigateToModifyTaskScreen: (Int) -> Unit,
     canNavigateBack: Boolean = true,
     viewModel: TaskManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
     ) {
@@ -132,7 +130,8 @@ fun TaskManagerScreen(
         TaskManagerScreen(
             modifier = Modifier.padding(innerPadding),
             uiState = uiState,
-            navigateToNewTaskScreen = navigateToNewTaskScreen
+            navigateToNewTaskScreen = navigateToNewTaskScreen,
+            navigateToModifyTaskScreen = navigateToModifyTaskScreen
         )
     }
 }
@@ -153,7 +152,8 @@ fun showNoTaskSelected(snackbarHostState: SnackbarHostState,
 fun TaskManagerScreen(
     modifier: Modifier,
     uiState: TaskListUiState,
-    navigateToNewTaskScreen : () -> Unit
+    navigateToNewTaskScreen : () -> Unit,
+    navigateToModifyTaskScreen: (Int) -> Unit,
 ){
 
     // --- Get Repository from Application context ---
@@ -230,6 +230,7 @@ fun TaskManagerScreen(
                 tasks = tasks,
                 viewModel = viewModel,
                 modifier = Modifier.fillMaxSize(),
+                navigateToModifyTaskScreen = navigateToModifyTaskScreen
             )
         }
     }
@@ -242,6 +243,7 @@ private fun TaskListBody(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: TaskManagerViewModel,
+    navigateToModifyTaskScreen: (Int) -> Unit,
 ) {
 
     var taskToModify by remember { mutableStateOf<Task?>(null) }
@@ -265,6 +267,7 @@ private fun TaskListBody(
                 },
                 onStartModifyTask = { task ->
                     taskToModify = task
+                    navigateToModifyTaskScreen(task.id)
                 },
                 contentPadding = contentPadding,
                 modifier = Modifier.padding(horizontal = 8.dp),

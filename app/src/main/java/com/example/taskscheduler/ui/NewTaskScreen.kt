@@ -1,5 +1,7 @@
 package com.example.taskscheduler.ui
 
+import android.util.Log
+import androidx.compose.animation.core.copy
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,29 +17,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +48,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
@@ -66,23 +59,27 @@ import com.example.taskscheduler.ui.HelperDialog.ColorCircleMenu
 import com.example.taskscheduler.ui.HelperDialog.ColorPickerDialog
 import com.example.taskscheduler.ui.HelperDialog.InfiniteTimePickerWheel
 import com.example.taskscheduler.ui.navigation.NavigationDestination
-import com.example.taskscheduler.ui.viewModel.NewTaskViewModel
-import com.example.taskscheduler.ui.viewModel.NewTaskViewModelFactory
+import com.example.taskscheduler.ui.viewModel.newtask.NewTaskViewModel
+import com.example.taskscheduler.ui.viewModel.newtask.NewTaskViewModelFactory
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 object NewTaskScreenDestination : NavigationDestination {
-    override val route = "New_task"
+    override val route = "new_task"
     override val titleRes = R.string.new_task_screen
+    const val TASK_ID_ARG = "taskId"
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewTaskScreen(
+    taskIdToModify: Int? = null,
     onDismiss : () -> Unit,
     canNavigateBack: Boolean = true,
 ){
+
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -93,7 +90,9 @@ fun NewTaskScreen(
             )
         },
     ) {innerPadding ->
+
         NewTaskContent(
+            taskIdToModify = taskIdToModify,
             modifier = Modifier.padding(innerPadding),
             onDismiss = onDismiss
         )
@@ -101,9 +100,9 @@ fun NewTaskScreen(
 }
 
 
-
 @Composable
 fun NewTaskContent(
+    taskIdToModify: Int?,
     modifier: Modifier,
     onDismiss : () -> Unit,
 ) {
@@ -113,6 +112,8 @@ fun NewTaskContent(
         Priority.HIGH,
         Priority.MANDATORY
     )
+
+    val isModificationMode = taskIdToModify != null
 
     // --- Get Repository from Application context ---
     val context = LocalContext.current
@@ -124,6 +125,7 @@ fun NewTaskContent(
         factory = NewTaskViewModelFactory(tasksRepository)
     )
 
+
     // --- State for Input Fields ---
     var taskNameInput by remember { mutableStateOf("") }
     var selectedPriority by remember { mutableStateOf(Priority.LOW) }
@@ -133,6 +135,31 @@ fun NewTaskContent(
 
     var showColorPickerDialog by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+
+    var taskToModify by remember { mutableStateOf<Task?>(null)}
+    var taskToEdit = taskToModify
+
+    LaunchedEffect(key1 = taskIdToModify) {
+        if (isModificationMode) {
+            viewModel.getTaskByIdAsFlow(taskIdToModify).collect { task ->
+                taskToEdit = task
+                if (task != null) {
+                    taskToModify = taskToEdit
+
+                    taskNameInput = taskToModify?.name!!
+                    selectedPriority = taskToModify?.priority!!
+                    selectedDuration = taskToModify?.duration!!
+                    selectedColor = taskToModify?.color!!
+                    selectedIcon = taskToModify?.icon!!
+                } else {
+                    onDismiss()
+                }
+            }
+        }else {
+            taskToModify = null
+        }
+    }
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -211,14 +238,32 @@ fun NewTaskContent(
                     containerColor = selectedColor
                 ),
                 onClick = {
-                    val newTask = Task(
-                        name = taskNameInput,
-                        priority = selectedPriority,
-                        duration = selectedDuration,
-                        color = selectedColor,
-                        icon = selectedIcon
-                    )
-                    viewModel.addTask(newTask)
+                    if (!isModificationMode){
+                        val newTask = Task(
+                            name = taskNameInput,
+                            priority = selectedPriority,
+                            duration = selectedDuration,
+                            color = selectedColor,
+                            icon = selectedIcon
+                        )
+                        viewModel.addTask(newTask)
+                    }
+                    else {
+
+                        val currentOriginalTask = taskToModify
+
+                        if (currentOriginalTask != null) {
+
+                            val updatedTask = currentOriginalTask.copy(
+                                name = taskNameInput,
+                                priority = selectedPriority,
+                                duration = selectedDuration,
+                                icon = selectedIcon,
+                                color = selectedColor
+                            )
+                            viewModel.updateTask(updatedTask)
+                        }
+                    }
                     onDismiss() // close dialog
                 }
             ) {

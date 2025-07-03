@@ -41,6 +41,14 @@ data class Task(
         return calendar.time
     }
 
+    fun modify(task: Task){
+        name = task.name
+        priority = task.priority
+        duration = task.duration
+        icon = task.icon
+        color = task.color
+    }
+
     companion object{
         val DEFAULT_TASK = Task(name = "Default Task", priority = Priority.LOW)
 

@@ -45,20 +45,31 @@ fun TaskAppNavHost(
                     navController.navigate(("${SessionDestination.route}/$selectedTaskIdsStr")) },
                 navigateBack = { navController.popBackStack() },
                 navigateToNewTaskScreen = {
-                    Log.d("FAEKYHBF","GO to DNBWL")
                     navController.navigate(NewTaskScreenDestination.route)
                                           },
+                navigateToModifyTaskScreen = { taskId ->
+                    navController.navigate(("${NewTaskScreenDestination.route}?" +
+                            "${NewTaskScreenDestination.TASK_ID_ARG}=$taskId"))
+                }
             )
         }
 
         // New Task Screen
         composable(
-            route = NewTaskScreenDestination.route
-        ){
-            NewTaskScreen(
-                onDismiss = { navController.popBackStack() }
+            route = "${NewTaskScreenDestination.route}?" +
+                    "${NewTaskScreenDestination.TASK_ID_ARG}={${NewTaskScreenDestination.TASK_ID_ARG}}",
+            arguments = listOf(
+                navArgument(NewTaskScreenDestination.TASK_ID_ARG) {
+                    type = NavType.IntType
+                    defaultValue = -1
+                    }
             )
-
+        ){navBackStackEntry ->
+            val taskId = navBackStackEntry.arguments?.getInt(NewTaskScreenDestination.TASK_ID_ARG)
+            NewTaskScreen(
+                onDismiss = { navController.popBackStack() },
+                taskIdToModify = if (taskId != null && taskId != -1) taskId else null
+            )
         }
 
         // Session Screen

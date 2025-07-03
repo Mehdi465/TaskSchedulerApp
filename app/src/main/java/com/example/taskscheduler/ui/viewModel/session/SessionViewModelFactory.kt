@@ -1,4 +1,4 @@
-package com.example.taskscheduler.ui.viewModel
+package com.example.taskscheduler.ui.viewModel.session
 
 import android.app.Application
 import android.os.Bundle
