@@ -224,6 +224,7 @@ fun NewTaskContent(
 
         // priority section
         PrioritySection(
+            selectedPriority = selectedPriority,
             themeColor = selectedColor,
             priorities = listPriority,
             onPrioritySelected = { selectedPriority = it },
@@ -351,6 +352,7 @@ fun IconSection(
 
 @Composable
 fun PrioritySection(
+    selectedPriority: Priority,
     modifier: Modifier = Modifier,
     themeColor: Color,
     priorities: List<Priority>,
@@ -365,6 +367,7 @@ fun PrioritySection(
         )
 
         PrioritySelector(
+            selectedPriority = selectedPriority,
             themeColor = themeColor,
             priorities = priorities,
             onPrioritySelected = onPrioritySelected
@@ -381,8 +384,18 @@ fun HorizontalIconWheel(
     selectedIcon: String,
     onIconSelected: (String) -> Unit
 ) {
-    val selectedIndex = icons.indexOf(selectedIcon)
-    var selected by remember { mutableStateOf(selectedIndex) }
+    val selectedIndex = remember(icons,selectedIcon){
+        icons.indexOf(selectedIcon).takeIf { it != -1 } ?: 0
+    }
+    var selectedInternal by remember { mutableStateOf(selectedIndex) }
+
+    LaunchedEffect(selectedIcon,icons) {
+        val newIndex = icons.indexOf(selectedIcon).takeIf { it != -1 } ?: 0
+        if (selectedInternal != newIndex) {
+            selectedInternal = newIndex
+        }
+    }
+
     val scrollState = rememberScrollState()
 
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -409,14 +422,14 @@ fun HorizontalIconWheel(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             icons.forEachIndexed { index, icon ->
-                val isSelected = index == selected
+                val isSelected = index == selectedIndex
                 Box(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(if (isSelected) themeColor else Color(0xFF3C3C3C))
                         .clickable {
-                            selected = index
+                            selectedInternal = index
                             onIconSelected(icons[index])
                         },
                     contentAlignment = Alignment.Center
@@ -447,11 +460,23 @@ fun HorizontalIconWheel(
 
 @Composable
 fun PrioritySelector(
+    selectedPriority: Priority,
     themeColor: Color,
     priorities: List<Priority>,
     onPrioritySelected: (Priority) -> Unit
 ) {
-    var selected by remember { mutableStateOf(0) }
+    val initialSelectedIndex = remember(priorities, selectedPriority) {
+        priorities.indexOf(selectedPriority).takeIf { it != -1 } ?: 0
+    }
+
+    var selectedInternalIndex by remember { mutableStateOf(initialSelectedIndex) }
+
+    LaunchedEffect(selectedPriority, priorities) {
+        val newIndex = priorities.indexOf(selectedPriority).takeIf { it != -1 } ?: 0
+        if (selectedInternalIndex != newIndex) {
+            selectedInternalIndex = newIndex
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -462,7 +487,7 @@ fun PrioritySelector(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         priorities.forEachIndexed { index, label ->
-            val isSelected = index == selected
+            val isSelected = index == initialSelectedIndex
 
             Box(
                 modifier = Modifier
@@ -471,7 +496,7 @@ fun PrioritySelector(
                         if (isSelected) themeColor else Color(0xFF3C3C3C)
                     )
                     .clickable {
-                        selected = index
+                        selectedInternalIndex = index
                         onPrioritySelected(priorities[index])
                     }
                     .padding(horizontal = 16.dp, vertical = 8.dp)
