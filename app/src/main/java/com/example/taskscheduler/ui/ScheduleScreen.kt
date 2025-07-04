@@ -104,6 +104,7 @@ fun ScheduleScreen(
             delay(secondsUntilNextMinute * 1000L)
         }
     }
+    /*
     // --- End of Time Updater ---
     var hasAsked by remember { mutableStateOf(false) }
     var showDisplaySessionDialog by remember { mutableStateOf(false) }
@@ -116,6 +117,8 @@ fun ScheduleScreen(
             .after(uiState.session!!.endTime)
         }
     }
+    */
+
 
     Scaffold(
         modifier = modifier,
@@ -139,8 +142,8 @@ fun ScheduleScreen(
             }
         },
     ) { innerPadding ->
-        Log.d("NFDKJABEKLJFB","$showDisplaySessionDialogAnswer")
-        if (showDisplaySessionDialogAnswer || uiState.session == null) {
+
+        if (uiState.session == null) { //showDisplaySessionDialogAnswer ||
             Text(stringResource(R.string.no_session_found))
         } else {
             TimelineScreen(
@@ -151,6 +154,7 @@ fun ScheduleScreen(
         }
     }
 
+    /*
     if (showDisplaySessionDialog) {
         RemoveSessionDialog(
             onDismiss = {
@@ -164,6 +168,8 @@ fun ScheduleScreen(
             }
         )
     }
+    */
+     
 }
 
 @Composable
