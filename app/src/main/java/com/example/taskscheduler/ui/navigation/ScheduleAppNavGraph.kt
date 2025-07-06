@@ -7,6 +7,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.taskscheduler.ui.bottomFeature.PomodoroDestination
+import com.example.taskscheduler.ui.bottomFeature.PomodoroScreen
 import com.example.taskscheduler.ui.bottomFeature.TrophiesDestination
 import com.example.taskscheduler.ui.bottomFeature.TrophiesScreen
 import com.example.taskscheduler.ui.mainLogicUI.HomeDestination
@@ -32,8 +34,9 @@ fun TaskAppNavHost(
             route = HomeDestination.route
         ) {
             ScheduleScreen(
-                navigateToTrophies = { navController.navigate(TrophiesDestination.route) },
+                navigateToPomodoro = { navController.navigate(PomodoroDestination.route) },
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
+                navigateToTrophies = { navController.navigate(TrophiesDestination.route) },
             )
         }
 
@@ -95,10 +98,23 @@ fun TaskAppNavHost(
           POMODORO, TASK TRACKING AND TROPHIES
           */
         composable(
+            route = PomodoroDestination.route
+        ) {
+            PomodoroScreen(
+                navigateToHome = { navController.navigate(HomeDestination.route) },
+                navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
+                navigateToTrophies = { navController.navigate(TrophiesDestination.route) }
+            )
+        }
+
+        composable(
             route = TrophiesDestination.route
         ) {
             TrophiesScreen(
-                navigateBack = { navController.popBackStack() }
+                navigateBack = { navController.popBackStack() },
+                navigateToHome = { navController.navigate(HomeDestination.route) },
+                navigateToPomodoro = { navController.navigate(PomodoroDestination.route) },
+                navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) }
             )
         }
     }

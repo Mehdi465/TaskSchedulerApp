@@ -73,9 +73,11 @@ fun TaskTopAppBar(
 
 @Composable
 fun BottomAppScheduleBar(
-    onClickTrophies : () -> Unit = {},
-    onClickAddNewTask : () -> Unit = {},
     onClickHome : () -> Unit = {},
+    onClickPomodoro : () -> Unit = {},
+    onClickAddNewTask : () -> Unit = {},
+    onClickTracking : () -> Unit = {},
+    onClickTrophies : () -> Unit = {}
 ) {
     BottomAppBar(
         containerColor = Color.DarkGray
@@ -93,7 +95,7 @@ fun BottomAppScheduleBar(
 
         // Pomodoro
         IconButton(
-            onClick = {},
+            onClick = onClickPomodoro,
             modifier = Modifier.weight(1f)
         ) {
             Icon(

@@ -11,4 +11,5 @@ data class Session(
     fun isExpired(): Boolean {
         return Date().after(endTime)
     }
+
 }

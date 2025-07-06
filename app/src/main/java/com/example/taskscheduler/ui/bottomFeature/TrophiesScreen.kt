@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskTopAppBar
+import com.example.taskscheduler.ui.mainLogicUI.TaskManagerDestination
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 
 object TrophiesDestination : NavigationDestination {
@@ -22,6 +23,9 @@ object TrophiesDestination : NavigationDestination {
 @Composable
 fun TrophiesScreen(
     navigateBack: () -> Unit,
+    navigateToHome: () -> Unit,
+    navigateToPomodoro: () -> Unit,
+    navigateToTaskManager: () -> Unit,
 ){
     Scaffold(
         topBar = {
@@ -33,7 +37,10 @@ fun TrophiesScreen(
         },
         bottomBar = {
             BottomAppScheduleBar(
-                onClickHome = navigateBack,
+                onClickHome = navigateToHome,
+                onClickPomodoro = navigateToPomodoro,
+                onClickAddNewTask = navigateToTaskManager,
+                onClickTrophies = {}
             )
         }
     )

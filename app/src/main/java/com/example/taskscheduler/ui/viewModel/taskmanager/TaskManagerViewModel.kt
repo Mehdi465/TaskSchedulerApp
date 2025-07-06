@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.viewModel.taskmanager
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.Task
@@ -7,6 +8,7 @@ import com.example.taskscheduler.data.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.combine
@@ -33,6 +35,9 @@ class TaskManagerViewModel(
     private val _checkedTaskIds = MutableStateFlow<Set<Int>>(emptySet())
     private val errorMessages = MutableStateFlow<String>(value = "")
 
+    private val _taskBackgroundColors = MutableStateFlow<MutableList<Color>>(mutableListOf())
+    val taskBackgroundColors: StateFlow<List<Color>> = _taskBackgroundColors.asStateFlow()
+
 
     /**
      * Holds the UI state for the task list.
@@ -42,7 +47,7 @@ class TaskManagerViewModel(
         combine(
             tasksRepository.getAllTasksStream(), // Flow<List<Task>>
             _checkedTaskIds,                     // Flow<Set<Int>>
-            errorMessages// Flow<String?>
+            errorMessages // not yet used
         ) { tasks: List<Task>, checkedIds: Set<Int>, errorMsg: String? ->
             // This mapping function is called whenever tasks, checkedIds, or errorMsg emit a new value
             TaskListUiState(
@@ -61,7 +66,22 @@ class TaskManagerViewModel(
         )
 
     /**
-     * Toggles the selection state of a task.
+     * Toggles the selection state of a task from the Switch Button.
+     * @param taskId The ID of the task to toggle.
+     */
+    fun toggleTaskSelectionSwitchButton(taskId: Int) {
+        _checkedTaskIds.update { currentCheckedIds ->
+            val newCheckedIds = currentCheckedIds.toMutableSet()
+            if (!newCheckedIds.contains(taskId)) {
+                newCheckedIds.add(taskId)
+            }
+            newCheckedIds
+        }
+    }
+
+
+    /**
+     * Toggles the selection state of a task from the CheckedBox.
      * @param taskId The ID of the task to toggle.
      */
     fun toggleTaskSelection(taskId: Int) {
@@ -72,7 +92,7 @@ class TaskManagerViewModel(
             } else {
                 newCheckedIds.add(taskId)
             }
-            newCheckedIds // Return the updated set
+            newCheckedIds
         }
     }
 

@@ -85,7 +85,7 @@ fun SessionScreen(
 ) {
 
     val sessionViewModel : SessionViewModel = viewModel(
-        factory = SessionViewModelFactory(
+            factory = SessionViewModelFactory(
             application = application,
             taskRepository = tasksRepository,
             owner = LocalSavedStateRegistryOwner.current, // For SavedStateHandle if factory/VM uses it for OTHER things

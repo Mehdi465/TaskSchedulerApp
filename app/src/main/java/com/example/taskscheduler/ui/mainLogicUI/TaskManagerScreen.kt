@@ -92,7 +92,6 @@ fun TaskManagerScreen(
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val uiState by viewModel.taskListUiState.collectAsState()
     val message = stringResource(R.string.no_tasks_selected)
     Scaffold(
         modifier = Modifier,
@@ -129,7 +128,6 @@ fun TaskManagerScreen(
     ){innerPadding ->
         TaskManagerScreen(
             modifier = Modifier.padding(innerPadding),
-            uiState = uiState,
             navigateToNewTaskScreen = navigateToNewTaskScreen,
             navigateToModifyTaskScreen = navigateToModifyTaskScreen
         )
@@ -151,7 +149,6 @@ fun showNoTaskSelected(snackbarHostState: SnackbarHostState,
 @Composable
 fun TaskManagerScreen(
     modifier: Modifier,
-    uiState: TaskListUiState,
     navigateToNewTaskScreen : () -> Unit,
     navigateToModifyTaskScreen: (Int) -> Unit,
 ){
@@ -201,7 +198,7 @@ fun TaskManagerScreen(
                 onCheckedChange = {
                     if (!checked){
                         tasksCheckId.forEach {
-                            viewModel.toggleTaskSelection(it.id)
+                            viewModel.toggleTaskSelectionSwitchButton(it.id)
                         }
                     }
                     else {
@@ -263,6 +260,7 @@ private fun TaskListBody(
             TaskList(
                 uiState = uiState,
                 onDeleteTask = { task ->
+                    // remove background color
                     viewModel.deleteTask(task)
                 },
                 onStartModifyTask = { task ->
@@ -294,6 +292,7 @@ private fun TaskList(
             items = uiState.tasks,
             key = {task -> task.id}
         ) { task ->
+
             SwipableTaskItem(task = task,
                 isSelected = task.id in uiState.checkedTasks,
                 onDelete = { onDeleteTask(task) },
@@ -401,7 +400,7 @@ private fun SwipableTaskItem(task: Task,
         TaskItem(
             backgroundColor = cardColor,
             task = task,
-            isSelected=isSelected,
+            isSelected = isSelected,
             viewModel = viewModel,
             onColorChange = { newColor ->
                 cardColor = newColor

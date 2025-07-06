@@ -45,8 +45,6 @@ import java.util.Date
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
-import com.example.taskscheduler.ui.viewModel.schedule.ScheduleViewModel
-import com.example.taskscheduler.ui.viewModel.schedule.ScheduleViewModelFactory
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -55,6 +53,8 @@ import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.data.Task.Companion.IconMap
 import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
+import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModel
+import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModelFactory
 import kotlinx.coroutines.delay
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -78,11 +78,12 @@ fun getCurrentTimeSnappedToMinute(): Date {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    navigateToTrophies: () -> Unit,
+    navigateToPomodoro: () -> Unit,
     navigateToTaskManager: () -> Unit,
+    navigateToTrophies: () -> Unit,
     modifier: Modifier = Modifier,
-    scheduleViewModel: ScheduleViewModel = viewModel(
-        factory = ScheduleViewModelFactory(
+    scheduleViewModel: SharedSessionPomodoroViewModel = viewModel(
+        factory = SharedSessionPomodoroViewModelFactory(
             (LocalContext.current.applicationContext as TaskApplication).activeSessionStore))
 ) {
     val uiState by scheduleViewModel.uiState.collectAsState()
@@ -139,10 +140,13 @@ fun ScheduleScreen(
             }
         },
         */
-        bottomBar = {BottomAppScheduleBar(
-            onClickTrophies = navigateToTrophies,
-            onClickAddNewTask = navigateToTaskManager
-        )}
+        bottomBar = {
+            BottomAppScheduleBar(
+                onClickHome = {},
+                onClickPomodoro = navigateToPomodoro,
+                onClickAddNewTask = navigateToTaskManager,
+                onClickTrophies = navigateToTrophies
+            )}
     ) { innerPadding ->
 
         if (uiState.session == null) { //showDisplaySessionDialogAnswer ||
