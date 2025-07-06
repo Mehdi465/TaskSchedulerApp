@@ -1,4 +1,4 @@
-package com.example.taskscheduler.ui.HelperDialog
+package com.example.taskscheduler.ui.helperComposable
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

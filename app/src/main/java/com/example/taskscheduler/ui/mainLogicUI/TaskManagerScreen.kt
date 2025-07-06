@@ -1,7 +1,6 @@
-package com.example.taskscheduler.ui
+package com.example.taskscheduler.ui.mainLogicUI
 
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Box
@@ -62,6 +61,7 @@ import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
+import com.example.taskscheduler.ui.AppViewModelProvider
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.taskmanager.TaskListUiState

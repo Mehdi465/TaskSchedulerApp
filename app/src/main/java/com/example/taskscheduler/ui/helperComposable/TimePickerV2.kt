@@ -1,6 +1,6 @@
-package com.example.taskscheduler.ui
+package com.example.taskscheduler.ui.helperComposable
 
-import android.util.Log
+import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
@@ -40,10 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.taskscheduler.R
 import java.time.LocalTime
-import java.time.temporal.ChronoField
-import java.util.Calendar
-import java.util.Date
-import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -134,9 +130,9 @@ fun TimePickerV2(
                         "$i",
                         labelX,
                         labelY,
-                        android.graphics.Paint().apply {
+                        Paint().apply {
                             color = android.graphics.Color.LTGRAY
-                            textAlign = android.graphics.Paint.Align.CENTER
+                            textAlign = Paint.Align.CENTER
                             textSize = 40f
                             isAntiAlias = true
                         }
@@ -224,7 +220,7 @@ private fun isNear(angle1: Float, angle2: Float): Boolean {
 
 private fun Float.toDegrees() = Math.toDegrees(this.toDouble()).toFloat()
 
-private fun DrawScope.drawHandleWithIcon(center: Offset, radius: Float, angle: Float, color: androidx.compose.ui.graphics.Color, icon: ImageVector) {
+private fun DrawScope.drawHandleWithIcon(center: Offset, radius: Float, angle: Float, color: Color, icon: ImageVector) {
     val rad = Math.toRadians(angle.toDouble())
     val x = center.x + cos(rad).toFloat() * radius
     val y = center.y + sin(rad).toFloat() * radius

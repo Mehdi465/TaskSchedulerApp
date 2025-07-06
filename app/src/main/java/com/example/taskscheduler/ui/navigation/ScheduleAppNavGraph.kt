@@ -1,6 +1,5 @@
 package com.example.taskscheduler.ui.navigation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -8,15 +7,16 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.taskscheduler.data.Session
-import com.example.taskscheduler.ui.HomeDestination
-import com.example.taskscheduler.ui.NewTaskScreen
-import com.example.taskscheduler.ui.NewTaskScreenDestination
-import com.example.taskscheduler.ui.ScheduleScreen
-import com.example.taskscheduler.ui.SessionDestination
-import com.example.taskscheduler.ui.SessionScreen
-import com.example.taskscheduler.ui.TaskManagerDestination
-import com.example.taskscheduler.ui.TaskManagerScreen
+import com.example.taskscheduler.ui.bottomFeature.TrophiesDestination
+import com.example.taskscheduler.ui.bottomFeature.TrophiesScreen
+import com.example.taskscheduler.ui.mainLogicUI.HomeDestination
+import com.example.taskscheduler.ui.mainLogicUI.NewTaskScreen
+import com.example.taskscheduler.ui.mainLogicUI.NewTaskScreenDestination
+import com.example.taskscheduler.ui.mainLogicUI.ScheduleScreen
+import com.example.taskscheduler.ui.mainLogicUI.SessionDestination
+import com.example.taskscheduler.ui.mainLogicUI.SessionScreen
+import com.example.taskscheduler.ui.mainLogicUI.TaskManagerDestination
+import com.example.taskscheduler.ui.mainLogicUI.TaskManagerScreen
 
 @Composable
 fun TaskAppNavHost(
@@ -32,6 +32,7 @@ fun TaskAppNavHost(
             route = HomeDestination.route
         ) {
             ScheduleScreen(
+                navigateToTrophies = { navController.navigate(TrophiesDestination.route) },
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
             )
         }
@@ -83,6 +84,20 @@ fun TaskAppNavHost(
             SessionScreen(
                 selectedTaskIdsString = selectedTaskIdsString,
                 navigateToSchedulePage = { navController.navigate(HomeDestination.route) },
+                navigateBack = { navController.popBackStack() }
+            )
+        }
+
+
+
+
+         /*
+          POMODORO, TASK TRACKING AND TROPHIES
+          */
+        composable(
+            route = TrophiesDestination.route
+        ) {
+            TrophiesScreen(
                 navigateBack = { navController.popBackStack() }
             )
         }

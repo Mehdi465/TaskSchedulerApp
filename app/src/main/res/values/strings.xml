@@ -9,6 +9,8 @@
     <string name="task_manager_screen">Task Manager Screen</string>
     <string name="session_screen">Session Screen</string>
     <string name="new_task_screen">New Task Screen</string>
+    <string name="trophies_screen">Trophies Screen</string>
+    <string name="tracking_screen">Tracking Screen</string>
 
 
     <string name="go_task_manager">Go to Task Manager</string>

@@ -1,4 +1,4 @@
-package com.example.taskscheduler.ui
+package com.example.taskscheduler.ui.mainLogicUI
 
 import android.app.Application
 import androidx.compose.foundation.background
@@ -53,6 +53,7 @@ import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
+import com.example.taskscheduler.ui.helperComposable.TimePickerV2
 import com.example.taskscheduler.ui.viewModel.session.SessionViewModel
 import com.example.taskscheduler.ui.viewModel.session.SessionViewModelFactory
 import java.util.Calendar
@@ -215,8 +216,8 @@ fun SessionCreationPage(
     ) {
 
         TimePickerV2(
-            initialStartTime = initialStartHour*60+initialStartMinute,
-            initialEndTime = initialEndHour*60+initialEndMinute,
+            initialStartTime = initialStartHour * 60 + initialStartMinute,
+            initialEndTime = initialEndHour * 60 + initialEndMinute,
             onTimeChange = { startTime, endTime ->
                 val (newStartDate, newEndDate) = convertMinutesToStartEndDates(
                     currentStartDate = sessionStartTime,

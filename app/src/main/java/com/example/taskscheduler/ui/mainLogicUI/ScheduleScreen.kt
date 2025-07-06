@@ -1,6 +1,5 @@
-package com.example.taskscheduler.ui
+package com.example.taskscheduler.ui.mainLogicUI
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,15 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -56,8 +51,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
+import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.data.Task.Companion.IconMap
-import com.example.taskscheduler.ui.HelperDialog.RemoveSessionDialog
 import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
 import kotlinx.coroutines.delay
@@ -83,6 +78,7 @@ fun getCurrentTimeSnappedToMinute(): Date {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
+    navigateToTrophies: () -> Unit,
     navigateToTaskManager: () -> Unit,
     modifier: Modifier = Modifier,
     scheduleViewModel: ScheduleViewModel = viewModel(
@@ -128,6 +124,7 @@ fun ScheduleScreen(
                 canNavigateBack = false,
             )
         },
+        /*
         floatingActionButton = {
             FloatingActionButton(
                 onClick = navigateToTaskManager,
@@ -141,6 +138,11 @@ fun ScheduleScreen(
                 )
             }
         },
+        */
+        bottomBar = {BottomAppScheduleBar(
+            onClickTrophies = navigateToTrophies,
+            onClickAddNewTask = navigateToTaskManager
+        )}
     ) { innerPadding ->
 
         if (uiState.session == null) { //showDisplaySessionDialogAnswer ||

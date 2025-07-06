@@ -1,7 +1,5 @@
-package com.example.taskscheduler.ui
+package com.example.taskscheduler.ui.mainLogicUI
 
-import android.util.Log
-import androidx.compose.animation.core.copy
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,9 +53,9 @@ import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Priority
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.Task.Companion.IconMap
-import com.example.taskscheduler.ui.HelperDialog.ColorCircleMenu
-import com.example.taskscheduler.ui.HelperDialog.ColorPickerDialog
-import com.example.taskscheduler.ui.HelperDialog.InfiniteTimePickerWheel
+import com.example.taskscheduler.ui.helperComposable.ColorCircleMenu
+import com.example.taskscheduler.ui.helperComposable.ColorPickerDialog
+import com.example.taskscheduler.ui.helperComposable.InfiniteTimePickerWheel
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.viewModel.newtask.NewTaskViewModel
 import com.example.taskscheduler.ui.viewModel.newtask.NewTaskViewModelFactory
