@@ -74,5 +74,5 @@ fun PomodoroContent(
     session: Session?,
     modifier : Modifier
 ){
-    
+
 }
