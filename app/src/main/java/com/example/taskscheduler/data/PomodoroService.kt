@@ -15,6 +15,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.example.taskscheduler.MainActivity
 import com.example.taskscheduler.R
+import com.example.taskscheduler.data.pomodoro.PomodoroServiceConnector
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,6 +68,12 @@ class PomodoroService : LifecycleService() {
         // Initialize notification channel for Android O and above
         createNotificationChannel()
         Log.d("PomodoroService", "Service created")
+
+        lifecycleScope.launch {
+            _pomodoroState.collect { state ->
+                PomodoroServiceConnector.serviceStateFlow.value = state
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -119,6 +126,7 @@ class PomodoroService : LifecycleService() {
 
     private fun resumeTimer() {
         if (_pomodoroState.value.phase == PomodoroPhase.PAUSED) {
+            _pomodoroState.value = _pomodoroState.value.copy(phase = PomodoroPhase.WORK)
             startTimer(_pomodoroState.value.phase, _pomodoroState.value.timeLeftMillis)
             Log.d("PomodoroService", "Timer resumed")
         }
@@ -306,7 +314,7 @@ class PomodoroService : LifecycleService() {
             .addAction(playPauseAction)
             .addAction(skipAction)
             .addAction(stopAction)
-            //.setStyle(androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2)) // For media style notifications with controls
+            .setStyle(androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2)) // For media style notifications with controls
             .build()
     }
 

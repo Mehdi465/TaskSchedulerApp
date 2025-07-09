@@ -101,6 +101,7 @@ fun TaskAppNavHost(
             route = PomodoroDestination.route
         ) {
             PomodoroScreen(
+                navigateBack = { navController.popBackStack() },
                 navigateToHome = { navController.navigate(HomeDestination.route) },
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
                 navigateToTrophies = { navController.navigate(TrophiesDestination.route) }

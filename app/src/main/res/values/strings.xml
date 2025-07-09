@@ -44,7 +44,6 @@
     <string name="icons">Icons</string>
     <string name="duration">Duration</string>
 
-    <string name="app_name">PomodoroTimer</string>
     <string name="channel_name">Pomodoro Timer Notifications</string>
     <string name="channel_description">Notifications for the Pomodoro timer, showing current phase and time.</string>
 
