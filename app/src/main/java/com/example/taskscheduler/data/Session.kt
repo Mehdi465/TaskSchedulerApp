@@ -12,4 +12,8 @@ data class Session(
         return Date().after(endTime)
     }
 
+    fun getCurrentTask(): ScheduledTask? {
+        val currentTime = Calendar.getInstance().time
+        return scheduledTasks.find { it.startTime.before(currentTime) && it.endTime.after(currentTime) }
+    }
 }
