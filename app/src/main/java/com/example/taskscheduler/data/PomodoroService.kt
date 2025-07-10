@@ -23,10 +23,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// Constants for Pomodoro durations (in milliseconds)
+private val WORK_DURATION_MILLIS = 25 * 60 * 1000L // 25 minutes
+private val BREAK_DURATION_MILLIS = 5 * 60 * 1000L // 5 minutes
+private val LONG_BREAK_DURATION_MILLIS = 15 * 60 * 1000L // 15 minutes
+private val CYCLES_BEFORE_LONG_BREAK = 4
+
 // Data class to hold the current state of our Pomodoro timer
 data class PomodoroState(
     val phase: PomodoroPhase = PomodoroPhase.STOPPED,
-    val timeLeftMillis: Long = 0L,
+    val timeLeftMillis: Long = WORK_DURATION_MILLIS,
     val totalCycles: Int = 0, // Number of completed work cycles
     val currentCycle: Int = 0 // Current cycle in the set of 4 before a long break
 )
@@ -38,12 +44,6 @@ enum class PomodoroPhase {
 class PomodoroService : LifecycleService() {
 
     private var timerJob: Job? = null
-
-    // Constants for Pomodoro durations (in milliseconds)
-    private val WORK_DURATION_MILLIS = 25 * 60 * 1000L // 25 minutes
-    private val BREAK_DURATION_MILLIS = 5 * 60 * 1000L // 5 minutes
-    private val LONG_BREAK_DURATION_MILLIS = 15 * 60 * 1000L // 15 minutes
-    private val CYCLES_BEFORE_LONG_BREAK = 4
 
     // Use MutableStateFlow to emit timer state updates
     // _pomodoroState holds the mutable state, pomodoroState exposes an immutable StateFlow

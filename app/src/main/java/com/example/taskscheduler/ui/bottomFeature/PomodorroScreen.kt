@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.bottomFeature
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -106,6 +107,7 @@ fun PomodoroTimerApp(viewModel: PomodoroViewModel) {
     // Observe the PomodoroState from the ViewModel's StateFlow
     // collectAsStateWithLifecycle is preferred as it's lifecycle-aware
     val pomodoroState by viewModel.pomodoroState.collectAsStateWithLifecycle()
+    Log.d("PomodoroTimerApp", "PomodoroState: $pomodoroState.timeLeftMillis")
 
     Column(
         modifier = Modifier

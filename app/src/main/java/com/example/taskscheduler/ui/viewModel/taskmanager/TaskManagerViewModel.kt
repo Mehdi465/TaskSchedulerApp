@@ -89,10 +89,11 @@ class TaskManagerViewModel(
             val newCheckedIds = currentCheckedIds.toMutableSet()
             if (newCheckedIds.contains(taskId)) {
                 newCheckedIds.remove(taskId)
+                newCheckedIds
             } else {
                 newCheckedIds.add(taskId)
+                newCheckedIds
             }
-            newCheckedIds
         }
     }
 

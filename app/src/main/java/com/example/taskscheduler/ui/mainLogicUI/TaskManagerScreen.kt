@@ -1,6 +1,7 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Box
@@ -260,7 +261,7 @@ private fun TaskListBody(
             TaskList(
                 uiState = uiState,
                 onDeleteTask = { task ->
-                    // remove background color
+                    // TODO remove background color
                     viewModel.deleteTask(task)
                 },
                 onStartModifyTask = { task ->
@@ -292,7 +293,6 @@ private fun TaskList(
             items = uiState.tasks,
             key = {task -> task.id}
         ) { task ->
-
             SwipableTaskItem(task = task,
                 isSelected = task.id in uiState.checkedTasks,
                 onDelete = { onDeleteTask(task) },
@@ -311,9 +311,8 @@ private fun SwipableTaskItem(task: Task,
                              onDelete: () -> Unit,
                              onModify: () -> Unit,
                              modifier: Modifier = Modifier,
-                             viewModel: TaskManagerViewModel){
-
-
+                             viewModel: TaskManagerViewModel)
+{
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { dismissValue ->
             when (dismissValue) {
@@ -417,6 +416,7 @@ fun TaskItem(
              viewModel: TaskManagerViewModel,
              onColorChange: (Color) -> Unit
 ) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -476,6 +476,7 @@ fun TaskItem(
             Checkbox(
                     checked = isSelected,
                     onCheckedChange = {
+                        Log.d("TaskItem", "Checkbox clicked for task ${isSelected}")
                         viewModel.toggleTaskSelection(task.id)
                         onColorChange(if (isSelected) Color.LightGray else task.color.taskLighten())
                                       },
