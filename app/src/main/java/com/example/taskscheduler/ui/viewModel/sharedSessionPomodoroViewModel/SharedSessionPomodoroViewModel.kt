@@ -3,6 +3,7 @@ package com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.ActiveSessionStore
+import com.example.taskscheduler.data.ScheduledTask
 import com.example.taskscheduler.data.Session
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,23 +14,27 @@ import kotlinx.coroutines.flow.stateIn
 data class SharedSessionPomodoroUiState(
     val isLoading: Boolean = true,
     val session: Session? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val currentTask: ScheduledTask? = null
 )
 
 class SharedSessionPomodoroViewModel(private val activeSessionStore: ActiveSessionStore
 ) : ViewModel() {
 
     val uiState: StateFlow<SharedSessionPomodoroUiState> = activeSessionStore.activeSessionFlow
-
-
         .map { session ->
             if (session != null) {
-                SharedSessionPomodoroUiState(isLoading = false, session = session)
+                SharedSessionPomodoroUiState(
+                    isLoading = false,
+                    session = session,
+                    currentTask = session.getCurrentTask()
+                )
             } else {
                 SharedSessionPomodoroUiState(
                     isLoading = false,
                     session = null,
-                    errorMessage = "No active schedule found."
+                    errorMessage = "No active schedule found.",
+                    currentTask = null
                 )
             }
         }

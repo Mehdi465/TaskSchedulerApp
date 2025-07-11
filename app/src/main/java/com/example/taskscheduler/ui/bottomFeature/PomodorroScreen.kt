@@ -35,6 +35,7 @@ import com.example.taskscheduler.data.PomodoroPhase
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.pomodoro.PomodoroViewModel
 import com.example.taskscheduler.ui.navigation.NavigationDestination
+import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroUiState
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModel
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModelFactory
 
@@ -62,7 +63,7 @@ fun PomodoroScreen(
                        factory = SharedSessionPomodoroViewModelFactory(
                            (LocalContext.current.applicationContext as TaskApplication).activeSessionStore))
 ){
-    val uiState by scheduleViewModel.uiState.collectAsState()
+    val uiStateShared by scheduleViewModel.uiState.collectAsState()
 
 
     Scaffold(
@@ -84,7 +85,8 @@ fun PomodoroScreen(
         }
     ) { innerPadding ->
         PomodoroContent(
-            session = uiState.session,
+            sharedUiState = uiStateShared,
+            session = uiStateShared.session,
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -93,14 +95,14 @@ fun PomodoroScreen(
 
 @Composable
 fun PomodoroContent(
+    sharedUiState : SharedSessionPomodoroUiState,
     session: Session?,
     modifier : Modifier
 ){
     val viewModel: PomodoroViewModel = viewModel()
-
+    viewModel.startTimer()
 
     PomodoroTimerApp(viewModel)
-
 }
 
 @Composable

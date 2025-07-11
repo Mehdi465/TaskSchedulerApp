@@ -18,7 +18,8 @@ class PomodoroViewModel(application: Application) : AndroidViewModel(application
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000), // Keep the flow active as long as there are subscribers (UI)
-            initialValue = PomodoroState() // Provide an initial value
+            initialValue = PomodoroState(
+            ) // Provide an initial value
         )
 
     fun startTimer() {
@@ -48,4 +49,5 @@ class PomodoroViewModel(application: Application) : AndroidViewModel(application
         val seconds = totalSeconds % 60
         return String.format("%02d:%02d", minutes, seconds)
     }
+
 }
