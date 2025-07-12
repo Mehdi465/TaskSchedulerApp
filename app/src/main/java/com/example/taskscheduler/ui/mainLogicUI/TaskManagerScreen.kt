@@ -169,6 +169,9 @@ fun TaskManagerScreen(
     val tasks = uiState.tasks
     val isLoading = uiState.isLoading
 
+    // UI task background colors
+    val taskBackgroundColors = MutableList(tasks.size){Color.LightGray}
+
 
     Column() {
         Box(
@@ -191,7 +194,6 @@ fun TaskManagerScreen(
                 .fillMaxWidth()
                 .background(color = Color.DarkGray)
         ){
-
             var checked by remember { mutableStateOf(false) }
             val tasksCheckId = uiState.tasks
             Switch(

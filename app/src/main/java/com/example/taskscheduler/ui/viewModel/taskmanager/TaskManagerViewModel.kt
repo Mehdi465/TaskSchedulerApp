@@ -33,10 +33,9 @@ class TaskManagerViewModel(
 ) : ViewModel() {
 
     private val _checkedTaskIds = MutableStateFlow<Set<Int>>(emptySet())
-    private val errorMessages = MutableStateFlow<String>(value = "")
+    val checkedTaskIds: StateFlow<Set<Int>> = _checkedTaskIds.asStateFlow()
 
-    private val _taskBackgroundColors = MutableStateFlow<MutableList<Color>>(mutableListOf())
-    val taskBackgroundColors: StateFlow<List<Color>> = _taskBackgroundColors.asStateFlow()
+    private val errorMessages = MutableStateFlow<String>(value = "")
 
 
     /**

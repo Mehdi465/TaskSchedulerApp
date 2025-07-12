@@ -92,7 +92,6 @@ fun PomodoroScreen(
     }
 }
 
-
 @Composable
 fun PomodoroContent(
     sharedUiState : SharedSessionPomodoroUiState,
