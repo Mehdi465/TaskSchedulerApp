@@ -67,7 +67,6 @@ class PomodoroService : LifecycleService() {
         super.onCreate()
         // Initialize notification channel for Android O and above
         createNotificationChannel()
-        Log.d("PomodoroService", "Service created")
 
         lifecycleScope.launch {
             _pomodoroState.collect { state ->

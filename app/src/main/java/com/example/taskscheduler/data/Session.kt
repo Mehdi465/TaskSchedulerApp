@@ -16,4 +16,9 @@ data class Session(
         val currentTime = Calendar.getInstance().time
         return scheduledTasks.find { it.startTime.before(currentTime) && it.endTime.after(currentTime) }
     }
+
+    fun isSessionFinished(): Boolean{
+        val currentTime = Calendar.getInstance().time
+        return currentTime.after(endTime)
+    }
 }

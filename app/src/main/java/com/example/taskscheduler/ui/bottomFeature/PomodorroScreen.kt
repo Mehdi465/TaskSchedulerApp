@@ -100,17 +100,21 @@ fun PomodoroContent(
     modifier : Modifier
 ){
     val viewModel: PomodoroViewModel = viewModel()
-    viewModel.startTimer()
 
-    PomodoroTimerApp(viewModel)
+    PomodoroTimerApp(
+        viewModel = viewModel,
+        session = session
+    )
 }
 
 @Composable
-fun PomodoroTimerApp(viewModel: PomodoroViewModel) {
-    // Observe the PomodoroState from the ViewModel's StateFlow
-    // collectAsStateWithLifecycle is preferred as it's lifecycle-aware
+fun PomodoroTimerApp(
+    viewModel: PomodoroViewModel,
+    session: Session?
+) {
+
     val pomodoroState by viewModel.pomodoroState.collectAsStateWithLifecycle()
-    Log.d("PomodoroTimerApp", "PomodoroState: $pomodoroState.timeLeftMillis")
+    Log.d("PomodoroTimerApp", "PomodoroState: ${pomodoroState.phase}")
 
     Column(
         modifier = Modifier
@@ -119,6 +123,14 @@ fun PomodoroTimerApp(viewModel: PomodoroViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = if (session != null && !session.isSessionFinished()) "current task : ${session.getCurrentTask()!!.name}"
+                    else "No current task",
+            fontSize = 24.sp,
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+
         Text(
             text = when (pomodoroState.phase) {
                 PomodoroPhase.WORK -> "Work Time"
@@ -182,6 +194,7 @@ fun PomodoroTimerApp(viewModel: PomodoroViewModel) {
             fontSize = 16.sp,
             style = MaterialTheme.typography.bodyLarge
         )
+
     }
 }
 
