@@ -1,5 +1,7 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -237,33 +239,46 @@ fun NewTaskContent(
                     containerColor = selectedColor
                 ),
                 onClick = {
-                    if (!isModificationMode){
-                        val newTask = Task(
-                            name = taskNameInput,
-                            priority = selectedPriority,
-                            duration = selectedDuration,
-                            color = selectedColor,
-                            icon = selectedIcon
-                        )
-                        viewModel.addTask(newTask)
+                    if (!isModificationMode) {
+                        Log.d("NewTaskScreen", "Task to modify: ${selectedDuration}")
+                        if (selectedDuration == Duration.ZERO) {
+                            Toast.makeText(context, "Duration cannot be zero", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            val newTask = Task(
+                                name = taskNameInput,
+                                priority = selectedPriority,
+                                duration = selectedDuration,
+                                color = selectedColor,
+                                icon = selectedIcon
+                            )
+                            viewModel.addTask(newTask)
+                            onDismiss() // close dialog
+                        }
                     }
                     else {
 
                         val currentOriginalTask = taskToModify
 
                         if (currentOriginalTask != null) {
-
-                            val updatedTask = currentOriginalTask.copy(
-                                name = taskNameInput,
-                                priority = selectedPriority,
-                                duration = selectedDuration,
-                                icon = selectedIcon,
-                                color = selectedColor
-                            )
-                            viewModel.updateTask(updatedTask)
+                            Log.d("NewTaskScreen", "Task to modify: ${selectedDuration}")
+                            if (selectedDuration == Duration.ZERO) {
+                                Toast.makeText(context, "Duration cannot be zero", Toast.LENGTH_SHORT).show()
+                            }
+                            else {
+                                val updatedTask = currentOriginalTask.copy(
+                                    name = taskNameInput,
+                                    priority = selectedPriority,
+                                    duration = selectedDuration,
+                                    icon = selectedIcon,
+                                    color = selectedColor
+                                )
+                                viewModel.updateTask(updatedTask)
+                                onDismiss() // close dialog
+                            }
                         }
                     }
-                    onDismiss() // close dialog
+
                 }
             ) {
                 Text(

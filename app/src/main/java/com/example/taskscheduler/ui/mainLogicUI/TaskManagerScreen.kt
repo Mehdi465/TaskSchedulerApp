@@ -2,6 +2,7 @@ package com.example.taskscheduler.ui.mainLogicUI
 
 
 import android.util.Log
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Box
@@ -41,12 +42,15 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -63,12 +67,15 @@ import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.ui.AppViewModelProvider
+import com.example.taskscheduler.ui.helperComposable.DeleteTaskDialog
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.taskmanager.TaskListUiState
 import com.example.taskscheduler.ui.viewModel.taskmanager.TaskManagerViewModel
 import com.example.taskscheduler.ui.viewModel.taskmanager.TaskViewModelFactory
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 
@@ -313,21 +320,29 @@ private fun SwipableTaskItem(task: Task,
                              onDelete: () -> Unit,
                              onModify: () -> Unit,
                              modifier: Modifier = Modifier,
-                             viewModel: TaskManagerViewModel)
-{
+                             viewModel: TaskManagerViewModel) {
+    val coroutineScope = rememberCoroutineScope()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    var isSwipeBoxVisible by remember { mutableStateOf(true) }
+
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { dismissValue ->
             when (dismissValue) {
                 SwipeToDismissBoxValue.EndToStart -> { // Swiped from End (right) to Start (left) -> Delete
-                    onDelete()
+                    if (!showDeleteDialog) {
+                        showDeleteDialog = true
+                    }
                     return@rememberSwipeToDismissBoxState true // Confirm dismiss
                 }
+
                 SwipeToDismissBoxValue.StartToEnd -> { // Swiped from Start (left) to End (right) -> Modify
                     onModify()
                     // For UI-only, we don't want the item to disappear, so return false.
                     // If you wanted it to dismiss and then show a dialog, you'd return true.
                     return@rememberSwipeToDismissBoxState false // Do not dismiss, just trigger action
                 }
+
                 SwipeToDismissBoxValue.Settled -> { // Not dismissed
                     return@rememberSwipeToDismissBoxState false
                 }
@@ -337,78 +352,107 @@ private fun SwipableTaskItem(task: Task,
         positionalThreshold = { distance -> distance * 0.7f } // Example: 50% swipe needed
     )
 
-    SwipeToDismissBox(
-        state = dismissState,
-        modifier = modifier.fillMaxWidth(),
-        enableDismissFromStartToEnd = true, // Enable swipe from left to right (Modify)
-        enableDismissFromEndToStart = true,   // Enable swipe from right to left (Delete)
-        backgroundContent = {
-            val direction = dismissState.dismissDirection // Current swipe direction
-
-            // Background for swipe right (Modify)
-            if (direction == SwipeToDismissBoxValue.StartToEnd) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(Color(0xFF2196F3)) // Blue for Modify
-                        .padding(horizontal = 20.dp),
-                    contentAlignment = Alignment.CenterStart // Align content to the left
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.modifiy),
-                            tint = Color.White,
-                            modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) 1.25f else 0.75f)
-                        )
-                        Text(
-                            "Modify",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
-                }
-            }
-            // Background for swipe left for Delete
-            else if (direction == SwipeToDismissBoxValue.EndToStart) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(Color.Red) // red for Delete
-                        .padding(horizontal = 20.dp),
-                    contentAlignment = Alignment.CenterEnd // Align content to the right
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "Delete",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.delete),
-                            tint = Color.White,
-                            modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) 1.25f else 0.75f)
-                        )
-                    }
-                }
-            }
+    LaunchedEffect(showDeleteDialog) {
+        if (!showDeleteDialog && !isSwipeBoxVisible) {
+            isSwipeBoxVisible = true
         }
-    ) {
-        var cardColor by remember { mutableStateOf(task.color.taskLighten()) }
-        TaskItem(
-            backgroundColor = cardColor,
-            task = task,
-            isSelected = isSelected,
-            viewModel = viewModel,
-            onColorChange = { newColor ->
-                cardColor = newColor
+    }
+
+    // make the tile task swipabale again
+    if (showDeleteDialog) {
+        DeleteTaskDialog(
+            onDismiss = { // User clicked "Cancel" or dismissed the dialog
+                showDeleteDialog = false
+                coroutineScope.launch {
+                    isSwipeBoxVisible = false // Remove from composition
+                    delay(50) // Brief delay to ensure recomposition happens
+                    isSwipeBoxVisible = true
+                }
+            },
+            onConfirm = { // User clicked "Delete"
+                showDeleteDialog = false
+                onDelete()
             }
         )
     }
+
+    Crossfade(targetState = isSwipeBoxVisible, label = "SwipeBoxVisibility") { visible ->
+        if (visible) {
+            SwipeToDismissBox(
+                state = dismissState,
+                modifier = modifier.fillMaxWidth(),
+                enableDismissFromStartToEnd = true, // Enable swipe from left to right (Modify)
+                enableDismissFromEndToStart = true,   // Enable swipe from right to left (Delete)
+                backgroundContent = {
+                    val direction = dismissState.dismissDirection // Current swipe direction
+
+                    // Background for swipe right (Modify)
+                    if (direction == SwipeToDismissBoxValue.StartToEnd) {
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(Color(0xFF2196F3)) // Blue for Modify
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.CenterStart // Align content to the left
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = stringResource(R.string.modifiy),
+                                    tint = Color.White,
+                                    modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) 1.25f else 0.75f)
+                                )
+                                Text(
+                                    "Modify",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                    // Background for swipe left for Delete
+                    else if (direction == SwipeToDismissBoxValue.EndToStart) {
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(Color.Red) // red for Delete
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.CenterEnd // Align content to the right
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    "Delete",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.delete),
+                                    tint = Color.White,
+                                    modifier = Modifier.scale(if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) 1.25f else 0.75f)
+                                )
+                            }
+                        }
+                    }
+                }
+            ) {
+                var cardColor by remember { mutableStateOf(task.color.taskLighten()) }
+                TaskItem(
+                    backgroundColor = cardColor,
+                    task = task,
+                    isSelected = isSelected,
+                    viewModel = viewModel,
+                    onColorChange = { newColor ->
+                        cardColor = newColor
+                    }
+                )
+            }
+        }
+    }
 }
+
 
 @Composable
 fun TaskItem(
