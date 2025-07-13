@@ -240,9 +240,15 @@ fun NewTaskContent(
                 ),
                 onClick = {
                     if (!isModificationMode) {
-                        Log.d("NewTaskScreen", "Task to modify: ${selectedDuration}")
-                        if (selectedDuration == Duration.ZERO) {
-                            Toast.makeText(context, "Duration cannot be zero", Toast.LENGTH_SHORT)
+
+                        if (selectedDuration == Duration.ZERO || taskNameInput.isEmpty()) {
+                            val reasonText : String
+                            if (taskNameInput.isEmpty()) {
+                                reasonText = "Name cannot be empty"
+                            } else {
+                                reasonText = "Duration cannot be zero"
+                            }
+                            Toast.makeText(context, reasonText, Toast.LENGTH_SHORT)
                                 .show()
                         } else {
                             val newTask = Task(
@@ -261,9 +267,16 @@ fun NewTaskContent(
                         val currentOriginalTask = taskToModify
 
                         if (currentOriginalTask != null) {
-                            Log.d("NewTaskScreen", "Task to modify: ${selectedDuration}")
-                            if (selectedDuration == Duration.ZERO) {
-                                Toast.makeText(context, "Duration cannot be zero", Toast.LENGTH_SHORT).show()
+
+                            if (selectedDuration == Duration.ZERO || taskNameInput.isEmpty()) {
+                                val reasonText : String
+                                if (taskNameInput.isEmpty()) {
+                                    reasonText = "Name cannot be empty"
+                                } else {
+                                    reasonText = "Duration cannot be zero"
+                                }
+                                Toast.makeText(context, reasonText, Toast.LENGTH_SHORT)
+                                    .show()
                             }
                             else {
                                 val updatedTask = currentOriginalTask.copy(
