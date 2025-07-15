@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -26,6 +27,7 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -87,6 +89,7 @@ fun ScheduleScreen(
     navigateToPomodoro: () -> Unit,
     navigateToTaskManager: () -> Unit,
     navigateToTrophies: () -> Unit,
+    navigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
     scheduleViewModel: SharedSessionPomodoroViewModel = viewModel(
         factory = SharedSessionPomodoroViewModelFactory(
@@ -124,13 +127,23 @@ fun ScheduleScreen(
     }
     */
 
-
     Scaffold(
         modifier = modifier,
         topBar = {
             TaskTopAppBar(
                 title = "Schedule",
                 canNavigateBack = false,
+                actions = {
+                    IconButton(onClick = {
+                        navigateToSettings()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }
+
+                },
             )
         },
 
@@ -156,7 +169,8 @@ fun ScheduleScreen(
                 onClickPomodoro = navigateToPomodoro,
                 onClickAddNewTask = navigateToTaskManager,
                 onClickTrophies = navigateToTrophies
-            )}
+            )},
+
     ) { innerPadding ->
 
         if (uiState.session == null) { //showDisplaySessionDialogAnswer ||

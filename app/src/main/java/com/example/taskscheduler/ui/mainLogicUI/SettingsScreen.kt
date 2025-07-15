@@ -17,16 +17,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskTopAppBar
+import com.example.taskscheduler.data.UserPreferencesKeys
+import com.example.taskscheduler.ui.navigation.NavigationDestination
+
+object SettingsDestination : NavigationDestination {
+    override val route = "settings"
+    override val titleRes = R.string.settings_screen
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingScreen(){
+fun SettingScreen(
+    navigateBack: () -> Unit,
+){
     Scaffold(
         modifier = Modifier,
         topBar = {
             TaskTopAppBar(
                 title = stringResource(R.string.settings_screen),
-                canNavigateBack = true
+                canNavigateBack = true,
+                navigateUp = navigateBack
             )
         }
     ) {innerPadding ->
@@ -56,13 +66,42 @@ fun SettingContent(
                 Switch(checked = true, onCheckedChange = {})
             }
 
-
         // Pomodoro Section
+        Text(text = "Pomodoro Settings")
         Row(
             modifier = reusableItemModifier
         ) {
-            Text(text = "Pomodoro Settings")
+            // Break  Time
+            PomodoroSettingsTile(
+                text = "Break Time",
+                mode = "break"
+            )
+            // Work Time
+            PomodoroSettingsTile(
+                text = "Work Time",
+                mode = "work"
+            )
         }
+    }
+}
 
+@Composable
+fun PomodoroSettingsTile(
+    text : String,
+    objectPreferenceKey : UserPreferencesKeys = UserPreferencesKeys,
+    mode : String // allows to choose what element to change
+) {
+    Row() {
+        Text(text = text)
+
+        when (mode) {
+            "work" -> {
+
+            }
+
+            "break" -> {
+
+            }
+        }
     }
 }

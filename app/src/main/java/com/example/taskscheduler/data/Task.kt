@@ -5,11 +5,14 @@ import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import java.util.Date
 import androidx.room.*
 import com.example.taskscheduler.R
 import java.util.Calendar
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 
 enum class Priority {
@@ -52,17 +55,23 @@ data class Task(
     companion object{
         val DEFAULT_TASK = Task(name = "Default Task", priority = Priority.LOW)
 
+        val BREAK_TASK = Task(name = "Break",
+            priority = Priority.LOW,
+            duration = 5.toDuration(DurationUnit.MINUTES),
+            icon = "break"
+        )
+
         object IconMap {
             val drawableMap: Map<String, Int> = mapOf(
-                "pen" to R.drawable.pen, // Ensure these R.drawable.xxx exist
+                "pen" to R.drawable.pen,
                 "book" to R.drawable.book,
                 "language" to R.drawable.language,
                 "runner" to R.drawable.runner,
                 "dumbbell" to R.drawable.dumbbell,
-                // Add all your possible icons here
+                "break" to R.drawable.coffee_cups,
             )
 
-            // Optional: A default if the name isn't found
+            // if a task has no icon
             private val defaultIcon = R.drawable.runner
 
             fun getIconResId(iconName: String?): Int {

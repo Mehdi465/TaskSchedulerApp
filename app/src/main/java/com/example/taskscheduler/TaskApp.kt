@@ -4,6 +4,7 @@ package com.example.taskscheduler
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.icons.Icons.Filled
@@ -52,7 +53,8 @@ fun TaskTopAppBar(
     canNavigateBack: Boolean,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    navigateUp: () -> Unit = {}
+    navigateUp: () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
         title = { Text(title) },
@@ -67,7 +69,8 @@ fun TaskTopAppBar(
                     )
                 }
             }
-        }
+        },
+        actions = actions
     )
 }
 

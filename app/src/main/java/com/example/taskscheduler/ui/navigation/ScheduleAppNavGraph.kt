@@ -17,6 +17,8 @@ import com.example.taskscheduler.ui.mainLogicUI.NewTaskScreenDestination
 import com.example.taskscheduler.ui.mainLogicUI.ScheduleScreen
 import com.example.taskscheduler.ui.mainLogicUI.SessionDestination
 import com.example.taskscheduler.ui.mainLogicUI.SessionScreen
+import com.example.taskscheduler.ui.mainLogicUI.SettingScreen
+import com.example.taskscheduler.ui.mainLogicUI.SettingsDestination
 import com.example.taskscheduler.ui.mainLogicUI.TaskManagerDestination
 import com.example.taskscheduler.ui.mainLogicUI.TaskManagerScreen
 
@@ -37,6 +39,7 @@ fun TaskAppNavHost(
                 navigateToPomodoro = { navController.navigate(PomodoroDestination.route) },
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
                 navigateToTrophies = { navController.navigate(TrophiesDestination.route) },
+                navigateToSettings = { navController.navigate(SettingsDestination.route) }
             )
         }
 
@@ -87,6 +90,15 @@ fun TaskAppNavHost(
             SessionScreen(
                 selectedTaskIdsString = selectedTaskIdsString,
                 navigateToSchedulePage = { navController.navigate(HomeDestination.route) },
+                navigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // SETTING SCREEN
+        composable(
+            route = SettingsDestination.route
+        ) {
+            SettingScreen(
                 navigateBack = { navController.popBackStack() }
             )
         }
