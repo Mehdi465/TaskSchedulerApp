@@ -53,7 +53,7 @@ fun SettingContent(
             ) {
                 Text(text = "Switch Theme Mode")
 
-                Switch()
+                Switch(checked = true, onCheckedChange = {})
             }
 
 

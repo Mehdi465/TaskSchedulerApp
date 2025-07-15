@@ -16,11 +16,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,6 +56,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.data.Task.Companion.IconMap
+import com.example.taskscheduler.ui.helperComposable.ValidateOrDeleteSession
 import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModel
@@ -90,6 +96,8 @@ fun ScheduleScreen(
 
     val liveCurrentTime = remember { mutableStateOf(getCurrentTimeSnappedToMinute()) }
 
+    var showValidateOrDeleteDialog by remember { mutableStateOf(false) }
+
     // --- LaunchedEffect to update liveCurrentTime every minute ---
     LaunchedEffect(Unit) { // Keyed on Unit to run once and persist
         while (true) {
@@ -125,21 +133,23 @@ fun ScheduleScreen(
                 canNavigateBack = false,
             )
         },
-        /*
+
         floatingActionButton = {
             FloatingActionButton(
-                onClick = navigateToTaskManager,
+                onClick = {
+                    showValidateOrDeleteDialog = true
+                },
                 modifier = Modifier
                     .padding(16.dp),
                 containerColor = MaterialTheme.colorScheme.secondary
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Add,
+                    imageVector = Icons.Filled.Check,
                     contentDescription = "Add"
                 )
             }
         },
-        */
+
         bottomBar = {
             BottomAppScheduleBar(
                 onClickHome = {},
@@ -158,6 +168,20 @@ fun ScheduleScreen(
                 currentTime = liveCurrentTime.value
             )
         }
+    }
+
+    if (showValidateOrDeleteDialog){
+        ValidateOrDeleteSession(
+            onDismiss = {showValidateOrDeleteDialog = false},
+            onDelete = {
+                showValidateOrDeleteDialog = false
+                scheduleViewModel.clearActiveSession()
+            },
+            onValidate = {
+                showValidateOrDeleteDialog = false
+                // TODO increase stats
+            }
+        )
     }
 
     /*
@@ -216,8 +240,13 @@ fun TaskItem(
             .fillMaxWidth()
             .padding(vertical = 0.dp)
             .height(getCardHeightInDp(scheduledTask))
-            .background(if (scheduledTask.isCurrentTask(currentTime)) {Color.DarkGray}
-                        else {MaterialTheme.colorScheme.surface}),
+            .background(
+                if (scheduledTask.isCurrentTask(currentTime)) {
+                    Color.DarkGray
+                } else {
+                    MaterialTheme.colorScheme.surface
+                }
+            ),
     ) {
         Column(
             modifier = Modifier
@@ -296,8 +325,10 @@ fun TaskCard(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(56.dp)
-                    .background(if (!isChecked) scheduledTask.task.color
-                                else scheduledTask.task.color.lighten(0.7f))
+                    .background(
+                        if (!isChecked) scheduledTask.task.color
+                        else scheduledTask.task.color.lighten(0.7f)
+                    )
                     .padding(8.dp)
                     .align(Alignment.CenterVertically),
                 contentAlignment = Alignment.Center

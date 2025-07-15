@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 
 data class SharedSessionPomodoroUiState(
@@ -45,7 +46,9 @@ class SharedSessionPomodoroViewModel(private val activeSessionStore: ActiveSessi
         )
 
     // When a session ends
-    fun clearSession(){
-
+    fun clearActiveSession(){
+        viewModelScope.launch {
+            activeSessionStore.clearActiveSession()
+        }
     }
 }
