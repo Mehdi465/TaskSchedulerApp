@@ -1,19 +1,29 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
+import android.text.Layout
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskTopAppBar
@@ -38,7 +48,7 @@ fun SettingScreen(
                 canNavigateBack = true,
                 navigateUp = navigateBack
             )
-        }
+        },
     ) {innerPadding ->
         SettingContent(
             modifier = Modifier.padding(innerPadding),
@@ -53,23 +63,43 @@ fun SettingContent(
     Column(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
-
     ) {
-        val reusableItemModifier = Modifier.weight(1f)
+
+        Spacer(modifier = Modifier.padding(50.dp))
 
         // Dark/Light Mode Section
-        Row(
-            modifier = reusableItemModifier
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .height(80.dp)
+        ) {
+            Row(
+                modifier = Modifier
             ) {
-                Text(text = "Switch Theme Mode")
-
-                Switch(checked = true, onCheckedChange = {})
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    text = "Switch Theme Mode"
+                )
+                
+                Box(
+                    modifier = Modifier
+                        .padding(start = 100.dp)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Switch(
+                        modifier = Modifier,
+                        checked = true,
+                        onCheckedChange = {})
+                }            
             }
+        }
 
         // Pomodoro Section
         Text(text = "Pomodoro Settings")
-        Row(
-            modifier = reusableItemModifier
+        Column(
+            modifier = Modifier
         ) {
             // Break  Time
             PomodoroSettingsTile(
@@ -91,17 +121,38 @@ fun PomodoroSettingsTile(
     objectPreferenceKey : UserPreferencesKeys = UserPreferencesKeys,
     mode : String // allows to choose what element to change
 ) {
-    Row() {
-        Text(text = text)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 1.dp)
+            .height(80.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.DarkGray
+        )
 
-        when (mode) {
-            "work" -> {
+    ) {
+        Row() {
+            Text(text = text)
 
-            }
+            when (mode) {
+                "work" -> {
+                    Button(onClick = {}) {
+                        Text(text = "Change")
+                    }
+                }
 
-            "break" -> {
-
+                "break" -> {
+                    Button(onClick = {}) {
+                        Text(text = "Change")
+                    }
+                }
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun Preview(){
+    SettingScreen(navigateBack = {})
 }
