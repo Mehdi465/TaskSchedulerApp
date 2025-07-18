@@ -1,10 +1,12 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
 import android.text.Layout
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -58,94 +61,110 @@ fun SettingScreen(
 
 @Composable
 fun SettingContent(
-    modifier: Modifier
-){
+    modifier: Modifier,
+    // Example state and callbacks
+    onThemeChange: (Boolean) -> Unit = {},
+    onBreakTimeChangeClick: () -> Unit = {},
+    onWorkTimeChangeClick: () -> Unit = {},
+    currentThemeIsDark: Boolean = false,
+    currentBreakTime: String = "5 min",
+    currentWorkTime: String = "25 min"
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier // Apply the modifier from Scaffold here
+            .fillMaxSize() // Allow Column to take up all available space from Scaffold
             .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp) // Overall horizontal padding for content
     ) {
+        // Optional: Add a top spacer if needed, but innerPadding from Scaffold handles top bar
+        // Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.padding(50.dp))
-
-        // Dark/Light Mode Section
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp)
-                .height(80.dp)
-        ) {
-            Row(
-                modifier = Modifier
-            ) {
-                Text(
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically),
-                    text = "Switch Theme Mode"
+        // --- Display Options Section ---
+        Text(
+            text = "Display Options",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
+        SettingsTile(
+            text = "Dark Theme", // Changed text for clarity
+            controlContent = {
+                Switch(
+                    checked = currentThemeIsDark, // Use actual state
+                    onCheckedChange = onThemeChange // Use callback
                 )
-                
-                Box(
-                    modifier = Modifier
-                        .padding(start = 100.dp)
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Switch(
-                        modifier = Modifier,
-                        checked = true,
-                        onCheckedChange = {})
-                }            
             }
-        }
+        )
 
-        // Pomodoro Section
-        Text(text = "Pomodoro Settings")
-        Column(
-            modifier = Modifier
-        ) {
-            // Break  Time
-            PomodoroSettingsTile(
-                text = "Break Time",
-                mode = "break"
-            )
-            // Work Time
-            PomodoroSettingsTile(
-                text = "Work Time",
-                mode = "work"
-            )
-        }
+        Spacer(modifier = Modifier.height(24.dp)) // Space between sections
+
+        // --- Pomodoro Section ---
+        Text(
+            text = "Pomodoro Settings",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        SettingsTile(
+            text = "Break Time: $currentBreakTime", // Display current value
+            controlContent = {
+                Button(onClick = onBreakTimeChangeClick) {
+                    Text(text = "Change")
+                }
+            }
+        )
+        Spacer(modifier = Modifier.height(8.dp)) // Space between Pomodoro tiles
+        SettingsTile(
+            text = "Work Time: $currentWorkTime", // Display current value
+            controlContent = {
+                Button(onClick = onWorkTimeChangeClick) {
+                    Text(text = "Change")
+                }
+            }
+        )
+
+        // Add more settings as needed
+        Spacer(modifier = Modifier.height(16.dp)) // Bottom padding
     }
 }
 
+/**
+ * A reusable Composable for a settings item row.
+ * Displays text on the left and a custom control (Switch, Button, etc.) on the right.
+ */
 @Composable
-fun PomodoroSettingsTile(
-    text : String,
-    objectPreferenceKey : UserPreferencesKeys = UserPreferencesKeys,
-    mode : String // allows to choose what element to change
+fun SettingsTile(
+    text: String,
+    modifier: Modifier = Modifier,
+    controlContent: @Composable () -> Unit // Lambda for the control on the right
 ) {
+
+    var isModifyBreakTime = false
+
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 1.dp)
-            .height(80.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.DarkGray
-        )
-
+            .padding(vertical = 4.dp) // Small padding around the card
+            .height(72.dp), // Adjust height as needed, or let content define it
+        // colors = CardDefaults.cardColors( // Default colors usually adapt to theme
+        // containerColor = Color.DarkGray // Consider removing hardcoded colors
+        // )
     ) {
-        Row() {
-            Text(text = text)
+        Row(
+            modifier = Modifier
+                .fillMaxSize() // Fill the Card
+                .padding(horizontal = 16.dp), // Padding inside the Row
+            verticalAlignment = Alignment.CenterVertically, // Vertically center content in Row
+            horizontalArrangement = Arrangement.SpaceBetween // Push Text and Control apart
+        ) {
+            // Text on the left, takes available space
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f, fill = false) // Allow it to take space but not fill if short
+            )
 
-            when (mode) {
-                "work" -> {
-                    Button(onClick = {}) {
-                        Text(text = "Change")
-                    }
-                }
-
-                "break" -> {
-                    Button(onClick = {}) {
-                        Text(text = "Change")
-                    }
-                }
+            // Control on the right (Switch, Button, etc.)
+            Box { // Box to ensure the control itself is also centered if it has padding/margin
+                controlContent()
             }
         }
     }

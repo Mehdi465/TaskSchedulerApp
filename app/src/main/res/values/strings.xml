@@ -48,5 +48,10 @@
     <string name="channel_name">Pomodoro Timer Notifications</string>
     <string name="channel_description">Notifications for the Pomodoro timer, showing current phase and time.</string>
 
+    <!-- Notification strings -->
+    <string name="channel_name_task_reminders">Task Reminders</string>
+    <string name="channel_description_task_reminders">Notifications for task events</string>
+    <string name="notification_task_ended_title">Task Completed!</string>
+    <string name="notification_task_ended_message">Your task "%1$s" has just ended.</string>
 
 </resources>

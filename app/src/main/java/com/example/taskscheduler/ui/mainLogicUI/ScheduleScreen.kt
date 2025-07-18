@@ -63,9 +63,12 @@ import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModel
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModelFactory
+import com.example.taskscheduler.utils.NotificationUtils
 import kotlinx.coroutines.delay
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import kotlin.collections.get
+import kotlin.text.get
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -101,6 +104,9 @@ fun ScheduleScreen(
 
     var showValidateOrDeleteDialog by remember { mutableStateOf(false) }
 
+    // notification
+    val context = LocalContext.current
+
     // --- LaunchedEffect to update liveCurrentTime every minute ---
     LaunchedEffect(Unit) { // Keyed on Unit to run once and persist
         while (true) {
@@ -112,6 +118,33 @@ fun ScheduleScreen(
             delay(secondsUntilNextMinute * 1000L)
         }
     }
+
+
+    LaunchedEffect(uiState, liveCurrentTime.value) { // Re-run when session or time changes
+        val session = uiState.session ?: return@LaunchedEffect
+        val currentTime : Date = liveCurrentTime.value
+
+        val currentTimeCalendar = Calendar.getInstance().apply {
+            time = currentTime
+        }
+
+        session.scheduledTasks.forEach { scheduledTask ->
+
+            val taskEndTimeCalendar = Calendar.getInstance().apply {
+                time = scheduledTask.endTime
+            }
+
+            if (taskEndTimeCalendar.get(Calendar.HOUR_OF_DAY) == currentTimeCalendar.get(Calendar.HOUR_OF_DAY) &&
+                taskEndTimeCalendar.get(Calendar.MINUTE) == currentTimeCalendar.get(Calendar.MINUTE)
+                //!scheduledTasks.task.isBreak // Example: Don't notify for breaks, or handle differently
+            ) {
+                println("Task '${scheduledTask.task.name}' ended at ${scheduledTask.endTime.time}")
+                NotificationUtils.sendTaskEndedNotification(context, scheduledTask.task.name)
+
+            }
+        }
+    }
+
     /*
     // --- End of Time Updater ---
     var hasAsked by remember { mutableStateOf(false) }
