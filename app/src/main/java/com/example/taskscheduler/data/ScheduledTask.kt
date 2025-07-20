@@ -7,13 +7,16 @@ import com.example.taskscheduler.R
 import java.util.Date
 import kotlin.time.Duration
 import java.time.Instant
+import java.util.UUID
 import java.time.Duration as JavaTimeDuration
 
 data class ScheduledTask(
     val task: Task,
     val startTime: Date,
     val endTime: Date,
-    var isCompleted: Boolean = false
+    var isCompleted: Boolean = false,
+    // unique id for drag
+    val instanceId: String = UUID.randomUUID().toString(),
 ){
     fun isCurrentlyActive(): Boolean{
         val currentDate = Date()
@@ -55,7 +58,6 @@ data class ScheduledTask(
                     task.duration = duration - cumulDuration
                 }
                 val scheduledTask = ScheduledTask(
-
                     task,Date(startTime.time + cumulDuration.inWholeMilliseconds),
                     Date(startTime.time + task.duration.inWholeMilliseconds + cumulDuration.inWholeMilliseconds))
 
@@ -100,17 +102,17 @@ data class ScheduledTask(
                 val isAllEmpty : Boolean = highPriorityTasks.isEmpty() && mediumPriorityTasks.isEmpty() && lowPriorityTasks.isEmpty()
 
                 while(currentDuration < sessionDuration && !isAllEmpty){
-                    val randomInt = (0..5).random()
+                    val randomInt = (0..8).random()
                     var pickedTask : Task = Task.DEFAULT_TASK
 
                     // low tasks
-                    if (randomInt == 0 && !lowPriorityTasks.isEmpty()){
+                    if (randomInt < 2 && !lowPriorityTasks.isEmpty()){
                         pickedTask = lowPriorityTasks.random()
                         pickedTasks.add(pickedTask)
                         currentDuration = addDuration(currentDuration,pickedTask.duration)
                     }
                     // medium tasks
-                    else if (randomInt < 3 && !mediumPriorityTasks.isEmpty()){
+                    else if (randomInt < 5 && !mediumPriorityTasks.isEmpty()){
                         pickedTask = mediumPriorityTasks.random()
                         pickedTasks.add(pickedTask)
                         currentDuration = addDuration(currentDuration,pickedTask.duration)

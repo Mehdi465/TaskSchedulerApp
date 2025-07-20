@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,12 +38,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -54,9 +61,13 @@ import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.zIndex
 import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.data.Task.Companion.IconMap
 import com.example.taskscheduler.ui.helperComposable.ValidateOrDeleteSession
@@ -69,6 +80,7 @@ import kotlinx.coroutines.delay
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.collections.get
+import kotlin.math.roundToInt
 import kotlin.text.get
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -112,7 +124,6 @@ fun ScheduleScreen(
     LaunchedEffect(Unit) {
         while (true) {
             liveCurrentTime.value = getCurrentTimeSnappedToMinute()
-            Log.d("Current TIME","Current time: ${liveCurrentTime.value}")
             // Calculate delay until the start of the next minute
             val now = Calendar.getInstance()
             val secondsUntilNextMinute = 60 - now.get(Calendar.SECOND)
@@ -200,7 +211,10 @@ fun ScheduleScreen(
             TimelineScreen(
                 session = uiState.session!!,
                 modifier = Modifier.padding(innerPadding),
-                currentTime = liveCurrentTime.value
+                currentTime = liveCurrentTime.value,
+                onReorderTasks = { from, to ->
+                    scheduleViewModel.reorderScheduledTasks(from, to)
+                }
             )
         }
     }
@@ -223,29 +237,165 @@ fun ScheduleScreen(
 @Composable
 fun TimelineScreen(session: Session,
                    modifier: Modifier = Modifier,
-                   currentTime : Date
+                   currentTime : Date,
+                   onReorderTasks: (from: Int, to: Int) -> Unit
 ) {
-    var scheduledTasks by remember { mutableStateOf(session.scheduledTasks)}
+    val scheduledTasks = session.scheduledTasks
+
+    var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
+    var dragOffsetY by remember { mutableStateOf(0f) }
+    var currentDropTargetInfo by remember { mutableStateOf<Pair<Int, Float?>?>(null) }
+
+    // To store the measured height of each item for drag calculations
+    val itemHeights = remember { mutableStateMapOf<Any, Float>() } // Key by task.id
+    val density = LocalDensity.current
+    val hapticFeedback = LocalHapticFeedback.current
+
     if (!scheduledTasks.isEmpty()){
         LazyColumn(
             modifier = modifier.fillMaxSize(),
         ) {
-            itemsIndexed(scheduledTasks) { index, scheduledTask ->
-                TaskItem(
-                    scheduledTask = scheduledTask,
-                    currentTime = currentTime
-                )
-                if (index < scheduledTasks.size - 1) {
-                    Spacer(
-                        modifier = Modifier
-                            .height(10.dp)
+            itemsIndexed(
+                items = scheduledTasks,
+                key = { _, scheduledTask -> scheduledTask.instanceId }
+            ) { index, scheduledTask ->
+                Log.d("TimelineScreen", "Rendering item ${scheduledTask.task.name}")
+
+                val isBeingDragged = index == draggedItemIndex
+                val currentTaskHeightPx = itemHeights[scheduledTask.instanceId] ?: 0f
+
+                // Visual displacement for items when another item is dragged over them
+                val displacementOffset = when {
+                    isBeingDragged -> 0f // Dragged item moves with finger
+                    currentDropTargetInfo?.first == index && draggedItemIndex != null -> {
+                        val draggedIdx = draggedItemIndex!!
+                        val targetHeight = itemHeights[scheduledTasks[draggedIdx].instanceId] ?: 0f
+                        if (draggedIdx < index) -targetHeight else targetHeight // Shift up or down
+                    }
+                    else -> 0f
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onSizeChanged { size ->
+                            // Convert px height to Dp then to Px with current density for consistency if needed,
+                            // or just use raw pixel height if calculations are all in pixels.
+                            itemHeights[scheduledTask.instanceId] = size.height.toFloat()
+                        }
+                        .zIndex(if (isBeingDragged) 1.0f else 0.0f) // Dragged item on top
+                        .offset {
+                            if (isBeingDragged) {
+                                IntOffset(0, dragOffsetY.roundToInt())
+                            } else {
+                                // Apply displacement for items making space
+                                IntOffset(0, displacementOffset.roundToInt())
+                            }
+                        }
+                        .graphicsLayer { // Visuals for the dragged item
+                            if (isBeingDragged) {
+                                shadowElevation = 8.dp.toPx()
+                                alpha = 0.95f
+                                // scaleX = 1.03f
+                                // scaleY = 1.03f
+                            } else {
+                                // Reset for non-dragged items, especially if they were previously dragged
+                                shadowElevation = 0f
+                                alpha = 1f
+                                // scaleX = 1f
+                                // scaleY = 1f
+                            }
+                        }
+                        .pointerInput(scheduledTask.instanceId) { // Key pointerInput with task ID or index
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    draggedItemIndex = index
+                                    // dragOffsetY = 0f // Offset is relative to start of drag on item
+                                },
+                                onDragEnd = {
+                                    draggedItemIndex?.let { fromIndex ->
+                                        currentDropTargetInfo?.first?.let { toIndex ->
+                                            if (fromIndex != toIndex) {
+                                                // Check if the target index is valid for reordering
+                                                // (e.g. not trying to drop on itself if no real movement)
+                                                val actualToIndex =
+                                                    if (fromIndex < toIndex) toIndex else toIndex
+                                                if (fromIndex != actualToIndex) {
+                                                    onReorderTasks(fromIndex, actualToIndex)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    draggedItemIndex = null
+                                    dragOffsetY = 0f
+                                    currentDropTargetInfo = null
+                                },
+                                onDragCancel = {
+                                    draggedItemIndex = null
+                                    dragOffsetY = 0f
+                                    currentDropTargetInfo = null
+                                },
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    dragOffsetY += dragAmount.y
+
+                                    // --- Determine Drop Target ---
+                                    val draggedItemCenterY =
+                                        dragOffsetY + (itemHeights[scheduledTasks[index].instanceId]
+                                            ?: 0f) / 2f
+                                    var newTargetIndex = index // Default to current index
+
+                                    // Check items above
+                                    var accumulatedHeight = 0f
+                                    for (i in index - 1 downTo 0) {
+                                        val itemHeight = itemHeights[scheduledTasks[i].instanceId] ?: 0f
+                                        if (draggedItemCenterY < accumulatedHeight + itemHeight) {
+                                            newTargetIndex = i
+                                        } else {
+                                            break // No need to check further up
+                                        }
+                                        accumulatedHeight += itemHeight
+                                    }
+
+                                    // Check items below
+                                    if (newTargetIndex == index) { // Only check below if not already targeted above
+                                        accumulatedHeight = itemHeights[scheduledTasks[index].instanceId]
+                                            ?: 0f // Start with current item's height
+                                        for (i in index + 1 until scheduledTasks.size) {
+                                            val itemHeight = itemHeights[scheduledTasks[i].instanceId] ?: 0f
+                                            if (draggedItemCenterY > accumulatedHeight) {
+                                                newTargetIndex = i
+                                            } else {
+                                                break // No need to check further down
+                                            }
+                                            accumulatedHeight += itemHeight
+                                        }
+                                    }
+                                    currentDropTargetInfo = Pair(
+                                        newTargetIndex,
+                                        null
+                                    ) // Second element could be drop fraction
+                                }
+                            )
+                        }
+                ) {
+                    TaskItem(
+                        scheduledTask = scheduledTask,
+                        currentTime = currentTime
+                        // Potentially pass 'isBeingDragged' if TaskItem needs to change appearance
                     )
+                }
+
+                if (index < scheduledTasks.size - 1 && !isBeingDragged) { // Don't show spacer for the item being dragged
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }
-    }
-    else {
-        Text(stringResource(R.string.no_tasks_scheduled_etc)) // TODO : no inspiration
+    } else {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(stringResource(R.string.no_tasks_scheduled_etc))
+        }
     }
 }
 

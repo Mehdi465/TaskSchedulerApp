@@ -75,7 +75,19 @@ class ActiveSessionStore(private val context: Context) {
             }
         }
 
-    /**
+    suspend fun updateActiveSession(updatedSession: Session) {
+        try {
+            val sessionPersistence = updatedSession.toPersistence()
+            val sessionJsonString = json.encodeToString(sessionPersistence)
+            context.sessionPrefsDataStore.edit { preferences ->
+                preferences[PreferencesKeys.ACTIVE_SESSION_JSON] = sessionJsonString
+            }
+        } catch (e: Exception) {
+            Log.e("ActiveSessionStore", "Error updating session in DataStore", e)
+        }
+    }
+
+            /**
      * Clears the currently stored active session from DataStore.
      */
     suspend fun clearActiveSession() {
