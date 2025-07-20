@@ -116,7 +116,8 @@ fun TaskAppNavHost(
                 navigateBack = { navController.popBackStack() },
                 navigateToHome = { navController.navigate(HomeDestination.route) },
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
-                navigateToTrophies = { navController.navigate(TrophiesDestination.route) }
+                navigateToTrophies = { navController.navigate(TrophiesDestination.route) },
+                navigateToSettings = { navController.navigate(SettingsDestination.route) }
             )
         }
 

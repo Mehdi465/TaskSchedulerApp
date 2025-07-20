@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -58,6 +62,7 @@ fun PomodoroScreen(
                    navigateToHome: () -> Unit,
                    navigateToTaskManager: () -> Unit,
                    navigateToTrophies: () -> Unit,
+                   navigateToSettings: () -> Unit,
                    modifier: Modifier = Modifier,
                    scheduleViewModel: SharedSessionPomodoroViewModel = viewModel(
                        factory = SharedSessionPomodoroViewModelFactory(
@@ -65,14 +70,23 @@ fun PomodoroScreen(
 ){
     val uiStateShared by scheduleViewModel.uiState.collectAsState()
 
-
     Scaffold(
         modifier = modifier,
         topBar = {
             TaskTopAppBar(
                 title = stringResource(PomodoroDestination.titleRes),
                 canNavigateBack = true,
-                navigateUp = navigateBack
+                navigateUp = navigateBack,
+                actions = {
+                    IconButton(onClick = {
+                            navigateToSettings()
+                    }){
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }
+                }
             )
         },
         bottomBar = {

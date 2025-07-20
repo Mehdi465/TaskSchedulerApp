@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -108,9 +109,10 @@ fun ScheduleScreen(
     val context = LocalContext.current
 
     // --- LaunchedEffect to update liveCurrentTime every minute ---
-    LaunchedEffect(Unit) { // Keyed on Unit to run once and persist
+    LaunchedEffect(Unit) {
         while (true) {
             liveCurrentTime.value = getCurrentTimeSnappedToMinute()
+            Log.d("Current TIME","Current time: ${liveCurrentTime.value}")
             // Calculate delay until the start of the next minute
             val now = Calendar.getInstance()
             val secondsUntilNextMinute = 60 - now.get(Calendar.SECOND)
@@ -145,20 +147,6 @@ fun ScheduleScreen(
         }
     }
 
-    /*
-    // --- End of Time Updater ---
-    var hasAsked by remember { mutableStateOf(false) }
-    var showDisplaySessionDialog by remember { mutableStateOf(false) }
-    var showDisplaySessionDialogAnswer by remember { mutableStateOf(false) }
-
-
-    if (uiState.session != null) {
-        if (!showDisplaySessionDialogAnswer && !hasAsked){
-        showDisplaySessionDialog = liveCurrentTime.value
-            .after(uiState.session!!.endTime)
-        }
-    }
-    */
 
     Scaffold(
         modifier = modifier,
@@ -230,22 +218,6 @@ fun ScheduleScreen(
             }
         )
     }
-
-    /*
-    if (showDisplaySessionDialog) {
-        RemoveSessionDialog(
-            onDismiss = {
-                showDisplaySessionDialog = false
-                hasAsked = true
-                        },
-            onConfirm = {
-                showDisplaySessionDialogAnswer = true
-                showDisplaySessionDialog = false
-                hasAsked = true
-            }
-        )
-    }
-    */
 }
 
 @Composable
@@ -328,23 +300,6 @@ fun TaskItem(
     }
 }
 
-fun getHoursString(date: Date): String {
-    if (date.hours > 9) {
-        return date.hours.toString()
-    } else {
-        return "0" + date.hours.toString()
-    }
-}
-
-fun getMinutesString(date: Date): String {
-    if (date.minutes > 9) {
-        return date.minutes.toString()
-    } else {
-            return "0" + date.minutes.toString()
-    }
-}
-
-
 @Composable
 fun TaskCard(
             backgroundColor: Color,
@@ -365,7 +320,6 @@ fun TaskCard(
     ) {
         Row(
         ) {
-
             var isChecked by remember { mutableStateOf(false) }
 
             Box(
@@ -411,9 +365,6 @@ fun TaskCard(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-
-
-
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = {
@@ -449,7 +400,6 @@ fun StrikethroughText(
     )
 }
 
-
 @Composable
 fun IconTask(iconName:String?) {
     val iconResId = IconMap.getIconResId(iconName)
@@ -460,6 +410,24 @@ fun IconTask(iconName:String?) {
     )
 }
 
+
+// Helper functions
+
+fun getHoursString(date: Date): String {
+    if (date.hours > 9) {
+        return date.hours.toString()
+    } else {
+        return "0" + date.hours.toString()
+    }
+}
+
+fun getMinutesString(date: Date): String {
+    if (date.minutes > 9) {
+        return date.minutes.toString()
+    } else {
+        return "0" + date.minutes.toString()
+    }
+}
 
 fun getRelativeDuration(duration: Duration): Int {
     val result = duration.toLong(DurationUnit.MINUTES)

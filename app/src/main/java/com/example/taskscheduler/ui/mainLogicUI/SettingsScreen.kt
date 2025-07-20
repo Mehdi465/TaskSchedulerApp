@@ -23,9 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.taskscheduler.R
@@ -123,6 +121,22 @@ fun SettingContent(
 
         // Add more settings as needed
         Spacer(modifier = Modifier.height(16.dp)) // Bottom padding
+
+        // --- Colors Section ---
+        Text(
+            text = "Colors",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
+
+        SettingsTile(
+            text = "Theme Color",
+            controlContent = {
+                Button(onClick = {}) {
+                    Text(text = "Change")
+                }
+                    }
+        )
     }
 }
 
@@ -142,11 +156,8 @@ fun SettingsTile(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp) // Small padding around the card
-            .height(72.dp), // Adjust height as needed, or let content define it
-        // colors = CardDefaults.cardColors( // Default colors usually adapt to theme
-        // containerColor = Color.DarkGray // Consider removing hardcoded colors
-        // )
+            .padding(vertical = 4.dp)
+            .height(72.dp),
     ) {
         Row(
             modifier = Modifier
