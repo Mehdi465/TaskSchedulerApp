@@ -21,13 +21,15 @@ import kotlin.time.Duration
 @Composable
 fun SelectTimeDialog(
     onDismiss: () -> Unit,
+    onTimeSelected: (Duration) -> Unit,
+    themeColor : Color
 ){
     Dialog(
         onDismissRequest = onDismiss
     ) {
         Column(){
             InfiniteTimePickerWheel(
-                themeColor = Color.Green,
+                themeColor = themeColor,
                 initialHour = 12,
                 initialMinute = 0,
                 onTimeSelected = { hour, minute ->}

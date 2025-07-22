@@ -291,11 +291,10 @@ fun NewTaskContent(
                             }
                         }
                     }
-
                 }
             ) {
                 Text(
-                    text = stringResource(R.string.create)
+                    text = stringResource(if (!isModificationMode) R.string.create else R.string.modify)
                 )
             }
 

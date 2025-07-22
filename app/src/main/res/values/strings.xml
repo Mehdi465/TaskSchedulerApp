@@ -26,6 +26,7 @@
 
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
+    <string name="modify">Modify</string>
 
     <string name="no_session_found">No session found</string>
     <string name="no_tasks_scheduled_etc">"No tasks scheduled,

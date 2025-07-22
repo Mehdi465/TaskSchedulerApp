@@ -21,15 +21,28 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.R
+import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.UserPreferencesKeys
+import com.example.taskscheduler.ui.helperComposable.SelectTimeDialog
 import com.example.taskscheduler.ui.navigation.NavigationDestination
+import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModel
+import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModelFactory
 
 object SettingsDestination : NavigationDestination {
     override val route = "settings"
@@ -40,6 +53,11 @@ object SettingsDestination : NavigationDestination {
 @Composable
 fun SettingScreen(
     navigateBack: () -> Unit,
+    settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(
+            (LocalContext.current.applicationContext as TaskApplication).settingsRepository
+        )
+    )
 ){
     Scaffold(
         modifier = Modifier,
@@ -53,6 +71,7 @@ fun SettingScreen(
     ) {innerPadding ->
         SettingContent(
             modifier = Modifier.padding(innerPadding),
+            settingsViewModel = settingsViewModel
         )
     }
 }
@@ -60,23 +79,27 @@ fun SettingScreen(
 @Composable
 fun SettingContent(
     modifier: Modifier,
-    // Example state and callbacks
-    onThemeChange: (Boolean) -> Unit = {},
-    onBreakTimeChangeClick: () -> Unit = {},
-    onWorkTimeChangeClick: () -> Unit = {},
-    currentThemeIsDark: Boolean = false,
-    currentBreakTime: String = "5 min",
-    currentWorkTime: String = "25 min"
+    settingsViewModel : SettingsViewModel
 ) {
+
+    val isDarkThemeEnabled by settingsViewModel.isDarkThemeEnabled.collectAsState()
+    val pomodoroWorkDuration by settingsViewModel.pomodoroWorkDuration.collectAsState()
+    val pomodoroBreakDuration by settingsViewModel.pomodoroBreakDuration.collectAsState()
+
+    // dialog declaration
+    var displaySelectTimeBreakDialog by remember { mutableStateOf(false) }
+    var displaySelectTimeWorkDialog by remember { mutableStateOf(false) }
+
+    // setting fetch
+
+
+
     Column(
         modifier = modifier // Apply the modifier from Scaffold here
             .fillMaxSize() // Allow Column to take up all available space from Scaffold
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp) // Overall horizontal padding for content
     ) {
-        // Optional: Add a top spacer if needed, but innerPadding from Scaffold handles top bar
-        // Spacer(modifier = Modifier.height(16.dp))
-
         // --- Display Options Section ---
         Text(
             text = "Display Options",
@@ -84,11 +107,13 @@ fun SettingContent(
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
         SettingsTile(
-            text = "Dark Theme", // Changed text for clarity
+            text = "Dark Theme",
             controlContent = {
                 Switch(
-                    checked = currentThemeIsDark, // Use actual state
-                    onCheckedChange = onThemeChange // Use callback
+                    checked = isDarkThemeEnabled,
+                    onCheckedChange = {
+                        settingsViewModel.setDarkThemeEnabled(it)
+                    }
                 )
             }
         )
@@ -102,18 +127,23 @@ fun SettingContent(
             modifier = Modifier.padding(bottom = 8.dp)
         )
         SettingsTile(
-            text = "Break Time: $currentBreakTime", // Display current value
+            text = "Break Time: $pomodoroBreakDuration", // Display current value
             controlContent = {
-                Button(onClick = onBreakTimeChangeClick) {
+                Button(onClick = {
+                    displaySelectTimeBreakDialog = !displaySelectTimeBreakDialog
+                }
+                ) {
                     Text(text = "Change")
                 }
             }
         )
         Spacer(modifier = Modifier.height(8.dp)) // Space between Pomodoro tiles
         SettingsTile(
-            text = "Work Time: $currentWorkTime", // Display current value
+            text = "Work Time: $pomodoroWorkDuration", // Display current value
             controlContent = {
-                Button(onClick = onWorkTimeChangeClick) {
+                Button(onClick = {
+                    displaySelectTimeWorkDialog = !displaySelectTimeWorkDialog
+                }) {
                     Text(text = "Change")
                 }
             }
@@ -134,9 +164,34 @@ fun SettingContent(
             controlContent = {
                 Button(onClick = {}) {
                     Text(text = "Change")
-                }
                     }
+            }
         )
+
+
+        // ------- Dialog Part -------
+
+        // Work Time Dialog
+        if (displaySelectTimeWorkDialog) {
+            SelectTimeDialog(
+                onDismiss = {
+                    displaySelectTimeWorkDialog = false
+                },
+                themeColor = Color.Blue,
+                onTimeSelected = {}
+            )
+        }
+
+        // Break Time Dialog
+        if (displaySelectTimeBreakDialog) {
+            SelectTimeDialog(
+                onDismiss = {
+                    displaySelectTimeBreakDialog = false
+                },
+                themeColor = Color.Blue,
+                onTimeSelected = {}
+            )
+        }
     }
 }
 

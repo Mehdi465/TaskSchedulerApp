@@ -69,6 +69,7 @@ data class Task(
                 "runner" to R.drawable.runner,
                 "dumbbell" to R.drawable.dumbbell,
                 "break" to R.drawable.coffee_cups,
+                "screen" to R.drawable.ecran,
             )
 
             // if a task has no icon
