@@ -1,6 +1,7 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
 import android.text.Layout
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,16 +34,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
-import com.example.taskscheduler.data.UserPreferencesKeys
 import com.example.taskscheduler.ui.helperComposable.SelectTimeDialog
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModel
 import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModelFactory
+import kotlin.time.Duration
 
 object SettingsDestination : NavigationDestination {
     override val route = "settings"
@@ -59,8 +59,13 @@ fun SettingScreen(
         )
     )
 ){
+    val isDarkThemeEnabled by settingsViewModel.isDarkThemeEnabled.collectAsState()
+    val pomodoroWorkDuration by settingsViewModel.pomodoroWorkDuration.collectAsState()
+    val pomodoroBreakDuration by settingsViewModel.pomodoroBreakDuration.collectAsState()
+
     Scaffold(
-        modifier = Modifier,
+        modifier = Modifier
+            ,
         topBar = {
             TaskTopAppBar(
                 title = stringResource(R.string.settings_screen),
@@ -71,7 +76,19 @@ fun SettingScreen(
     ) {innerPadding ->
         SettingContent(
             modifier = Modifier.padding(innerPadding),
-            settingsViewModel = settingsViewModel
+            settingsViewModel = settingsViewModel,
+            isDarkThemeEnabled = isDarkThemeEnabled,
+            onThemeChange = {
+                settingsViewModel.setDarkThemeEnabled(it)
+            },
+            pomodoroWorkDuration = pomodoroWorkDuration,
+            onPomodoroWorkDurationChange = {
+                settingsViewModel.setPomodoroWorkDuration(it)
+            },
+            pomodoroBreakDuration = pomodoroBreakDuration,
+            onPomodoroBreakDurationChange = {
+                settingsViewModel.setPomodoroBreakDuration(it)
+            },
         )
     }
 }
@@ -79,26 +96,25 @@ fun SettingScreen(
 @Composable
 fun SettingContent(
     modifier: Modifier,
-    settingsViewModel : SettingsViewModel
+    settingsViewModel : SettingsViewModel,
+    isDarkThemeEnabled : Boolean,
+    onThemeChange: (Boolean) -> Unit,
+    pomodoroWorkDuration : Int,
+    onPomodoroWorkDurationChange : (Int) -> Unit,
+    pomodoroBreakDuration : Int,
+    onPomodoroBreakDurationChange : (Int) -> Unit,
 ) {
-
-    val isDarkThemeEnabled by settingsViewModel.isDarkThemeEnabled.collectAsState()
-    val pomodoroWorkDuration by settingsViewModel.pomodoroWorkDuration.collectAsState()
-    val pomodoroBreakDuration by settingsViewModel.pomodoroBreakDuration.collectAsState()
 
     // dialog declaration
     var displaySelectTimeBreakDialog by remember { mutableStateOf(false) }
     var displaySelectTimeWorkDialog by remember { mutableStateOf(false) }
-
-    // setting fetch
-
-
 
     Column(
         modifier = modifier // Apply the modifier from Scaffold here
             .fillMaxSize() // Allow Column to take up all available space from Scaffold
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp) // Overall horizontal padding for content
+            //.background(color = Color.White)
     ) {
         // --- Display Options Section ---
         Text(
@@ -178,7 +194,7 @@ fun SettingContent(
                     displaySelectTimeWorkDialog = false
                 },
                 themeColor = Color.Blue,
-                onTimeSelected = {}
+                onTimeSelected = {onPomodoroWorkDurationChange}
             )
         }
 
@@ -189,7 +205,7 @@ fun SettingContent(
                     displaySelectTimeBreakDialog = false
                 },
                 themeColor = Color.Blue,
-                onTimeSelected = {}
+                onTimeSelected = {onPomodoroBreakDurationChange}
             )
         }
     }

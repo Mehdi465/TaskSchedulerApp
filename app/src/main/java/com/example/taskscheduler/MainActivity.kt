@@ -16,12 +16,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.data.pomodoro.PomodoroViewModel
 import com.example.taskscheduler.ui.theme.TaskSchedulerTheme
+import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModel
+import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
@@ -53,10 +59,25 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
+
+            val application = applicationContext as TaskApplication
+            val settingsRepository = application.settingsRepository
+
+            // Instantiate SettingsViewModel (or use Hilt for DI)
+            val settingsViewModel: SettingsViewModel = viewModel(
+                factory = SettingsViewModelFactory(settingsRepository)
+            )
+
+            // Collect the dark theme state
+            val isDarkTheme by settingsViewModel.isDarkThemeEnabled.collectAsState()
+
+            // Apply the theme based on the collected state
+
             TaskSchedulerTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = if (isDarkTheme) MaterialTheme.colorScheme.background else Color.White,
+
                 ) {
                     TaskApp()
                 }
