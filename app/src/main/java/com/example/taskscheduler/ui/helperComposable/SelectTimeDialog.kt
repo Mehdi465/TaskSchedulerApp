@@ -21,7 +21,7 @@ import kotlin.time.Duration
 @Composable
 fun SelectTimeDialog(
     onDismiss: () -> Unit,
-    onTimeSelected: (Duration) -> Unit,
+    onTimeSelected: (hour: Int, minute: Int) -> Unit,
     themeColor : Color
 ){
     Dialog(
@@ -32,7 +32,7 @@ fun SelectTimeDialog(
                 themeColor = themeColor,
                 initialHour = 12,
                 initialMinute = 0,
-                onTimeSelected = { hour, minute ->}
+                onTimeSelected = onTimeSelected
             )
 
             Row() {

@@ -1,6 +1,7 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
 import android.text.Layout
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -82,12 +83,12 @@ fun SettingScreen(
                 settingsViewModel.setDarkThemeEnabled(it)
             },
             pomodoroWorkDuration = pomodoroWorkDuration,
-            onPomodoroWorkDurationChange = {
-                settingsViewModel.setPomodoroWorkDuration(it)
+            onPomodoroWorkDurationChange = { hour, minutes ->
+                settingsViewModel.setPomodoroWorkDuration(hour*60+minutes)
             },
             pomodoroBreakDuration = pomodoroBreakDuration,
-            onPomodoroBreakDurationChange = {
-                settingsViewModel.setPomodoroBreakDuration(it)
+            onPomodoroBreakDurationChange = { hour, minutes ->
+                settingsViewModel.setPomodoroBreakDuration(hour*60+minutes)
             },
         )
     }
@@ -100,9 +101,9 @@ fun SettingContent(
     isDarkThemeEnabled : Boolean,
     onThemeChange: (Boolean) -> Unit,
     pomodoroWorkDuration : Int,
-    onPomodoroWorkDurationChange : (Int) -> Unit,
+    onPomodoroWorkDurationChange : (Int,Int) -> Unit,
     pomodoroBreakDuration : Int,
-    onPomodoroBreakDurationChange : (Int) -> Unit,
+    onPomodoroBreakDurationChange : (Int,Int) -> Unit,
 ) {
 
     // dialog declaration
@@ -194,7 +195,7 @@ fun SettingContent(
                     displaySelectTimeWorkDialog = false
                 },
                 themeColor = Color.Blue,
-                onTimeSelected = {onPomodoroWorkDurationChange}
+                onTimeSelected = onPomodoroWorkDurationChange
             )
         }
 
@@ -205,7 +206,7 @@ fun SettingContent(
                     displaySelectTimeBreakDialog = false
                 },
                 themeColor = Color.Blue,
-                onTimeSelected = {onPomodoroBreakDurationChange}
+                onTimeSelected = onPomodoroBreakDurationChange
             )
         }
     }

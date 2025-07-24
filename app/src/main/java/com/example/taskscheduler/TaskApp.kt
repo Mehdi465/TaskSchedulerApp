@@ -83,7 +83,7 @@ fun BottomAppScheduleBar(
     onClickTrophies : () -> Unit = {}
 ) {
     BottomAppBar(
-        containerColor = Color.DarkGray
+        //containerColor = Color.DarkGray
     ) {
         // Schedule
         IconButton(
