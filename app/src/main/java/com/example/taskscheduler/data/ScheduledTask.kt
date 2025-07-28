@@ -92,6 +92,30 @@ data class ScheduledTask(
             }
 
             if (currentDuration < sessionDuration){
+
+                 val extendedListTasks : MutableList<Task> = mutableListOf<Task>()
+                 for (task in tasks){
+                     when(task.priority){
+                         Priority.LOW -> extendedListTasks.add(task)
+                         Priority.MEDIUM -> {extendedListTasks.add(task)
+                                            extendedListTasks.add(task)}
+                         Priority.HIGH -> {extendedListTasks.add(task)
+                                         extendedListTasks.add(task)
+                                         extendedListTasks.add(task)}
+                         else -> {}
+                     }
+                 }
+
+                val extendedListSize = extendedListTasks.size -1
+
+                while(currentDuration < sessionDuration){
+                    val randomInt = (0..extendedListSize).random()
+                    Log.d("randomInt","$randomInt")
+                    pickedTasks.add(extendedListTasks[randomInt])
+                    currentDuration = addDuration(currentDuration,extendedListTasks[randomInt].duration)
+                }
+
+                /*
                 // keep scheduling
                 // get high, medium and low tasks
                 val highPriorityTasks = tasks.filter {it.priority == Priority.HIGH}
@@ -126,6 +150,7 @@ data class ScheduledTask(
                         }
                     }
                 }
+                */
             }
 
             val pickedScheduledTasks = taskToScheduledTask(pickedTasks,startTime,sessionDuration)
