@@ -90,6 +90,12 @@ fun SettingScreen(
             onPomodoroBreakDurationChange = { hour, minutes ->
                 settingsViewModel.setPomodoroBreakDuration(hour*60+minutes)
             },
+            onBreakTimeChange = {
+                settingsViewModel.setPomodoroBreakDuration(it)
+            },
+            onWorkTimeChange = {
+                settingsViewModel.setPomodoroWorkDuration(it)
+            }
         )
     }
 }
@@ -104,6 +110,8 @@ fun SettingContent(
     onPomodoroWorkDurationChange : (Int,Int) -> Unit,
     pomodoroBreakDuration : Int,
     onPomodoroBreakDurationChange : (Int,Int) -> Unit,
+    onBreakTimeChange : (Int) -> Unit,
+    onWorkTimeChange : (Int) -> Unit
 ) {
 
     // dialog declaration
@@ -195,7 +203,12 @@ fun SettingContent(
                     displaySelectTimeWorkDialog = false
                 },
                 themeColor = Color.Blue,
-                onTimeSelected = onPomodoroWorkDurationChange
+                onTimeSelected = { a, b ->
+                    onPomodoroWorkDurationChange(a, b)
+                },
+                onTimeStore = {
+                    onWorkTimeChange
+                }
             )
         }
 
@@ -206,7 +219,12 @@ fun SettingContent(
                     displaySelectTimeBreakDialog = false
                 },
                 themeColor = Color.Blue,
-                onTimeSelected = onPomodoroBreakDurationChange
+                onTimeSelected = {a,b ->
+                    onPomodoroBreakDurationChange(a,b)
+                },
+                onTimeStore = {
+                    onBreakTimeChange
+                }
             )
         }
     }

@@ -22,6 +22,7 @@ import kotlin.time.Duration
 fun SelectTimeDialog(
     onDismiss: () -> Unit,
     onTimeSelected: (hour: Int, minute: Int) -> Unit,
+    onTimeStore: (Duration) -> Unit,
     themeColor : Color
 ){
     Dialog(
@@ -40,7 +41,9 @@ fun SelectTimeDialog(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Gray
                     ),
-                    onClick = {}
+                    onClick = {onTimeStore}
+
+
                 ) {
                     Text(
                         text = "Change"
