@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
 
-    <style name="Theme.TaskScheduler" parent="android:Theme.Material.Light.NoActionBar" />
-</resources>
+    <resources xmlns:tools="http://schemas.android.com/tools">
+        <!-- Base application theme. -->
+        <style name="Theme.TaskScheduler" parent="android:Theme.Material.Light.NoActionBar">
+
+            <!-- ADD THIS LINE or MODIFY if it exists -->
+            <item name="android:windowBackground">@color/default_dark_window_background</item>
+        </style>
+    </resources>

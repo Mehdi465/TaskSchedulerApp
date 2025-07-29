@@ -144,7 +144,7 @@ fun SettingContent(
             modifier = Modifier.padding(bottom = 8.dp)
         )
         SettingsTile(
-            text = "Break Time: $pomodoroBreakDuration", // Display current value
+            text = "Break Time: $pomodoroBreakDuration mins", // Display current value
             controlContent = {
                 Button(onClick = {
                     displaySelectTimeBreakDialog = !displaySelectTimeBreakDialog
@@ -156,7 +156,7 @@ fun SettingContent(
         )
         Spacer(modifier = Modifier.height(8.dp)) // Space between Pomodoro tiles
         SettingsTile(
-            text = "Work Time: $pomodoroWorkDuration", // Display current value
+            text = "Work Time: $pomodoroWorkDuration mins", // Display current value
             controlContent = {
                 Button(onClick = {
                     displaySelectTimeWorkDialog = !displaySelectTimeWorkDialog
