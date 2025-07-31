@@ -43,12 +43,6 @@ import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.Sha
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModel
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModelFactory
 
-// To be modifiable in parameters
-/*
-val workTime
-val smallbreakTime
-val longBreakTime
-*/
 
 object PomodoroDestination : NavigationDestination {
     override val route = "pomodoro"

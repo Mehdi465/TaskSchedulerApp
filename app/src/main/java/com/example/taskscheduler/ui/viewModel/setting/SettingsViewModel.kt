@@ -9,38 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-// Data class to hold all settings values for the UI
-data class SettingsUiState(
-    val isDarkThemeEnabled: Boolean = false,
-    val pomodoroWorkDuration: Int = 25,
-    val pomodoroBreakDuration: Int = 5,
-    // Add other settings as needed
-    val isLoading: Boolean = false // Could be useful if initial load is slow
-)
 
 class SettingsViewModel(private val settingsRepository: SettingsRepository) : ViewModel() {
 
-    // Expose a StateFlow for the entire UI state related to settings
-    // This combines multiple flows from the repository into one state object for the UI
-    // For simplicity, I'm showing direct mapping. For more complex scenarios,
-    // you might combine multiple flows:
-    // val uiState: StateFlow<SettingsUiState> = combine(
-    //     settingsRepository.isDarkThemeEnabled,
-    //     settingsRepository.pomodoroWorkDuration,
-    //     settingsRepository.pomodoroBreakDuration
-    // ) { darkTheme, workDuration, breakDuration ->
-    //     SettingsUiState(
-    //         isDarkThemeEnabled = darkTheme,
-    //         pomodoroWorkDuration = workDuration,
-    //         pomodoroBreakDuration = breakDuration
-    //     )
-    // }.stateIn(
-    //     scope = viewModelScope,
-    //     started = SharingStarted.WhileSubscribed(5000),
-    //     initialValue = SettingsUiState(isLoading = true) // Start with a loading state
-    // )
-
-    // Simpler individual StateFlows if you prefer to collect them separately in the UI
     val isDarkThemeEnabled: StateFlow<Boolean> = settingsRepository.isDarkThemeEnabled
         .stateIn(
             scope = viewModelScope,
@@ -73,7 +44,7 @@ class SettingsViewModel(private val settingsRepository: SettingsRepository) : Vi
 
     fun setPomodoroWorkDuration(durationMinutes: Int) {
         viewModelScope.launch {
-            // Add validation if needed (e.g., durationMinutes > 0)
+            // TODO set validation, can be gt work (for lazy ass)
             settingsRepository.setPomodoroWorkDuration(durationMinutes)
         }
     }

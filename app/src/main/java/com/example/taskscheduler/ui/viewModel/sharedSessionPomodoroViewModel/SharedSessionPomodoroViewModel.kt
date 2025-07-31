@@ -61,11 +61,9 @@ class SharedSessionPomodoroViewModel(private val activeSessionStore: ActiveSessi
             val actualToIndex = if (toIndex > fromIndex) toIndex -1 else toIndex
             currentTasks.add(actualToIndex, movedItem)
 
-            // IMPORTANT: Create a new Session object for StateFlow to detect a change
-            // and for listeners to receive the updated list.
-            // Also, you need to recalculate start/end times if they are dependent on order.
+
             val reorderedSession = currentSession.copy(
-                scheduledTasks = recalculateTaskTimes(currentTasks, currentSession.startTime) // You'll need this function
+                scheduledTasks = recalculateTaskTimes(currentTasks, currentSession.startTime)
             )
             // Update the session in your store
             activeSessionStore.updateActiveSession(reorderedSession) // You'll need this method in ActiveSessionStore

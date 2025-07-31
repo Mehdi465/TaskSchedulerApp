@@ -42,8 +42,6 @@ fun SelectTimeDialog(
                         containerColor = Color.Gray
                     ),
                     onClick = {onTimeStore}
-
-
                 ) {
                     Text(
                         text = "Change"

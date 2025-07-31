@@ -65,8 +65,7 @@ fun SettingScreen(
     val pomodoroBreakDuration by settingsViewModel.pomodoroBreakDuration.collectAsState()
 
     Scaffold(
-        modifier = Modifier
-            ,
+        modifier = Modifier,
         topBar = {
             TaskTopAppBar(
                 title = stringResource(R.string.settings_screen),
@@ -97,6 +96,8 @@ fun SettingScreen(
                 settingsViewModel.setPomodoroWorkDuration(it)
             }
         )
+
+        Log.d("DANDWOL", "Pomodoro Work Duration: ${settingsViewModel.pomodoroWorkDuration.collectAsState().value}")
     }
 }
 
@@ -155,7 +156,7 @@ fun SettingContent(
             text = "Break Time: $pomodoroBreakDuration mins", // Display current value
             controlContent = {
                 Button(onClick = {
-                    displaySelectTimeBreakDialog = !displaySelectTimeBreakDialog
+                    displaySelectTimeBreakDialog = true
                 }
                 ) {
                     Text(text = "Change")
@@ -167,7 +168,7 @@ fun SettingContent(
             text = "Work Time: $pomodoroWorkDuration mins", // Display current value
             controlContent = {
                 Button(onClick = {
-                    displaySelectTimeWorkDialog = !displaySelectTimeWorkDialog
+                    displaySelectTimeWorkDialog = true
                 }) {
                     Text(text = "Change")
                 }
@@ -208,6 +209,7 @@ fun SettingContent(
                 },
                 onTimeStore = {
                     onWorkTimeChange
+                    displaySelectTimeWorkDialog = false
                 }
             )
         }
@@ -224,6 +226,7 @@ fun SettingContent(
                 },
                 onTimeStore = {
                     onBreakTimeChange
+                    displaySelectTimeWorkDialog = false
                 }
             )
         }
