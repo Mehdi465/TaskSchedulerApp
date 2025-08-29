@@ -52,10 +52,10 @@ class PomodoroService : LifecycleService() {
     val pomodoroState: StateFlow<PomodoroState> = _pomodoroState.asStateFlow()
 
     private var initialTimeLeft: Long = 0L // To resume from pause
-    private val _workDurationMillis = MutableStateFlow(DEFAULT_WORK_MINUTES * 60 * 1000L)
-    private val _breakDurationMillis = MutableStateFlow(DEFAULT_BREAK_MINUTES * 60 * 1000L)
-    private val _longBreakDurationMillis = MutableStateFlow(DEFAULT_LONG_BREAK_MINUTES * 60 * 1000L)
-    private val _cyclesBeforeLongBreak = MutableStateFlow(DEFAULT_CYCLES)
+    private val _workDurationMillis = MutableStateFlow(WORK_DURATION_MILLIS )
+    private val _breakDurationMillis = MutableStateFlow(BREAK_DURATION_MILLIS)
+    private val _longBreakDurationMillis = MutableStateFlow(LONG_BREAK_DURATION_MILLIS)
+    private val _cyclesBeforeLongBreak = MutableStateFlow(CYCLES_BEFORE_LONG_BREAK)
 
     private lateinit var settingsRepository: SettingsRepository
 
@@ -78,7 +78,7 @@ class PomodoroService : LifecycleService() {
 
         // Collect settings from DataStore using lifecycleScope
         lifecycleScope.launch {
-            settingsRepository.pomodoroWorkDurationMinutes
+            settingsRepository.pomodoroWorkDuration
                 .map { it * 60 * 1000L } // Convert minutes to millis
                 .collect {
                     Log.d("PomodoroService", "Work duration updated from DataStore: $it ms")
@@ -90,28 +90,14 @@ class PomodoroService : LifecycleService() {
                 }
         }
         lifecycleScope.launch {
-            settingsRepository.pomodoroBreakDurationMinutes
+            settingsRepository.pomodoroBreakDuration
                 .map { it * 60 * 1000L }
                 .collect {
                     Log.d("PomodoroService", "Break duration updated from DataStore: $it ms")
                     _breakDurationMillis.value = it
                 }
         }
-        lifecycleScope.launch {
-            settingsRepository.pomodoroLongBreakDurationMinutes
-                .map { it * 60 * 1000L }
-                .collect {
-                    Log.d("PomodoroService", "Long break duration updated from DataStore: $it ms")
-                    _longBreakDurationMillis.value = it
-                }
-        }
-        lifecycleScope.launch {
-            settingsRepository.pomodoroCyclesBeforeLongBreak
-                .collect {
-                    Log.d("PomodoroService", "Cycles for long break updated: $it")
-                    _cyclesBeforeLongBreak.value = it
-                }
-        }
+
 
         // To set an initial state correctly if the service is created fresh
         lifecycleScope.launch {
