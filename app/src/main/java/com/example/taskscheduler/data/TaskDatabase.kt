@@ -11,16 +11,18 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.taskscheduler.data.Converters.ColorConverters
+import com.example.taskscheduler.data.Converters.DateConverters
 import com.example.taskscheduler.data.Converters.DurationConverters
 
 @Database(
-    entities = [Task::class],
+    entities = [Task::class,TaskMonitoring::class],
     version = 2,
     exportSchema = true
 )
-@TypeConverters(DurationConverters::class, ColorConverters::class)
+@TypeConverters(DurationConverters::class, ColorConverters::class, DateConverters::class)
 abstract class TaskDatabase : RoomDatabase(){
     abstract fun taskDao(): TaskDao
+    abstract fun taskMonitoringDao(): TaskMonitoringDao
 
     companion object {
         @Volatile

@@ -103,4 +103,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-service:$lifecycle_version")
 
     implementation("androidx.media:media:1.7.0")
+
+    // Gson
+    implementation("com.google.code.gson:gson:2.13.1")
 }

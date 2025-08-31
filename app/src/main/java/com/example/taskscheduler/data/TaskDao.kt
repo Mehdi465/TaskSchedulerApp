@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -30,4 +31,18 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE id IN (:taskIds)")
     fun getTasksByIds(taskIds: List<Int>): Flow<List<Task>>
+
+    // Queries for TaskWithMonitoring //
+
+    @Transaction //only one query is executed at a time
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    fun getTaskWithMonitoringStream(taskId: Long): Flow<TaskWithMonitoring?>
+
+    @Transaction
+    @Query("SELECT * FROM tasks")
+    fun getAllTasksWithMonitoringStream(): Flow<List<TaskWithMonitoring>>
+
+    @Transaction
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    suspend fun getTaskWithMonitoringOnce(taskId: Long): TaskWithMonitoring?
 }

@@ -4,21 +4,23 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.example.taskscheduler.data.Converters.DateConverters
 import java.util.Date
 
 @Entity(
     tableName = "task_monitoring",
     foreignKeys = [
         ForeignKey(
-            entity = Task::class, // The parent table
-            parentColumns = ["id"], // The primary key column in the Task table
-            childColumns = ["taskId"], // The foreign key column in this TaskMonitoring table
-            onDelete = ForeignKey.CASCADE // If a Task is deleted, its monitoring data is also deleted
-            // onUpdate = ForeignKey.CASCADE // If Task id changes, update here (less common for auto-gen PKs)
+            entity = Task::class, //parent table
+            parentColumns = ["id"],
+            childColumns = ["taskId"],
+            onDelete = ForeignKey.CASCADE, // If a Task is deleted, its monitoring data is also deleted
+            onUpdate = ForeignKey.CASCADE // If Task id changes, update here
         )
     ]
 )
 
+@TypeConverters(DateConverters::class)
 data class TaskMonitoring(
     @PrimaryKey
     val taskId: Long, // same id as Task
