@@ -126,7 +126,7 @@ fun BottomAppScheduleBar(
 
         // tracking
         IconButton(
-            onClick = {},
+            onClick = onClickTracking,
             modifier = Modifier.weight(1f)
         ) {
             Icon(

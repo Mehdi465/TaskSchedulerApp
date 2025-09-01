@@ -8,9 +8,6 @@ data class Session(
     val startTime: Date,
     val endTime: Date,
 ) {
-    fun isExpired(): Boolean {
-        return Date().after(endTime)
-    }
 
     fun getCurrentTask(): ScheduledTask? {
         val currentTime = Calendar.getInstance().time

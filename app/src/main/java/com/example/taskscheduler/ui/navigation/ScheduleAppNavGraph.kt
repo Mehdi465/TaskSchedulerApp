@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.taskscheduler.ui.bottomFeature.PomodoroDestination
 import com.example.taskscheduler.ui.bottomFeature.PomodoroScreen
+import com.example.taskscheduler.ui.bottomFeature.TrackingDestination
+import com.example.taskscheduler.ui.bottomFeature.TrackingScreen
 import com.example.taskscheduler.ui.bottomFeature.TrophiesDestination
 import com.example.taskscheduler.ui.bottomFeature.TrophiesScreen
 import com.example.taskscheduler.ui.mainLogicUI.HomeDestination
@@ -39,7 +41,8 @@ fun TaskAppNavHost(
                 navigateToPomodoro = { navController.navigate(PomodoroDestination.route) },
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
                 navigateToTrophies = { navController.navigate(TrophiesDestination.route) },
-                navigateToSettings = { navController.navigate(SettingsDestination.route) }
+                navigateToSettings = { navController.navigate(SettingsDestination.route) },
+                navigateToTracking = {navController.navigate(TrackingDestination.route)}
             )
         }
 
@@ -117,7 +120,8 @@ fun TaskAppNavHost(
                 navigateToHome = { navController.navigate(HomeDestination.route) },
                 navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
                 navigateToTrophies = { navController.navigate(TrophiesDestination.route) },
-                navigateToSettings = { navController.navigate(SettingsDestination.route) }
+                navigateToSettings = { navController.navigate(SettingsDestination.route) },
+                navigateToTracking = { navController.navigate(TrackingDestination.route) }
             )
         }
 
@@ -128,8 +132,22 @@ fun TaskAppNavHost(
                 navigateBack = { navController.popBackStack() },
                 navigateToHome = { navController.navigate(HomeDestination.route) },
                 navigateToPomodoro = { navController.navigate(PomodoroDestination.route) },
-                navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) }
+                navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
+                navigateToTracking = { navController.navigate(TrackingDestination.route) }
             )
         }
+
+        composable(
+            route= TrackingDestination.route
+        ) {
+            TrackingScreen(
+                navigateBack = { navController.popBackStack() },
+                navigateToHome = { navController.navigate(HomeDestination.route) },
+                navigateToPomodoro = { navController.navigate(PomodoroDestination.route) },
+                navigateToTaskManager = { navController.navigate(TaskManagerDestination.route) },
+                navigateToTrophies = {navController.navigate(TrophiesDestination.route)}
+            )
+        }
+
     }
 }

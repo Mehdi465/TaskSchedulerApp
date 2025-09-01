@@ -106,6 +106,7 @@ fun ScheduleScreen(
     navigateToTaskManager: () -> Unit,
     navigateToTrophies: () -> Unit,
     navigateToSettings: () -> Unit,
+    navigateToTracking: () -> Unit,
     modifier: Modifier = Modifier,
     scheduleViewModel: SharedSessionPomodoroViewModel = viewModel(
         factory = SharedSessionPomodoroViewModelFactory(
@@ -200,7 +201,8 @@ fun ScheduleScreen(
                 onClickHome = {},
                 onClickPomodoro = navigateToPomodoro,
                 onClickAddNewTask = navigateToTaskManager,
-                onClickTrophies = navigateToTrophies
+                onClickTrophies = navigateToTrophies,
+                onClickTracking = navigateToTracking
             )},
 
     ) { innerPadding ->
