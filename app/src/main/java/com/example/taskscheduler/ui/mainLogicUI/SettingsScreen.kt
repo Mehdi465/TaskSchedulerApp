@@ -3,6 +3,7 @@ package com.example.taskscheduler.ui.mainLogicUI
 import android.text.Layout
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchColors
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -63,6 +66,7 @@ fun SettingScreen(
     val isDarkThemeEnabled by settingsViewModel.isDarkThemeEnabled.collectAsState()
     val pomodoroWorkDuration by settingsViewModel.pomodoroWorkDuration.collectAsState()
     val pomodoroBreakDuration by settingsViewModel.pomodoroBreakDuration.collectAsState()
+
 
     Scaffold(
         modifier = Modifier,
@@ -119,6 +123,8 @@ fun SettingContent(
     var displaySelectTimeBreakDialog by remember { mutableStateOf(false) }
     var displaySelectTimeWorkDialog by remember { mutableStateOf(false) }
 
+    val isSystemInDarkTheme = isSystemInDarkTheme()
+
     Column(
         modifier = modifier // Apply the modifier from Scaffold here
             .fillMaxSize() // Allow Column to take up all available space from Scaffold
@@ -139,7 +145,14 @@ fun SettingContent(
                     checked = isDarkThemeEnabled,
                     onCheckedChange = {
                         settingsViewModel.setDarkThemeEnabled(it)
-                    }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
+                        checkedTrackColor = Color.Black,
+                        uncheckedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
+                        uncheckedTrackColor = Color.Black
+                    )
+
                 )
             }
         )
