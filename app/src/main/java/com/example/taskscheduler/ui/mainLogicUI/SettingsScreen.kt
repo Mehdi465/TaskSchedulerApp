@@ -152,7 +152,6 @@ fun SettingContent(
                         uncheckedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
                         uncheckedTrackColor = Color.Black
                     )
-
                 )
             }
         )
@@ -165,6 +164,8 @@ fun SettingContent(
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
+
+        // break time
         SettingsTile(
             text = "Break Time: $pomodoroBreakDuration mins", // Display current value
             controlContent = {
@@ -176,6 +177,7 @@ fun SettingContent(
                 }
             }
         )
+        // work time
         Spacer(modifier = Modifier.height(8.dp)) // Space between Pomodoro tiles
         SettingsTile(
             text = "Work Time: $pomodoroWorkDuration mins", // Display current value

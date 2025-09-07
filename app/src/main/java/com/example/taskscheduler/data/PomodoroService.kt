@@ -25,18 +25,27 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-// Constants for Pomodoro durations (in milliseconds)
+// viewmodel to extract datastore settings info
+
+
+//constants for Pomodoro durations (in milliseconds)
 private val WORK_DURATION_MILLIS = 25 * 60 * 1000L // 25 minutes
 private val BREAK_DURATION_MILLIS = 5 * 60 * 1000L // 5 minutes
 private val LONG_BREAK_DURATION_MILLIS = 15 * 60 * 1000L // 15 minutes
 private val CYCLES_BEFORE_LONG_BREAK = 4
 
-// Data class to hold the current state of our Pomodoro timer
+// defaults values if datastore is empty
+private val DEFAULT_WORK_DURATION = 25
+private val DEFAULT_BREAK_DURATION = 5
+private val DEFAULT_LONG_BREAK_DURATION = 15
+private val DEFAULT_CYCLES_BEFORE_LONG_BREAK = 4
+
+// data class to hold the current state of our Pomodoro timer
 data class PomodoroState(
     val phase: PomodoroPhase = PomodoroPhase.STOPPED,
     val timeLeftMillis: Long = WORK_DURATION_MILLIS,
-    val totalCycles: Int = 0, // Number of completed work cycles
-    val currentCycle: Int = 0 // Current cycle in the set of 4 before a long break
+    val totalCycles: Int = 0,
+    val currentCycle: Int = 0
 )
 
 enum class PomodoroPhase {
@@ -80,12 +89,12 @@ class PomodoroService : LifecycleService() {
         lifecycleScope.launch {
             settingsRepository.pomodoroWorkDuration
                 .map { it * 60 * 1000L } // Convert minutes to millis
-                .collect {
-                    Log.d("PomodoroService", "Work duration updated from DataStore: $it ms")
-                    _workDurationMillis.value = it
+                .collect { duration ->
+                    Log.d("PomodoroService", "Work duration updated from DataStore: $duration ms")
+                    _workDurationMillis.value = duration
                     // If no timer is running and state is STOPPED, update initial timeLeft
                     if (_pomodoroState.value.phase == PomodoroPhase.STOPPED) {
-                        _pomodoroState.value = _pomodoroState.value.copy(timeLeftMillis = it)
+                        _pomodoroState.value = _pomodoroState.value.copy(timeLeftMillis = duration)
                     }
                 }
         }
@@ -97,6 +106,8 @@ class PomodoroService : LifecycleService() {
                     _breakDurationMillis.value = it
                 }
         }
+
+        // TODO: add long break and cyckes
 
 
         // To set an initial state correctly if the service is created fresh

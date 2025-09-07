@@ -51,12 +51,11 @@ class SettingsViewModel(private val settingsRepository: SettingsRepository) : Vi
 
     fun setPomodoroBreakDuration(durationMinutes: Int) {
         viewModelScope.launch {
-            // Add validation if needed
             settingsRepository.setPomodoroBreakDuration(durationMinutes)
         }
     }
 
-    // Add functions for other settings (e.g., notifications)
+    // add other functions
 }
 
 // Factory for creating SettingsViewModel with dependencies (SettingsRepository)
