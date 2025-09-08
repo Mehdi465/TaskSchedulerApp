@@ -3,7 +3,7 @@ package com.example.taskscheduler.data
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
-interface TaskMonitoringRepository {
+interface TaskTrackingRepository {
     /**
      * Retrieve all the tasks monitoring from the the given data source.
      */

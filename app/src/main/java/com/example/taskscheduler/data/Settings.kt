@@ -40,7 +40,7 @@ class SettingsRepository(private val context: Context) {
 
     val pomodoroWorkDuration: Flow<Int> = dataStore.data
         .map { preferences ->
-            preferences[UserPreferencesKeys.POMODORO_WORK_DURATION] ?: 23 // Default to 25 minutes
+            preferences[UserPreferencesKeys.POMODORO_WORK_DURATION] ?: 23
         }
 
     suspend fun setPomodoroWorkDuration(durationMinutes: Int) {
@@ -51,7 +51,7 @@ class SettingsRepository(private val context: Context) {
 
     val pomodoroBreakDuration: Flow<Int> = dataStore.data
         .map { preferences ->
-            preferences[UserPreferencesKeys.POMODORO_BREAK_DURATION] ?: 25 // Default to 25 minutes
+            preferences[UserPreferencesKeys.POMODORO_BREAK_DURATION] ?: 20
         }
 
     suspend fun setPomodoroBreakDuration(durationMinutes: Int) {

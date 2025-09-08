@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.bottomFeature
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,6 +38,7 @@ import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.PomodoroPhase
+import com.example.taskscheduler.data.PomodoroService
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.pomodoro.PomodoroViewModel
 import com.example.taskscheduler.ui.navigation.NavigationDestination
@@ -110,17 +113,30 @@ fun PomodoroContent(
 ){
     val viewModel: PomodoroViewModel = viewModel()
 
-    PomodoroTimerApp(
+    PomodoroScreen(
         viewModel = viewModel,
         session = session
     )
 }
 
 @Composable
-fun PomodoroTimerApp(
+fun PomodoroScreen(
     viewModel: PomodoroViewModel,
     session: Session?
 ) {
+
+    val context = LocalContext.current
+    // val pomodoroServiceState by PomodoroServiceConnector.serviceStateFlow.collectAsState() // From your service
+
+    // When the screen becomes visible, tell the service to refresh its settings
+    LaunchedEffect(Unit) { // Runs once when the Composable enters the composition
+        Log.d("PomodoroScreen", "PomodoroScreen recomposed / LaunchedEffect triggered.")
+        val intent = Intent(context, PomodoroService::class.java).apply {
+            action = PomodoroService.ACTION_REFRESH_SETTINGS_AND_STATE
+        }
+        context.startService(intent) // Ensures service is running and processes the action
+        Log.d("PomodoroScreen", "Sent ACTION_REFRESH_SETTINGS_AND_STATE to PomodoroService")
+    }
 
     val pomodoroState by viewModel.pomodoroState.collectAsStateWithLifecycle()
     Log.d("PomodoroTimerApp", "PomodoroState: ${pomodoroState.phase}")
@@ -164,7 +180,12 @@ fun PomodoroTimerApp(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = { viewModel.startTimer() },
+                onClick = { viewModel.startTimer()
+                        val startIntent = Intent(context, PomodoroService::class.java).apply {
+                        action = PomodoroService.ACTION_START
+                    }
+                    context.startService(startIntent)
+                          },
                 enabled = pomodoroState.phase == PomodoroPhase.STOPPED
             ) {
                 Text("Start")

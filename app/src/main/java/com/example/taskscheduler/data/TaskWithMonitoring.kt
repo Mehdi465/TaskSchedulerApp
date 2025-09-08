@@ -7,7 +7,7 @@ import androidx.room.Relation
  * This class is used to easily manipulate tasks datas from database
  */
 
-data class TaskWithMonitoring(
+data class TaskWithTracking(
     @Embedded
     val task : Task,
 
@@ -15,5 +15,5 @@ data class TaskWithMonitoring(
         parentColumn = "id",
         entityColumn = "taskId"
     )
-    val monitoring : TaskMonitoring
+    val tracking : TaskTracking
 )

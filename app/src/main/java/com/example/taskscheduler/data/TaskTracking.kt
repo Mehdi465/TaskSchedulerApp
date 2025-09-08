@@ -8,20 +8,20 @@ import com.example.taskscheduler.data.Converters.DateConverters
 import java.util.Date
 
 @Entity(
-    tableName = "task_monitoring",
+    tableName = "task_tracking",
     foreignKeys = [
         ForeignKey(
             entity = Task::class, //parent table
             parentColumns = ["id"],
             childColumns = ["taskId"],
-            onDelete = ForeignKey.CASCADE, // If a Task is deleted, its monitoring data is also deleted
+            onDelete = ForeignKey.CASCADE, // If a Task is deleted, its tracking data is also deleted
             onUpdate = ForeignKey.CASCADE // If Task id changes, update here
         )
     ]
 )
 
 @TypeConverters(DateConverters::class)
-data class TaskMonitoring(
+data class TaskTracking(
     @PrimaryKey
     val taskId: Long, // same id as Task
 

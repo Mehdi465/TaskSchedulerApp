@@ -13,13 +13,13 @@ class PomodoroViewModel(application: Application) : AndroidViewModel(application
 
     private val repository: PomodoroRepository = PomodoroRepository(application)
 
-    // Expose the PomodoroState from the repository as a StateFlow for the UI
+    //expose the pomodoroState from the repository as a StateFlow for the UI
     val pomodoroState: StateFlow<PomodoroState> = repository.pomodoroState
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000), // Keep the flow active as long as there are subscribers (UI)
             initialValue = PomodoroState(
-            ) // Provide an initial value
+            )
         )
 
     fun startTimer() {

@@ -22,6 +22,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -29,8 +30,8 @@ import kotlinx.coroutines.launch
 
 
 //constants for Pomodoro durations (in milliseconds)
-private val WORK_DURATION_MILLIS = 25 * 60 * 1000L // 25 minutes
-private val BREAK_DURATION_MILLIS = 5 * 60 * 1000L // 5 minutes
+private val WORK_DURATION_MILLIS = 23 * 60 * 1000L // 25 minutes
+private val BREAK_DURATION_MILLIS = 52 * 60 * 1000L // 5 minutes
 private val LONG_BREAK_DURATION_MILLIS = 15 * 60 * 1000L // 15 minutes
 private val CYCLES_BEFORE_LONG_BREAK = 4
 
@@ -73,7 +74,10 @@ class PomodoroService : LifecycleService() {
         const val ACTION_PAUSE = "ACTION_PAUSE"
         const val ACTION_RESUME = "ACTION_RESUME"
         const val ACTION_STOP = "ACTION_STOP"
-        const val ACTION_SKIP = "ACTION_SKIP" // To skip current phase
+        const val ACTION_SKIP = "ACTION_SKIP"
+        // to be updated on the last data stored
+        const val ACTION_REFRESH_SETTINGS_AND_STATE = "ACTION_REFRESH_SETTINGS_AND_STATE"
+
 
         const val NOTIFICATION_CHANNEL_ID = "pomodoro_channel"
         const val NOTIFICATION_ID = 1
@@ -85,29 +89,35 @@ class PomodoroService : LifecycleService() {
         settingsRepository = (applicationContext as TaskApplication).settingsRepository
         createNotificationChannel()
 
+        lifecycleScope.launch {
+            settingsRepository.pomodoroBreakDuration.collect { breakDuration ->
+                Log.d("PomodoroServiceOUAAA", "Break duration updated from DataStore: $breakDuration")
+            }
+        }
+
         // Collect settings from DataStore using lifecycleScope
         lifecycleScope.launch {
             settingsRepository.pomodoroWorkDuration
-                .map { it * 60 * 1000L } // Convert minutes to millis
+                //.map { it * 60 * 1000L } // Convert minutes to millis
                 .collect { duration ->
-                    Log.d("PomodoroService", "Work duration updated from DataStore: $duration ms")
-                    _workDurationMillis.value = duration
+                    Log.d("PomodoroService", "Work duration updated from DataStore: $duration minutes")
+                    _workDurationMillis.value = duration * 60 * 1000L
                     // If no timer is running and state is STOPPED, update initial timeLeft
                     if (_pomodoroState.value.phase == PomodoroPhase.STOPPED) {
-                        _pomodoroState.value = _pomodoroState.value.copy(timeLeftMillis = duration)
+                        _pomodoroState.value = _pomodoroState.value.copy(timeLeftMillis = duration* 60 * 1000L)
                     }
                 }
         }
         lifecycleScope.launch {
             settingsRepository.pomodoroBreakDuration
-                .map { it * 60 * 1000L }
+                //.map { it * 60 * 1000L }
                 .collect {
-                    Log.d("PomodoroService", "Break duration updated from DataStore: $it ms")
-                    _breakDurationMillis.value = it
+                    Log.d("PomodoroService", "Break duration updated from DataStore: $it minutes")
+                    _breakDurationMillis.value = it * 60 * 1000L
                 }
         }
 
-        // TODO: add long break and cyckes
+        // TODO: add long break and cycles
 
 
         // To set an initial state correctly if the service is created fresh
@@ -124,8 +134,21 @@ class PomodoroService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+
         when (intent?.action) {
-            ACTION_START -> startTimer(PomodoroPhase.WORK, WORK_DURATION_MILLIS)
+            ACTION_REFRESH_SETTINGS_AND_STATE -> refreshPomodoroState()
+            // TODO : clean this into function
+            ACTION_START -> {
+                val currentWorkDurationToUse = _workDurationMillis.value
+
+                _pomodoroState.value = PomodoroState( // Reset to a fresh work session
+                    phase = PomodoroPhase.WORK,
+                    timeLeftMillis = currentWorkDurationToUse,
+                    currentCycle = 0,
+                    totalCycles = 0
+                )
+                startTimer(_pomodoroState.value.phase, _pomodoroState.value.timeLeftMillis)
+            }
             ACTION_PAUSE -> pauseTimer()
             ACTION_RESUME -> resumeTimer()
             ACTION_STOP -> stopTimer()
@@ -134,6 +157,43 @@ class PomodoroService : LifecycleService() {
         // This ensures the service restarts if it's killed by the system
         // and re-delivers the last intent. Good for long-running services.
         return START_STICKY
+    }
+
+    fun refreshPomodoroState() {
+
+        settingsRepository = (applicationContext as TaskApplication).settingsRepository
+
+            Log.d("PomodoroService", "ACTION_REFRESH_SETTINGS_AND_STATE received")
+            // Launch a coroutine to fetch all current settings and update internal state
+            lifecycleScope.launch {
+                val workDuration = settingsRepository.pomodoroWorkDuration.first() * 60 * 1000L
+                val breakDuration = settingsRepository.pomodoroBreakDuration.first() * 60 * 1000L
+                // TODO
+                //val longBreakDuration = settingsRepository. * 60 * 1000L
+                //val cyclesForLongBreak = settingsRepository.pomodoroCyclesBeforeLongBreak.first()
+
+                // Update internal service StateFlows
+                _workDurationMillis.value = workDuration
+                _breakDurationMillis.value = breakDuration
+
+                // TODO
+                //_longBreakDurationMillis.value = longBreakDuration
+                //_cyclesBeforeLongBreak.value = cyclesForLongBreak
+
+                // If the timer is currently stopped, update its timeLeft to the new work duration
+                if (_pomodoroState.value.phase == PomodoroPhase.STOPPED) {
+                    _pomodoroState.value = _pomodoroState.value.copy(
+                        timeLeftMillis = workDuration
+                        // Potentially reset cycles too if this implies a full reset for UI display
+                        // currentCycle = 0,
+                        // totalCycles = 0
+                    )
+                }
+                Log.d("PomodoroService", "Settings refreshed. Work: $workDuration, Break: $breakDuration")
+                Log.d("PomodoroService", "Current pomodoroState after refresh: ${_pomodoroState.value}")
+
+            }
+
     }
 
     override fun onBind(intent: Intent): IBinder? {

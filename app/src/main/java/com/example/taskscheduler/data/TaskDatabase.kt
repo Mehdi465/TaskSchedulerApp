@@ -6,7 +6,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -15,14 +14,14 @@ import com.example.taskscheduler.data.Converters.DateConverters
 import com.example.taskscheduler.data.Converters.DurationConverters
 
 @Database(
-    entities = [Task::class,TaskMonitoring::class],
-    version = 3,
+    entities = [Task::class,TaskTracking::class],
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(DurationConverters::class, ColorConverters::class, DateConverters::class)
 abstract class TaskDatabase : RoomDatabase(){
     abstract fun taskDao(): TaskDao
-    abstract fun taskMonitoringDao(): TaskMonitoringDao
+    abstract fun taskTrackingDao(): TaskTrackingDao
 
     companion object {
         @Volatile
