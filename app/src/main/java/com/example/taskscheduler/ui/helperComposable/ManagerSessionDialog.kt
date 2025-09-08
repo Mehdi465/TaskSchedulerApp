@@ -28,17 +28,17 @@ fun ValidateOrDeleteSession(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Do you to confirm or delete this session?")
+            Text("Do you to delete or confirm this session?")
             Row(
                 horizontalArrangement = Arrangement.End
             ){
                 Button(
                     onClick = onValidate,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Green
+                        containerColor = Color.Red
                     )
                 ) {
-                    Text("Yes")
+                    Text("Delete")
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -46,10 +46,10 @@ fun ValidateOrDeleteSession(
                 Button(
                     onClick = onDelete,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Red
+                        containerColor = Color.Green
                     )
                 ) {
-                    Text("No")
+                    Text("Confirm")
                 }
             }
         }

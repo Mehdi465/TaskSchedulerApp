@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 /*
- * This class is used to easily manipulate tasks datas from database
+ * This class is used to easily manipulate tasks data from database
  */
 
 data class TaskWithTracking(

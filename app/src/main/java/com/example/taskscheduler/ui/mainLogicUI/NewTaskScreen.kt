@@ -49,6 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.util.TableInfo
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
@@ -169,7 +170,7 @@ fun NewTaskContent(
 
         Spacer(modifier = Modifier
             .width(32.dp)
-            .height(85.dp)
+            .height(100.dp)
         )
 
         // max input char for textfield
@@ -185,20 +186,28 @@ fun NewTaskContent(
             singleLine = true
         )
 
+        // TODO : put this into a function
         Spacer(modifier = Modifier.padding(8.dp))
+        Column {
+            Text(
+                text = stringResource(R.string.color),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
 
-        Row() {
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = selectedColor
-                ),
-                onClick = {
-                    showColorPickerDialog = true
+            Row() {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = selectedColor
+                    ),
+                    onClick = {
+                        showColorPickerDialog = true
+                    }
+                ) {
+                    Text(stringResource(R.string.pick_color))
                 }
-            ) {
-                Text(stringResource(R.string.pick_color))
+                ColorCircleMenu(selectedColor, onClick = {}, true)
             }
-            ColorCircleMenu(selectedColor, onClick = {}, true)
         }
 
 
@@ -234,6 +243,19 @@ fun NewTaskContent(
 
         // Create and Cancel buttons
         Row() {
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = selectedColor
+                ),
+                onClick = onDismiss
+            ) {
+                Text(
+                    text = stringResource(R.string.cancel)
+                )
+            }
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
             Button(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = selectedColor
@@ -295,19 +317,6 @@ fun NewTaskContent(
             ) {
                 Text(
                     text = stringResource(if (!isModificationMode) R.string.create else R.string.modify)
-                )
-            }
-
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = selectedColor
-                ),
-                onClick = onDismiss
-            ) {
-                Text(
-                    text = stringResource(R.string.cancel)
                 )
             }
         }

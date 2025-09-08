@@ -30,17 +30,17 @@ fun DeleteTaskDialog(
                 horizontalArrangement = Arrangement.End
             ){
                 Button(
-                    onClick = onConfirm
+                    onClick = onDismiss
                 ) {
-                    Text("Yes")
+                    Text("No")
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Button(
-                    onClick = onDismiss
+                    onClick = onConfirm
                 ) {
-                    Text("No")
+                    Text("Yes")
                 }
             }
         }
