@@ -3,12 +3,16 @@ package com.example.taskscheduler.ui.helperComposable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -32,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.theme.TaskColors
 
 // import from Color.kt
@@ -49,26 +54,43 @@ fun ColorPickerDialog(
 
     if (showDialog) {
         Dialog(onDismissRequest = onDismiss) {
-            Column() {
-                ColorPickerContent(
-                    colors = availableColors,
-                    onColorClick = { selectedColor ->
-                        currentlySelectedInPicker = selectedColor
-                    },
-                    currentlySelectedInPicker = currentlySelectedInPicker
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ){
-                    Button(onClick = {
-                        onDismiss
-                    }){
-                        Text("Cancel")
-                    }
-                    Button(onClick = {
-                        onColorSelected(currentlySelectedInPicker)
-                    }){
-                        Text("Select")
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(Dimens.spaceS)
+                ) {
+                    ColorPickerContent(
+                        colors = availableColors,
+                        onColorClick = { selectedColor ->
+                            currentlySelectedInPicker = selectedColor
+                        },
+                        currentlySelectedInPicker = currentlySelectedInPicker
+                    )
+
+                    Spacer(modifier = Modifier.height(Dimens.spaceS))
+
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = Dimens.spaceS),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(onClick = {
+                            onDismiss
+                        }) {
+                            Text("Cancel")
+                        }
+
+                        Spacer(modifier = Modifier.padding(Dimens.spaceS))
+
+                        Button(onClick = {
+                            onColorSelected(currentlySelectedInPicker)
+                        }) {
+                            Text("Select")
+                        }
                     }
                 }
             }

@@ -81,6 +81,8 @@ fun NewTaskScreen(
     canNavigateBack: Boolean = true,
 ){
 
+
+
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -91,6 +93,7 @@ fun NewTaskScreen(
             )
         },
     ) {innerPadding ->
+
 
         NewTaskContent(
             taskIdToModify = taskIdToModify,
@@ -114,6 +117,8 @@ fun NewTaskContent(
         Priority.MANDATORY
     )
 
+    Log.d("TWICE 2","?")
+
     val isModificationMode = taskIdToModify != null
 
     // --- Get Repository from Application context ---
@@ -125,7 +130,6 @@ fun NewTaskContent(
     val viewModel: NewTaskViewModel = viewModel(
         factory = NewTaskViewModelFactory(tasksRepository)
     )
-
 
     // --- State for Input Fields ---
     var taskNameInput by remember { mutableStateOf("") }
@@ -153,6 +157,8 @@ fun NewTaskContent(
                     selectedColor = taskToModify?.color!!
                     selectedIcon = taskToModify?.icon!!
                 } else {
+                    Log.d("NewTaskContent", "LaunchedEffect: " +
+                            "Task with ID $taskIdToModify not found. Dismissing.")
                     onDismiss()
                 }
             }
@@ -210,11 +216,13 @@ fun NewTaskContent(
             }
         }
 
+        val hours: Int = selectedDuration.inWholeHours.toInt()
+        val minutes: Int = (selectedDuration - hours.hours).inWholeMinutes.toInt()
 
         DurationSection(
             themeColor = selectedColor,
-            initialHour = selectedDuration.toComponents { h, _, _, _ -> h.toInt() },
-            initialMinute = selectedDuration.toComponents { _, m, _, _ -> m.toInt() },
+            initialHour = hours,
+            initialMinute = minutes,
             onTimeSelected = { h, m ->
                 val newDuration = h.hours + m.minutes
                 selectedDuration = newDuration

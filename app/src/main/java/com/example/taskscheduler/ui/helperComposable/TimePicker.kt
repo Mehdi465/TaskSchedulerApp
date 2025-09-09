@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.helperComposable
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -38,8 +39,11 @@ fun InfiniteTimePickerWheel(
     initialMinute: Int,
     onTimeSelected: (hour: Int, minute: Int) -> Unit
 ) {
-    var selectedHour by remember { mutableStateOf(initialHour) }
-    var selectedMinute by remember { mutableStateOf(initialMinute) }
+    var selectedHour = initialHour
+    var selectedMinute = initialMinute
+
+    Log.d("SELECTED DURATION initial","${initialHour}:${initialMinute}")
+    Log.d("SELECTED DURATION","${selectedHour}:${selectedMinute}")
 
     val hours = (0..23).map { it.toString().padStart(2, '0') }
     val minutes = (0..59).map { it.toString().padStart(2, '0') }
@@ -54,7 +58,7 @@ fun InfiniteTimePickerWheel(
         horizontalArrangement = Arrangement.Center
     ) {
         LoopingTimeWheelColumn(
-            selectedValue = selectedHour,
+            selectedValue = initialHour,
             items = hours,
             onItemSelected = {
                 selectedHour = it
@@ -78,7 +82,7 @@ fun InfiniteTimePickerWheel(
         }
 
         LoopingTimeWheelColumn(
-            selectedValue = selectedMinute,
+            selectedValue = initialMinute,
             items = minutes,
             onItemSelected = {
                 selectedMinute = it
@@ -102,6 +106,7 @@ fun LoopingTimeWheelColumn(
 
     // Calculate a center-friendly initial index for the selected value
     val initialCenter = 500
+    Log.d("SELECTED VALUE END","${selectedValue}")
     val initialIndex = remember(selectedValue) {
         val offset = selectedValue % items.size
         initialCenter - (initialCenter % items.size) + offset
