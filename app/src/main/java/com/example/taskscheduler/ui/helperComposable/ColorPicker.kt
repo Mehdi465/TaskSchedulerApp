@@ -49,7 +49,6 @@ fun ColorPickerDialog(
     onColorSelected: (Color) -> Unit,
     onDismiss: () -> Unit
 ) {
-
     var currentlySelectedInPicker by remember { mutableStateOf(initialColor) }
 
     if (showDialog) {
@@ -79,7 +78,7 @@ fun ColorPickerDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Button(onClick = {
-                            onDismiss
+                            onDismiss()
                         }) {
                             Text("Cancel")
                         }
