@@ -20,8 +20,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -67,6 +69,7 @@ import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.ui.AppViewModelProvider
 import com.example.taskscheduler.ui.helperComposable.DeleteTaskDialog
 import com.example.taskscheduler.ui.navigation.NavigationDestination
+import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.taskmanager.TaskListUiState
 import com.example.taskscheduler.ui.viewModel.taskmanager.TaskManagerViewModel
@@ -125,7 +128,7 @@ fun TaskManagerScreen(
                 containerColor = MaterialTheme.colorScheme.secondary
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Add,
+                    imageVector = Icons.Filled.PlayArrow,
                     contentDescription = "Create Session"
                 )
             }
@@ -176,8 +179,11 @@ fun TaskManagerScreen(
     // UI task background colors
     val taskBackgroundColors = MutableList(tasks.size){Color.LightGray}
 
-
     Column() {
+
+
+        Spacer(modifier = Modifier.padding(Dimens.spaceM))
+
         Box(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
@@ -194,7 +200,7 @@ fun TaskManagerScreen(
 
         Box(
             modifier = Modifier
-                .height(20.dp)
+                .height(150.dp)
                 .fillMaxWidth()
                 .background(color = Color.DarkGray)
         ){
@@ -219,7 +225,6 @@ fun TaskManagerScreen(
                 text= stringResource(R.string.list_of_task),
                 modifier = Modifier.align(Alignment.Center)
             )
-            Spacer(modifier = Modifier.height(30.dp))
         }
 
         if (tasks.isEmpty()){

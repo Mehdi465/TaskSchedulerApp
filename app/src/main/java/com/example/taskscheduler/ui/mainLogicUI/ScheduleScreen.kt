@@ -248,7 +248,7 @@ fun TimelineScreen(session: Session,
     var dragOffsetY by remember { mutableStateOf(0f) }
     var currentDropTargetInfo by remember { mutableStateOf<Pair<Int, Float?>?>(null) }
 
-    // To store the measured height of each item for drag calculations
+    // to store the measured height of each item for drag calculations
     val itemHeights = remember { mutableStateMapOf<Any, Float>() } // Key by task.id
     val density = LocalDensity.current
     val hapticFeedback = LocalHapticFeedback.current

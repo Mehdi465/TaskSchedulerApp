@@ -44,6 +44,7 @@ import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.ui.helperComposable.SelectTimeDialog
 import com.example.taskscheduler.ui.navigation.NavigationDestination
+import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModel
 import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModelFactory
 import kotlin.time.Duration
@@ -178,7 +179,7 @@ fun SettingContent(
             }
         )
         // work time
-        Spacer(modifier = Modifier.height(8.dp)) // Space between Pomodoro tiles
+        Spacer(modifier = Modifier.height(Dimens.spaceS)) // space between Pomodoro tiles
         SettingsTile(
             text = "Work Time: $pomodoroWorkDuration mins", // Display current value
             controlContent = {
@@ -190,7 +191,7 @@ fun SettingContent(
             }
         )
 
-        // Add more settings as needed
+        // add more settings as needed
         Spacer(modifier = Modifier.height(16.dp)) // Bottom padding
 
         // --- Colors Section ---
@@ -208,6 +209,16 @@ fun SettingContent(
                     }
             }
         )
+
+        //  ------ Language Section --------
+        Text(
+            text = "Language",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
+        SettingsTile(
+            text = "current language",
+        ) { }
 
 
         // ------- Dialog Part -------
