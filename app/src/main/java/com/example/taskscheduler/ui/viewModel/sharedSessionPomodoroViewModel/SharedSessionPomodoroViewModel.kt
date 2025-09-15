@@ -81,7 +81,7 @@ class SharedSessionPomodoroViewModel(private val activeSessionStore: ActiveSessi
         val updatedTasks = mutableListOf<ScheduledTask>()
         var currentTaskStartTime = sessionStartTime
         tasks.forEach { originalScheduledTask ->
-            val taskDurationMillis = originalScheduledTask.task.duration.inWholeMilliseconds
+            val taskDurationMillis = originalScheduledTask.duration.inWholeMilliseconds
 
             val calendarStart = Calendar.getInstance().apply { time = currentTaskStartTime }
             val calendarEnd = Calendar.getInstance().apply {

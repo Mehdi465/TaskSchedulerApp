@@ -114,6 +114,11 @@ fun ScheduleScreen(
 ) {
     val uiState by scheduleViewModel.uiState.collectAsState()
 
+//    if (uiState.session != null) {
+//        for (task in uiState.session!!.scheduledTasks){
+//            Log.d("duration TASK","${task.task.name} : ${task.task.duration}")
+//        }
+//    }
     val liveCurrentTime = remember { mutableStateOf(getCurrentTimeSnappedToMinute()) }
 
     var showValidateOrDeleteDialog by remember { mutableStateOf(false) }
@@ -210,6 +215,7 @@ fun ScheduleScreen(
         if (uiState.session == null) { //showDisplaySessionDialogAnswer ||
             Text(stringResource(R.string.no_session_found))
         } else {
+
             TimelineScreen(
                 session = uiState.session!!,
                 modifier = Modifier.padding(innerPadding),
@@ -264,7 +270,7 @@ fun TimelineScreen(session: Session,
                 Log.d("TimelineScreen", "Rendering item ${scheduledTask.task.name}")
 
                 val isBeingDragged = index == draggedItemIndex
-                val currentTaskHeightPx = itemHeights[scheduledTask.instanceId] ?: 0f
+                //val currentTaskHeightPx = itemHeights[scheduledTask.instanceId] ?: 0f
 
                 // Visual displacement for items when another item is dragged over them
                 val displacementOffset = when {
@@ -369,7 +375,7 @@ fun TimelineScreen(session: Session,
                                             if (draggedItemCenterY > accumulatedHeight) {
                                                 newTargetIndex = i
                                             } else {
-                                                break // No need to check further down
+                                                break //no need to check further down
                                             }
                                             accumulatedHeight += itemHeight
                                         }
@@ -385,11 +391,11 @@ fun TimelineScreen(session: Session,
                     TaskItem(
                         scheduledTask = scheduledTask,
                         currentTime = currentTime
-                        // Potentially pass 'isBeingDragged' if TaskItem needs to change appearance
+                        // TODO : add 'isBeingDragged' to TaskItem to change appearance
                     )
                 }
 
-                if (index < scheduledTasks.size - 1 && !isBeingDragged) { // Don't show spacer for the item being dragged
+                if (index < scheduledTasks.size - 1 && !isBeingDragged) { //\ Don't show spacer for the item being dragged
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }

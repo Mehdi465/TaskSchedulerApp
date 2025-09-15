@@ -14,6 +14,7 @@ data class ScheduledTask(
     val task: Task,
     val startTime: Date,
     val endTime: Date,
+    val duration: Duration = getDurationFromDates(startTime,endTime),
     var isCompleted: Boolean = false,
     // unique id for drag
     val instanceId: String = UUID.randomUUID().toString(),
@@ -54,15 +55,25 @@ data class ScheduledTask(
             var cumulDuration = Duration.ZERO
 
             for (task in tasks){
+                var durationTask : Duration = task.duration
                 if (cumulDuration + task.duration > duration){
-                    task.duration = duration - cumulDuration
+                    //task.duration = duration - cumulDuration
+                    durationTask = duration - cumulDuration
                 }
-                val scheduledTask = ScheduledTask(
-                    task,Date(startTime.time + cumulDuration.inWholeMilliseconds),
-                    Date(startTime.time + task.duration.inWholeMilliseconds + cumulDuration.inWholeMilliseconds))
+                Log.d("task","${task.name} : ${durationTask}")
 
-                result.add(scheduledTask)
+                // add new scheduled task
+                result.add(
+                    ScheduledTask(
+                        task.copy(),
+                        Date(startTime.time + cumulDuration.inWholeMilliseconds),
+                        Date(startTime.time + durationTask.inWholeMilliseconds + cumulDuration.inWholeMilliseconds)
+                    )
+                )
                 cumulDuration += task.duration
+            }
+            for (task in result){
+                Log.d("task","${task.task.name} : ${task.duration}")
             }
             return result
         }
@@ -110,7 +121,6 @@ data class ScheduledTask(
 
                 while(currentDuration < sessionDuration){
                     val randomInt = (0..extendedListSize).random()
-                    Log.d("randomInt","$randomInt")
                     pickedTasks.add(extendedListTasks[randomInt])
                     currentDuration = addDuration(currentDuration,extendedListTasks[randomInt].duration)
                 }

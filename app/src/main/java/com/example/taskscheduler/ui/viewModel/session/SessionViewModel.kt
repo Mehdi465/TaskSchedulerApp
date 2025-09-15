@@ -99,6 +99,7 @@ class SessionViewModel(
             _isSavingSession.value = true
             _saveErrorMessage.value = null
             try {
+
                 val scheduledTask = scheduleTasks(tasks,sessionStartTime,sessionEndTime)
                 val newSession = Session(
                     scheduledTasks = scheduledTask,
