@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -117,9 +118,9 @@ fun NewTaskContent(
         Priority.MANDATORY
     )
 
-    Log.d("TWICE 2","?")
+    Log.d("TWICE 1","?")
 
-    val isModificationMode = taskIdToModify != null
+    val isModificationMode = (taskIdToModify != null)
 
     // --- Get Repository from Application context ---
     val context = LocalContext.current
@@ -144,8 +145,12 @@ fun NewTaskContent(
     var taskToModify by remember { mutableStateOf<Task?>(null)}
     var taskToEdit = taskToModify
 
+    // isLoading for no generate 2 times
+    var isLoading by remember { mutableStateOf(taskIdToModify != null) }
+
     LaunchedEffect(key1 = taskIdToModify) {
         if (isModificationMode) {
+            if (!isLoading) isLoading = true
             viewModel.getTaskByIdAsFlow(taskIdToModify).collect { task ->
                 taskToEdit = task
                 if (task != null) {
@@ -157,149 +162,135 @@ fun NewTaskContent(
                     selectedColor = taskToModify?.color!!
                     selectedIcon = taskToModify?.icon!!
                 } else {
+                    isLoading = false
                     Log.d("NewTaskContent", "LaunchedEffect: " +
                             "Task with ID $taskIdToModify not found. Dismissing.")
                     onDismiss()
                 }
+                isLoading = false
             }
         }else {
+            isLoading = false
             taskToModify = null
         }
     }
 
+    if (isLoading){
+        Log.d("NewTaskContent", "Showing Loading Indicator")
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator() // Or any other loading UI
+        }
+    }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp)
-            .fillMaxSize()
-    ) {
+    else {
 
-        Spacer(modifier = Modifier
-            .width(32.dp)
-            .height(100.dp)
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize()
+        ) {
 
-        // max input char for textfield
-        val maxChar : Int = 40
-        TextField(
-            value = taskNameInput,
-            onValueChange = {
-                if (it.length <= maxChar) {
-                    taskNameInput = it
-                }
-                            },
-            label = { Text(stringResource(R.string.task_name)) },
-            singleLine = true
-        )
-
-        // TODO : put this into a function
-        Spacer(modifier = Modifier.padding(8.dp))
-        Column {
-            Text(
-                text = stringResource(R.string.color),
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
+            Spacer(
+                modifier = Modifier
+                    .width(32.dp)
+                    .height(100.dp)
             )
 
+            // max input char for textfield
+            val maxChar: Int = 40
+            TextField(
+                value = taskNameInput,
+                onValueChange = {
+                    if (it.length <= maxChar) {
+                        taskNameInput = it
+                    }
+                },
+                label = { Text(stringResource(R.string.task_name)) },
+                singleLine = true
+            )
+
+            // TODO : put this into a function
+            Spacer(modifier = Modifier.padding(8.dp))
+            Column {
+                Text(
+                    text = stringResource(R.string.color),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+
+                Row() {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = selectedColor
+                        ),
+                        onClick = {
+                            showColorPickerDialog = true
+                        }
+                    ) {
+                        Text(stringResource(R.string.pick_color))
+                    }
+                    ColorCircleMenu(selectedColor, onClick = {}, true)
+                }
+            }
+
+            val hours: Int = selectedDuration.inWholeHours.toInt()
+            val minutes: Int = (selectedDuration - hours.hours).inWholeMinutes.toInt()
+
+            DurationSection(
+                themeColor = selectedColor,
+                initialHour = hours,
+                initialMinute = minutes,
+                onTimeSelected = { h, m ->
+                    val newDuration = h.hours + m.minutes
+                    selectedDuration = newDuration
+                    showTimePicker = false
+                },
+            )
+
+            IconSection(
+                themeColor = selectedColor,
+                icons = IconMap.drawableMap.keys.toList(),
+                selectedIcon = selectedIcon,
+                onIconSelected = { selectedIcon = it },
+            )
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            // priority section
+            PrioritySection(
+                selectedPriority = selectedPriority,
+                themeColor = selectedColor,
+                priorities = listPriority,
+                onPrioritySelected = { selectedPriority = it },
+            )
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            // Create and Cancel buttons
             Row() {
                 Button(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = selectedColor
                     ),
-                    onClick = {
-                        showColorPickerDialog = true
-                    }
+                    onClick = onDismiss
                 ) {
-                    Text(stringResource(R.string.pick_color))
+                    Text(
+                        text = stringResource(R.string.cancel)
+                    )
                 }
-                ColorCircleMenu(selectedColor, onClick = {}, true)
-            }
-        }
 
-        val hours: Int = selectedDuration.inWholeHours.toInt()
-        val minutes: Int = (selectedDuration - hours.hours).inWholeMinutes.toInt()
+                Spacer(modifier = Modifier.padding(8.dp))
 
-        DurationSection(
-            themeColor = selectedColor,
-            initialHour = hours,
-            initialMinute = minutes,
-            onTimeSelected = { h, m ->
-                val newDuration = h.hours + m.minutes
-                selectedDuration = newDuration
-                showTimePicker = false
-            },
-        )
-
-        IconSection(
-            themeColor = selectedColor,
-            icons = IconMap.drawableMap.keys.toList(),
-            selectedIcon = selectedIcon,
-            onIconSelected = { selectedIcon = it },
-        )
-
-        Spacer(modifier = Modifier.padding(8.dp))
-
-        // priority section
-        PrioritySection(
-            selectedPriority = selectedPriority,
-            themeColor = selectedColor,
-            priorities = listPriority,
-            onPrioritySelected = { selectedPriority = it },
-        )
-
-        Spacer(modifier = Modifier.padding(8.dp))
-
-        // Create and Cancel buttons
-        Row() {
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = selectedColor
-                ),
-                onClick = onDismiss
-            ) {
-                Text(
-                    text = stringResource(R.string.cancel)
-                )
-            }
-
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = selectedColor
-                ),
-                onClick = {
-                    if (!isModificationMode) {
-
-                        if (selectedDuration == Duration.ZERO || taskNameInput.isEmpty()) {
-                            val reasonText : String
-                            if (taskNameInput.isEmpty()) {
-                                reasonText = "Name cannot be empty"
-                            } else {
-                                reasonText = "Duration cannot be zero"
-                            }
-                            Toast.makeText(context, reasonText, Toast.LENGTH_SHORT)
-                                .show()
-                        } else {
-                            val newTask = Task(
-                                name = taskNameInput,
-                                priority = selectedPriority,
-                                duration = selectedDuration,
-                                color = selectedColor,
-                                icon = selectedIcon
-                            )
-                            viewModel.addTask(newTask)
-                            onDismiss() // close dialog
-                        }
-                    }
-                    else {
-
-                        val currentOriginalTask = taskToModify
-
-                        if (currentOriginalTask != null) {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = selectedColor
+                    ),
+                    onClick = {
+                        if (!isModificationMode) {
 
                             if (selectedDuration == Duration.ZERO || taskNameInput.isEmpty()) {
-                                val reasonText : String
+                                val reasonText: String
                                 if (taskNameInput.isEmpty()) {
                                     reasonText = "Name cannot be empty"
                                 } else {
@@ -307,25 +298,51 @@ fun NewTaskContent(
                                 }
                                 Toast.makeText(context, reasonText, Toast.LENGTH_SHORT)
                                     .show()
-                            }
-                            else {
-                                val updatedTask = currentOriginalTask.copy(
+                            } else {
+                                val newTask = Task(
                                     name = taskNameInput,
                                     priority = selectedPriority,
                                     duration = selectedDuration,
-                                    icon = selectedIcon,
-                                    color = selectedColor
+                                    color = selectedColor,
+                                    icon = selectedIcon
                                 )
-                                viewModel.updateTask(updatedTask)
+                                viewModel.addTask(newTask)
                                 onDismiss() // close dialog
+                            }
+                        } else {
+
+                            val currentOriginalTask = taskToModify
+
+                            if (currentOriginalTask != null) {
+
+                                if (selectedDuration == Duration.ZERO || taskNameInput.isEmpty()) {
+                                    val reasonText: String
+                                    if (taskNameInput.isEmpty()) {
+                                        reasonText = "Name cannot be empty"
+                                    } else {
+                                        reasonText = "Duration cannot be zero"
+                                    }
+                                    Toast.makeText(context, reasonText, Toast.LENGTH_SHORT)
+                                        .show()
+                                } else {
+                                    val updatedTask = currentOriginalTask.copy(
+                                        name = taskNameInput,
+                                        priority = selectedPriority,
+                                        duration = selectedDuration,
+                                        icon = selectedIcon,
+                                        color = selectedColor
+                                    )
+                                    viewModel.updateTask(updatedTask)
+                                    onDismiss() // close dialog
+                                }
                             }
                         }
                     }
+                ) {
+                    Text(
+                        text = stringResource(if (!isModificationMode) R.string.create else R.string.modify)
+                    )
                 }
-            ) {
-                Text(
-                    text = stringResource(if (!isModificationMode) R.string.create else R.string.modify)
-                )
             }
         }
     }
