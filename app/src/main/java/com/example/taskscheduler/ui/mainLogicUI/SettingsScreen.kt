@@ -133,31 +133,31 @@ fun SettingContent(
             .padding(horizontal = 16.dp) // Overall horizontal padding for content
             //.background(color = Color.White)
     ) {
-        // --- Display Options Section ---
-        Text(
-            text = "Display Options",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
-        SettingsTile(
-            text = "Dark Theme",
-            controlContent = {
-                Switch(
-                    checked = isDarkThemeEnabled,
-                    onCheckedChange = {
-                        settingsViewModel.setDarkThemeEnabled(it)
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
-                        checkedTrackColor = Color.Black,
-                        uncheckedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
-                        uncheckedTrackColor = Color.Black
-                    )
-                )
-            }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp)) // Space between sections
+//        // --- Display Options Section ---
+//        Text(
+//            text = "Display Options",
+//            style = MaterialTheme.typography.titleMedium,
+//            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+//        )
+//        SettingsTile(
+//            text = "Dark Theme",
+//            controlContent = {
+//                Switch(
+//                    checked = isDarkThemeEnabled,
+//                    onCheckedChange = {
+//                        settingsViewModel.setDarkThemeEnabled(it)
+//                    },
+//                    colors = SwitchDefaults.colors(
+//                        checkedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
+//                        checkedTrackColor = Color.Black,
+//                        uncheckedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
+//                        uncheckedTrackColor = Color.Black
+//                    )
+//                )
+//            }
+//        )
+//
+//        Spacer(modifier = Modifier.height(24.dp)) // Space between sections
 
         // --- Pomodoro Section ---
         Text(

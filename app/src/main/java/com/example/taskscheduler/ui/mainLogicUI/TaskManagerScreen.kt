@@ -4,6 +4,7 @@ package com.example.taskscheduler.ui.mainLogicUI
 import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -198,14 +199,51 @@ fun TaskManagerScreen(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .height(150.dp)
-                .fillMaxWidth()
-                .background(color = Color.DarkGray)
-        ){
+//        Box(
+//            modifier = Modifier
+//                .height(150.dp)
+//                .fillMaxWidth()
+//                .background(color = Color.DarkGray)
+//        ){
+//            var checked by remember { mutableStateOf(false) }
+//            val tasksCheckId = uiState.tasks
+//            Switch(
+//                checked = checked,
+//                onCheckedChange = {
+//                    if (!checked){
+//                        tasksCheckId.forEach {
+//                            viewModel.toggleTaskSelectionSwitchButton(it.id)
+//                        }
+//                    }
+//                    else {
+//                        viewModel.clearSelections()
+//                    }
+//                    checked = it
+//                }
+//            )
+//
+//            Text(
+//                text= stringResource(R.string.list_of_task),
+//                modifier = Modifier.align(Alignment.Center)
+//            )
+//        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(
+                text= stringResource(R.string.list_of_task),
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+
+            // for
             var checked by remember { mutableStateOf(false) }
             val tasksCheckId = uiState.tasks
+
+
             Switch(
                 checked = checked,
                 onCheckedChange = {
@@ -219,11 +257,6 @@ fun TaskManagerScreen(
                     }
                     checked = it
                 }
-            )
-
-            Text(
-                text= stringResource(R.string.list_of_task),
-                modifier = Modifier.align(Alignment.Center)
             )
         }
 
