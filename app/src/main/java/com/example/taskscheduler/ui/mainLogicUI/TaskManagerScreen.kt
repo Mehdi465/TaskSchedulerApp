@@ -342,7 +342,7 @@ private fun TaskList(
                 onDelete = { onDeleteTask(task) },
                 onModify = { onStartModifyTask(task) },
                 modifier = Modifier
-                    .padding(2.dp),
+                    .padding(Dimens.spaceXXS),
                 viewModel = viewModel
             )
         }

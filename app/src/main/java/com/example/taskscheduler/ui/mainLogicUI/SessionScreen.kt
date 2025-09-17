@@ -54,6 +54,8 @@ import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
 import com.example.taskscheduler.ui.helperComposable.TimePickerV2
+import com.example.taskscheduler.ui.theme.Dimens
+import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.session.SessionViewModel
 import com.example.taskscheduler.ui.viewModel.session.SessionViewModelFactory
 import java.util.Calendar
@@ -324,10 +326,10 @@ fun TaskItemNoCheckBox(task: Task) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 1.dp)
+            .padding(Dimens.spaceXXS)
             .height(80.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = task.color.taskLighten()
         )
     ) {
         Row(
@@ -363,19 +365,19 @@ fun TaskItemNoCheckBox(task: Task) {
                     text = task.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
 
                 Text(
                     text = "Duration: ${task.duration}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
 
                 Text(
                     text = "Priority: ${task.priority}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.DarkGray
                 )
             }
         }

@@ -71,6 +71,7 @@ import androidx.compose.ui.zIndex
 import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.data.Task.Companion.IconMap
 import com.example.taskscheduler.ui.helperComposable.ValidateOrDeleteSession
+import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.theme.lighten
 import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModel
@@ -396,7 +397,7 @@ fun TimelineScreen(session: Session,
                 }
 
                 if (index < scheduledTasks.size - 1 && !isBeingDragged) { //\ Don't show spacer for the item being dragged
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(Dimens.spaceS))
                 }
             }
         }
