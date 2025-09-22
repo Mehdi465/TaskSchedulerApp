@@ -9,4 +9,5 @@ object Dimens {
     val spaceM = 16.dp
     val spaceL = 24.dp
     val spaceXL = 32.dp
+    val skipTopBar = 65.dp
 }
