@@ -2,6 +2,7 @@ package com.example.taskscheduler.data
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.example.taskscheduler.data.Converters.DateConverters
@@ -17,7 +18,8 @@ import java.util.Date
             onDelete = ForeignKey.CASCADE, // If a Task is deleted, its tracking data is also deleted
             onUpdate = ForeignKey.CASCADE // If Task id changes, update here
         )
-    ]
+    ],
+    indices = [Index(value = ["taskId"])] // improve performance smh
 )
 
 @TypeConverters(DateConverters::class)
@@ -27,5 +29,5 @@ data class TaskTracking(
 
     var timesCompleted: Int = 0,
     var totalTimeMillisSpent: Long = 0,
-    var usageDates: List<Date> = emptyList() // List of dates when the task was completed
+    //var usageDates: List<Date> = emptyList() // List of dates when the task was completed
 )

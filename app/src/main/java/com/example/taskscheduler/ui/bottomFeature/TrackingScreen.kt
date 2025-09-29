@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -121,16 +123,17 @@ fun TrackingContent(
 
         // test for SquareTilesColumn
         val data = (1..7).map{"Item $it"}
-        SquareTilesColumn(items = data, columns = 3, spacing = 10.dp) { item ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFBBDEFB)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(item)
-            }
-        }
+        DashboardGrid(
+            modifier = Modifier.padding(16.dp),
+            columns = 2,
+            spacing = 16.dp,
+            tiles = listOf(
+                { DashboardTile("Exercise", "2.0", "hours", background = Color.DarkGray) },
+                { DashboardTile("BPM", "86", "bpm", background = Color.DarkGray) },
+                { DashboardTile("Weight", "72", "kg", background = Color.DarkGray) },
+                { DashboardTile("Water", "12", "glasses", background = Color.DarkGray) }
+            )
+        )
     }
 }
 
@@ -295,69 +298,14 @@ fun DrawCircleGraphWithIcon(value: Int,
 }
 
 
-///**
-// * Grid of square tiles using LazyVerticalGrid.
-// *
-// * @param items list of data items
-// * @param columns number of columns in the grid
-// * @param spacing spacing between tiles
-// * @param tileContent composable used to display each tile (receives the data item)
-// */
-//@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
-//@Composable
-//fun <T> SquareTileGrid(
-//    items: List<T>,
-//    columns: Int = 2,
-//    spacing: Dp = 8.dp,
-//    modifier: Modifier = Modifier,
-//    tileContent: @Composable BoxScope.(T) -> Unit
-//) {
-//    LazyVerticalGrid(
-//        columns = GridCells.Fixed(columns),
-//        modifier = modifier.fillMaxSize(),
-//        contentPadding = PaddingValues(spacing),
-//        horizontalArrangement = Arrangement.spacedBy(spacing),
-//        verticalArrangement = Arrangement.spacedBy(spacing)
-//    ) {
-//        items(items) { item ->
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    // make this cell square
-//                    .aspectRatio(1f),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                tileContent(item)
-//            }
-//        }
-//    }
-//}
-
 @Composable
-fun ExampleTile(text: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.primaryContainer),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = text, color = Color.Black)
-    }
-}
-
-/**
- * Manual Column that creates rows of square tiles.
- * Useful where you prefer explicit Column/Row structure or custom row-level decorations.
- */
-@Composable
-fun <T> SquareTilesColumn(
-    items: List<T>,
-    columns: Int = 2,
-    spacing: Dp = 8.dp,
+fun DashboardGrid(
     modifier: Modifier = Modifier,
-    tileContent: @Composable BoxScope.(T) -> Unit
+    columns: Int = 2,
+    spacing: Dp = 12.dp,
+    tiles: List<@Composable () -> Unit>
 ) {
-    val rows = items.chunked(columns)
+    val rows = tiles.chunked(columns)
 
     Column(
         modifier = modifier
@@ -365,31 +313,64 @@ fun <T> SquareTilesColumn(
             .padding(spacing),
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
-        rows.forEach { rowItems ->
+        rows.forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(spacing)
             ) {
-                // equal weight per column so each tile gets same width
-                rowItems.forEach { item ->
+                row.forEach { tile ->
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            // keep square by using aspect ratio 1
-                            .aspectRatio(1f),
-                        contentAlignment = Alignment.Center
+                            .aspectRatio(1f) // ensures square
                     ) {
-                        tileContent(item)
+                        tile()
                     }
                 }
 
-                // If the last row has fewer items than columns, fill the remaining space
-                val missing = columns - rowItems.size
-                if (missing > 0) {
-                    repeat(missing) {
+                // Fill remaining space if row is incomplete
+                if (row.size < columns) {
+                    repeat(columns - row.size) {
                         Spacer(modifier = Modifier.weight(1f))
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Example square dashboard tile
+ */
+@Composable
+fun DashboardTile(
+    title: String,
+    value: String,
+    unit: String,
+    background: Color = Color(0xFFE8F5E9)
+) {
+    Card(
+        modifier = Modifier.fillMaxSize(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = background),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(text = title, fontSize = 14.sp, color = Color.Gray)
+            Column {
+                Text(
+                    text = value,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Text(text = unit, fontSize = 14.sp, color = Color.Gray)
             }
         }
     }
