@@ -9,6 +9,7 @@ import com.example.taskscheduler.data.ScheduledTask.Companion.scheduleTasks
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.TaskRepository
+import com.example.taskscheduler.data.TaskTrackingRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,7 @@ data class SessionUiState(
 class SessionViewModel(
     application: Application,
     private val tasksRepository: TaskRepository,
+    //private val taskTrackingRepository: TaskTrackingRepository,
     initialTaskIdsString: String?
 ) : ViewModel() {
 
@@ -89,6 +91,18 @@ class SessionViewModel(
                 }
         }
     }
+
+//    fun onSessionValidated(taskId: Int, sessionDurationMillis: Long) {
+//        viewModelScope.launch {
+//            val sessionEndTime = System.currentTimeMillis()
+//            taskTrackingRepository.updateTaskTracking(
+//                taskId,
+//                sessionDurationMillis,
+//                sessionEndTime
+//            )
+//            // Potentially emit a UI event for success/navigation
+//        }
+//    }
 
     fun onConfirmAndSaveSession(
         sessionStartTime: Date,

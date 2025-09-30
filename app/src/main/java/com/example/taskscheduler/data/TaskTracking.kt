@@ -25,7 +25,7 @@ import java.util.Date
 @TypeConverters(DateConverters::class)
 data class TaskTracking(
     @PrimaryKey
-    val taskId: Long, // same id as Task
+    val taskId: Int, // same id as Task
 
     var timesCompleted: Int = 0,
     var totalTimeMillisSpent: Long = 0,

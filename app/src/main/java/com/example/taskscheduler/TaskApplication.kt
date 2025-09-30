@@ -19,7 +19,9 @@ class TaskApplication: Application() {
 
     // Lazy initialization for the repository
     val tasksRepository: TaskRepository by lazy {
-        OfflineTasksRepository(database.taskDao())
+        OfflineTasksRepository(
+            database.taskDao(),
+            database.taskTrackingDao())
     }
 
     val settingsRepository: SettingsRepository by lazy {

@@ -1,20 +1,48 @@
 package com.example.taskscheduler.data
 
+import androidx.compose.animation.core.copy
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
+import kotlinx.coroutines.flow.firstOrNull
 
 class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao) : TaskTrackingRepository {
-    override fun getAllTasksMonitoringStream(): Flow<List<TaskTracking>> = taskTrackingDao.getAllTaskTracking()
 
-    override fun getTaskMonitoringStream(id: Int): Flow<TaskTracking?> = taskTrackingDao.
+    override fun getTaskTrackingStream(id: Int): Flow<List<TaskTracking?>> = taskTrackingDao.getAllTaskTracking()
 
-    override suspend fun insertTaskMonitoring(task: TaskTracking): Long = taskTrackingDao.insertTaskTracking(task)
+    override fun getAllTasksTrackingStream(): Flow<List<TaskTracking>> = taskTrackingDao.getAllTaskTracking()
 
-    override suspend fun deleteTaskMonitoring(task: TaskTracking) = taskTrackingDao.deleteTaskMonitoring(task)
+    override suspend fun insertTaskTracking(task: TaskTracking): Long = taskTrackingDao.insertTaskTracking(task)
 
-    override suspend fun updateTaskMonitoring(task: TaskTracking) = taskTrackingDao.updateTaskTracking(task)
+    override suspend fun deleteTaskTracking(task: TaskTracking) = taskTrackingDao.updateTaskTracking(task)
 
-    //override suspend fun updateUsageDates(taskId: Long, newUsageDates: List<Date>)
+    override suspend fun updateTaskTracking(task: TaskTracking) = taskTrackingDao.updateTaskTracking(task)
 
-    override fun getTasksMonitoringByIds(ids: List<Int>): Flow<List<TaskTracking>> = taskTrackingDao.getTasksMonitoringByIds(ids)
+    override fun getTaskTrackingById(id: Int): Flow<TaskTracking?> = taskTrackingDao.getTaskTrackingById(id)
+
+    // Logical part
+    suspend fun updateStatsAfterSession(
+        taskId: Int,
+        sessionDurationMillis: Long,
+        sessionEndTime: Long
+    ) {
+        val currentStats = taskTrackingDao.getTaskTrackingById(taskId).firstOrNull()
+        if (currentStats != null) {
+            val newTotalTime = currentStats.totalTimeMillisSpent + sessionDurationMillis
+            val newSessionsCompleted = currentStats.timesCompleted + 1
+
+            taskTrackingDao.updateTaskTracking(
+                currentStats.copy(
+                       timesCompleted = newTotalTime.toInt(),
+                       totalTimeMillisSpent = newSessionsCompleted.toLong()
+                )
+            )
+        } else {
+            //if stats don't exist, create them with this first session's data
+            val newStats = TaskTracking(
+                taskId = taskId,
+                totalTimeMillisSpent = sessionDurationMillis,
+                timesCompleted = 1,
+            )
+            taskTrackingDao.insertTaskTracking(newStats)
+        }
+    }
 }

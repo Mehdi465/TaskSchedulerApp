@@ -14,7 +14,10 @@ class TaskApplication : Application() {
 
     private val database by lazy { TaskDatabase.getDatabase(this) }
     val tasksRepository: TaskRepository by lazy {
-        com.example.taskscheduler.data.OfflineTasksRepository(database.taskDao())
+        com.example.taskscheduler.data.OfflineTasksRepository(
+            database.taskDao(),
+            database.taskTrackingDao()
+        )
     }
     val activeSessionStore: ActiveSessionStore by lazy {
         ActiveSessionStore(applicationContext)

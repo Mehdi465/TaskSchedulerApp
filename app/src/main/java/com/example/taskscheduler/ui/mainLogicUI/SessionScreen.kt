@@ -83,7 +83,7 @@ fun SessionScreen(
     canNavigateBack: Boolean = true,
     navigateBack: () -> Unit,
     application: Application = LocalContext.current.applicationContext as Application,
-    tasksRepository: TaskRepository = (LocalContext.current.applicationContext as TaskApplication).container.tasksRepository
+    tasksRepository: TaskRepository = (LocalContext.current.applicationContext as TaskApplication).container.tasksRepository,
 ) {
 
     val sessionViewModel : SessionViewModel = viewModel(

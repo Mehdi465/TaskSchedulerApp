@@ -5,29 +5,29 @@ import java.util.Date
 
 interface TaskTrackingRepository {
     /**
-     * Retrieve all the tasks monitoring from the the given data source.
+     * Retrieve all the tasks tracking from the the given data source.
      */
-    fun getAllTasksMonitoringStream(): Flow<List<TaskTracking>>
+    fun getAllTasksTrackingStream(): Flow<List<TaskTracking>>
 
     /**
-     * Retrieve an task monitoring from the given data source that matches with the [id].
+     * Retrieve an task tracking from the given data source that matches with the [id].
      */
-    fun getTaskMonitoringStream(id: Int): Flow<TaskTracking?>
+    fun getTaskTrackingStream(id: Int): Flow<List<TaskTracking?>>
 
     /**
-     * Insert task monitoring in the data source
+     * Insert task tracking in the data source
      */
-    suspend fun insertTaskMonitoring(task: TaskTracking): Long
+    suspend fun insertTaskTracking(task: TaskTracking): Long
 
     /**
-     * Delete task monitoring from the data source
+     * Delete task tracking from the data source
      */
-    suspend fun deleteTaskMonitoring(task: TaskTracking)
+    suspend fun deleteTaskTracking(task: TaskTracking)
 
     /**
-     * Update task monitoring in the data source
+     * Update task tracking in the data source
      */
-    suspend fun updateTaskMonitoring(task: TaskTracking)
+    suspend fun updateTaskTracking(task: TaskTracking)
 
     /**
      * Update date of a completed task in the data source
@@ -37,5 +37,5 @@ interface TaskTrackingRepository {
     /**
      * Retrieve all the tasks from the the given data source.
      */
-    fun getTasksMonitoringByIds(ids: List<Int>): Flow<List<TaskTracking>>
+    fun getTaskTrackingById(id : Int): Flow<TaskTracking?>
 }

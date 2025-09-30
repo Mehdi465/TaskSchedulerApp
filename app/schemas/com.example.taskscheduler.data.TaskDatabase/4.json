@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "21ef068794798909d289634bc4fd3175",
+    "identityHash": "f8e1500adcaec461ce35dafd6a6bf345",
     "entities": [
       {
         "tableName": "tasks",
@@ -53,7 +53,7 @@
       },
       {
         "tableName": "task_tracking",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`taskId` INTEGER NOT NULL, `timesCompleted` INTEGER NOT NULL, `totalTimeMillisSpent` INTEGER NOT NULL, `usageDates` TEXT NOT NULL, PRIMARY KEY(`taskId`), FOREIGN KEY(`taskId`) REFERENCES `tasks`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`taskId` INTEGER NOT NULL, `timesCompleted` INTEGER NOT NULL, `totalTimeMillisSpent` INTEGER NOT NULL, PRIMARY KEY(`taskId`), FOREIGN KEY(`taskId`) REFERENCES `tasks`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "taskId",
@@ -72,12 +72,6 @@
             "columnName": "totalTimeMillisSpent",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "usageDates",
-            "columnName": "usageDates",
-            "affinity": "TEXT",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -86,6 +80,17 @@
             "taskId"
           ]
         },
+        "indices": [
+          {
+            "name": "index_task_tracking_taskId",
+            "unique": false,
+            "columnNames": [
+              "taskId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_task_tracking_taskId` ON `${TABLE_NAME}` (`taskId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "tasks",
@@ -103,7 +108,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '21ef068794798909d289634bc4fd3175')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f8e1500adcaec461ce35dafd6a6bf345')"
     ]
   }
 }
