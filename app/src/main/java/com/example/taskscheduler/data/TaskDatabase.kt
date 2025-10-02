@@ -15,7 +15,7 @@ import com.example.taskscheduler.data.Converters.DurationConverters
 
 @Database(
     entities = [Task::class,TaskTracking::class],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(DurationConverters::class, ColorConverters::class, DateConverters::class)

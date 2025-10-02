@@ -19,7 +19,7 @@ class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao
     override fun getTaskTrackingById(id: Int): Flow<TaskTracking?> = taskTrackingDao.getTaskTrackingById(id)
 
     // Logical part
-    suspend fun updateStatsAfterSession(
+    override suspend fun updateStatsAfterSession(
         taskId: Int,
         sessionDurationMillis: Long,
         sessionEndTime: Long

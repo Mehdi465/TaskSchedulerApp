@@ -111,7 +111,8 @@ fun ScheduleScreen(
     modifier: Modifier = Modifier,
     scheduleViewModel: SharedSessionPomodoroViewModel = viewModel(
         factory = SharedSessionPomodoroViewModelFactory(
-            (LocalContext.current.applicationContext as TaskApplication).activeSessionStore))
+            (LocalContext.current.applicationContext as TaskApplication).activeSessionStore,
+            (LocalContext.current.applicationContext as TaskApplication).tasksTrackingRepository))
 ) {
     val uiState by scheduleViewModel.uiState.collectAsState()
 
@@ -237,7 +238,8 @@ fun ScheduleScreen(
             },
             onValidate = {
                 showValidateOrDeleteDialog = false
-                // TODO increase stats
+                scheduleViewModel.onSessionValidated()
+
             }
         )
     }

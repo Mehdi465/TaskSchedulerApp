@@ -64,7 +64,9 @@ fun PomodoroScreen(
                    modifier: Modifier = Modifier,
                    scheduleViewModel: SharedSessionPomodoroViewModel = viewModel(
                        factory = SharedSessionPomodoroViewModelFactory(
-                           (LocalContext.current.applicationContext as TaskApplication).activeSessionStore))
+                           (LocalContext.current.applicationContext as TaskApplication).activeSessionStore,
+                           (LocalContext.current.applicationContext as TaskApplication).tasksTrackingRepository)
+                       )
 ){
     val uiStateShared by scheduleViewModel.uiState.collectAsState()
 

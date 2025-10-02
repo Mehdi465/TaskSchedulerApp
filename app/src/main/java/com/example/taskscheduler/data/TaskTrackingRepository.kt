@@ -15,7 +15,7 @@ interface TaskTrackingRepository {
     fun getTaskTrackingStream(id: Int): Flow<List<TaskTracking?>>
 
     /**
-     * Insert task tracking in the data source
+     * insert task tracking in the data source
      */
     suspend fun insertTaskTracking(task: TaskTracking): Long
 
@@ -25,12 +25,12 @@ interface TaskTrackingRepository {
     suspend fun deleteTaskTracking(task: TaskTracking)
 
     /**
-     * Update task tracking in the data source
+     * update task tracking in the data source
      */
     suspend fun updateTaskTracking(task: TaskTracking)
 
     /**
-     * Update date of a completed task in the data source
+     * update date of a completed task in the data source
      */
     //suspend fun updateUsageDates(taskId: Long, newUsageDates: List<Date>)
 
@@ -38,4 +38,14 @@ interface TaskTrackingRepository {
      * Retrieve all the tasks from the the given data source.
      */
     fun getTaskTrackingById(id : Int): Flow<TaskTracking?>
+
+
+    /**
+     * update tracked task after a session is completed
+     */
+    suspend fun updateStatsAfterSession(
+        taskId : Int,
+        sessionDurationMillis : Long,
+        sessionEndTime : Long
+    )
 }

@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.ActiveSessionStore
+import com.example.taskscheduler.data.OfflineTaskTrackingRepository
 import com.example.taskscheduler.data.ScheduledTask
 import com.example.taskscheduler.data.Session
+import com.example.taskscheduler.data.TaskTrackingRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
+import kotlin.compareTo
 
 
 data class SharedSessionPomodoroUiState(
@@ -22,7 +25,9 @@ data class SharedSessionPomodoroUiState(
     val currentTask: ScheduledTask? = null
 )
 
-class SharedSessionPomodoroViewModel(private val activeSessionStore: ActiveSessionStore
+class SharedSessionPomodoroViewModel(
+    private val activeSessionStore: ActiveSessionStore,
+    private val taskTrackingRepository: TaskTrackingRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<SharedSessionPomodoroUiState> = activeSessionStore.activeSessionFlow
@@ -107,4 +112,40 @@ class SharedSessionPomodoroViewModel(private val activeSessionStore: ActiveSessi
             activeSessionStore.clearActiveSession()
         }
     }
+
+    /**
+     * Called when the user validates the entire session.
+     * It iterates through all tasks in the current session, updates their tracking
+     * statistics in the database, and then clears the session.
+     */
+    fun onSessionValidated() {
+        viewModelScope.launch {
+            val currentSession = uiState.value.session
+            if (currentSession == null || currentSession.scheduledTasks.isEmpty()) {
+                Log.w("SharedSessionVM", "Validation called, but no active session or tasks found.")
+                return@launch
+            }
+
+            val sessionEndTime = System.currentTimeMillis()
+
+            // Go through each task in the session and update its stats
+            for (taskInSession in currentSession.scheduledTasks) {
+                // The duration for each task is stored in the ScheduledTask object itself
+                val taskDurationMillis = taskInSession.duration.inWholeMilliseconds
+
+                if (taskDurationMillis > 0) {
+                    Log.d("SharedSessionVM", "Updating stats for Task ID: ${taskInSession.task.id} with duration: $taskDurationMillis ms")
+                    taskTrackingRepository.updateStatsAfterSession(
+                        taskId = taskInSession.task.id,
+                        sessionDurationMillis = taskDurationMillis,
+                        sessionEndTime = sessionEndTime
+                    )
+                }
+            }
+
+            // After successfully updating all stats, clear the session
+            clearActiveSession()
+        }
+    }
+
 }
