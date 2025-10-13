@@ -33,7 +33,7 @@ fun ValidateOrDeleteSession(
                 horizontalArrangement = Arrangement.End
             ){
                 Button(
-                    onClick = onValidate,
+                    onClick = onDelete,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Red
                     )
@@ -44,7 +44,7 @@ fun ValidateOrDeleteSession(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Button(
-                    onClick = onDelete,
+                    onClick = onValidate,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Green
                     )

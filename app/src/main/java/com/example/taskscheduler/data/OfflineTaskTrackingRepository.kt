@@ -1,5 +1,6 @@
 package com.example.taskscheduler.data
 
+import android.util.Log
 import androidx.compose.animation.core.copy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -28,11 +29,11 @@ class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao
         if (currentStats != null) {
             val newTotalTime = currentStats.totalTimeMillisSpent + sessionDurationMillis
             val newSessionsCompleted = currentStats.timesCompleted + 1
-
+            Log.d("TaskTrackingRepo", " count : $newSessionsCompleted")
             taskTrackingDao.updateTaskTracking(
                 currentStats.copy(
-                       timesCompleted = newTotalTime.toInt(),
-                       totalTimeMillisSpent = newSessionsCompleted.toLong()
+                       timesCompleted = newSessionsCompleted,
+                       totalTimeMillisSpent =  newTotalTime
                 )
             )
         } else {
@@ -42,6 +43,7 @@ class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao
                 totalTimeMillisSpent = sessionDurationMillis,
                 timesCompleted = 1,
             )
+            Log.d("TaskTrackingRepo", "new task tracking : $taskId, count : ${newStats.timesCompleted}")
             taskTrackingDao.insertTaskTracking(newStats)
         }
     }

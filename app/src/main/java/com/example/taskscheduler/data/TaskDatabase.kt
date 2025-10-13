@@ -14,7 +14,7 @@ import com.example.taskscheduler.data.Converters.DateConverters
 import com.example.taskscheduler.data.Converters.DurationConverters
 
 @Database(
-    entities = [Task::class,TaskTracking::class],
+    entities = [Task::class,TaskTracking::class, SessionTracking::class],
     version = 5,
     exportSchema = true
 )

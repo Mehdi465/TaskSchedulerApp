@@ -1,9 +1,14 @@
 package com.example.taskscheduler.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.Calendar
 import java.util.Date
 
+@Entity(tableName="sessions")
 data class Session(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
     var scheduledTasks: List<ScheduledTask>,
     val startTime: Date,
     val endTime: Date,
