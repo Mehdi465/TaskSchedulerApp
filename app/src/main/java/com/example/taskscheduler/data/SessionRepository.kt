@@ -13,7 +13,7 @@ interface SessionRepository {
      *
      * @param session The domain Session object to be saved.
      */
-    suspend fun saveSession(session: Session)
+    suspend fun saveSession(session: Session): Long
 
     /**
      * Retrieves a single session with all its details by its ID.

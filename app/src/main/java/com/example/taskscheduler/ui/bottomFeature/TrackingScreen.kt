@@ -31,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,11 +51,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskTopAppBar
+import com.example.taskscheduler.ui.AppViewModelProvider
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.Dimens
+import com.example.taskscheduler.ui.viewModel.tracking.TaskTrackingViewModel
 
 object TrackingDestination : NavigationDestination {
     override val route = "monitoring"
@@ -68,7 +72,8 @@ fun TrackingScreen(
     navigateToHome: () -> Unit,
     navigateToPomodoro: () -> Unit,
     navigateToTaskManager: () -> Unit,
-    navigateToTrophies: () -> Unit
+    navigateToTrophies: () -> Unit,
+    trackingViewModel: TaskTrackingViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     Scaffold(
     topBar = {
@@ -90,6 +95,7 @@ fun TrackingScreen(
     { innerPadding ->
         TrackingContent(
             modifier = Modifier.padding(innerPadding),
+            trackingViewModel = trackingViewModel
         )
     }
 }
@@ -97,10 +103,14 @@ fun TrackingScreen(
 
 @Composable
 fun TrackingContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    trackingViewModel: TaskTrackingViewModel
 ){
     var isSession by remember { mutableStateOf(true) }
 
+    val countTask = trackingViewModel.totalTaskDoneCount.collectAsState().value
+    val countSession = trackingViewModel.totalSessionCount.collectAsState().value
+    val totalDuration = trackingViewModel.totalDuration.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -128,9 +138,9 @@ fun TrackingContent(
             columns = 2,
             spacing = 16.dp,
             tiles = listOf(
-                { DashboardTile("Exercise", "2.0", "hours", background = Color.DarkGray) },
-                { DashboardTile("BPM", "86", "bpm", background = Color.DarkGray) },
-                { DashboardTile("Weight", "72", "kg", background = Color.DarkGray) },
+                { DashboardTile("TotalT", "$countTask", "tasks", background = Color.DarkGray) },
+                { DashboardTile("TotalS", "$countSession", "sessions", background = Color.DarkGray) },
+                { DashboardTile("Total duration", "${(totalDuration*0.001)/60}", "mins", background = Color.DarkGray) },
                 { DashboardTile("Water", "12", "glasses", background = Color.DarkGray) }
             )
         )

@@ -124,43 +124,6 @@ data class ScheduledTask(
                     pickedTasks.add(extendedListTasks[randomInt])
                     currentDuration = addDuration(currentDuration,extendedListTasks[randomInt].duration)
                 }
-
-                /*
-                // keep scheduling
-                // get high, medium and low tasks
-                val highPriorityTasks = tasks.filter {it.priority == Priority.HIGH}
-                val mediumPriorityTasks = tasks.filter {it.priority == Priority.MEDIUM}
-                val lowPriorityTasks = tasks.filter {it.priority == Priority.LOW}
-
-                // do not fall in forever loop
-                val isAllEmpty : Boolean = highPriorityTasks.isEmpty() && mediumPriorityTasks.isEmpty() && lowPriorityTasks.isEmpty()
-
-                while(currentDuration < sessionDuration && !isAllEmpty){
-                    val randomInt = (0..8).random()
-                    var pickedTask : Task = Task.DEFAULT_TASK
-
-                    // low tasks
-                    if (randomInt < 2 && !lowPriorityTasks.isEmpty()){
-                        pickedTask = lowPriorityTasks.random()
-                        pickedTasks.add(pickedTask)
-                        currentDuration = addDuration(currentDuration,pickedTask.duration)
-                    }
-                    // medium tasks
-                    else if (randomInt < 5 && !mediumPriorityTasks.isEmpty()){
-                        pickedTask = mediumPriorityTasks.random()
-                        pickedTasks.add(pickedTask)
-                        currentDuration = addDuration(currentDuration,pickedTask.duration)
-                    }
-                    // high tasks
-                    else{
-                        if (!highPriorityTasks.isEmpty()) {
-                            pickedTask = highPriorityTasks.random()
-                            pickedTasks.add(pickedTask)
-                            currentDuration = addDuration(currentDuration,pickedTask.duration)
-                        }
-                    }
-                }
-                */
             }
 
             val pickedScheduledTasks = taskToScheduledTask(pickedTasks,startTime,sessionDuration)

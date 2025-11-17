@@ -8,21 +8,19 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SessionDao {
-    @Transaction
-    suspend fun insertFullSession(session: Session, tasks: List<SessionTaskEntry>) {
-        val sessionId = insertSession(session)
-        val tasksWithSessionId = tasks.map { it.copy(sessionId = sessionId) }
-        insertTaskEntries(tasksWithSessionId)
-    }
 
-    // Helper functions
+    // helper functions
     @Insert
     suspend fun insertSession(session: Session): Long
-    @Insert
-    suspend fun insertTaskEntries(tasks: List<SessionTaskEntry>)
 
-    // The query to get everything back
-    @Transaction
+    @Query("SELECT * FROM sessions WHERE id = :sessionId")
+    fun getSessionById(sessionId: Long): Flow<Session>
+
     @Query("SELECT * FROM sessions")
-    fun getAllFullSessionDetails(): Flow<List<FullSessionDetails>>
+    fun getAllSessions(): Flow<List<Session>>
+
+//    // The query to get everything back
+//    @Transaction
+//    @Query("SELECT * FROM sessions")
+//    fun getAllFullSessionDetails(): Flow<List<FullSessionDetails>>
 }

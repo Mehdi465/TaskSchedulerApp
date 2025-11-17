@@ -32,17 +32,4 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id IN (:taskIds)")
     fun getTasksByIds(taskIds: List<Int>): Flow<List<Task>>
 
-    // Queries for TaskWithTracking //
-
-    @Transaction //only one query is executed at a time
-    @Query("SELECT * FROM tasks WHERE id = :taskId")
-    fun getTaskWithTrackingStream(taskId: Long): Flow<TaskWithTracking?>
-
-    @Transaction
-    @Query("SELECT * FROM tasks")
-    fun getAllTasksWithTrackingStream(): Flow<List<TaskWithTracking>>
-
-    @Transaction
-    @Query("SELECT * FROM tasks WHERE id = :taskId")
-    suspend fun getTaskWithTrackingOnce(taskId: Long): TaskWithTracking?
 }

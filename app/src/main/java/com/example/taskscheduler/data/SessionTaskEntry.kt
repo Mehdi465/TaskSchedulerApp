@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import java.util.Date
 
 @Entity(tableName = "sessions_task_entry")
 data class SessionTaskEntry(
@@ -11,7 +12,8 @@ data class SessionTaskEntry(
     val entryId: Long = 0,
     val sessionId: Long,
     val taskId: Int,
-    val durationInMillis: Long
+    val startTime: Date,
+    val endTime: Date
 )
 
 data class FullSessionDetails(
@@ -19,7 +21,7 @@ data class FullSessionDetails(
     val session: Session, //the parent session object
 
     @Relation(
-        parentColumn = "sessionId", // the key in SessionEntity
+        parentColumn = "id", // the key in SessionEntity
         entityColumn = "sessionId"  // the matching key in SessionTaskEntry
     )
     val taskEntries: List<SessionTaskEntry> // the list of all matching children

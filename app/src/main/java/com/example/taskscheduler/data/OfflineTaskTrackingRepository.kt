@@ -22,12 +22,11 @@ class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao
     // Logical part
     override suspend fun updateStatsAfterSession(
         taskId: Int,
-        sessionDurationMillis: Long,
-        sessionEndTime: Long
+        taskDurationMillis: Long,
     ) {
         val currentStats = taskTrackingDao.getTaskTrackingById(taskId).firstOrNull()
         if (currentStats != null) {
-            val newTotalTime = currentStats.totalTimeMillisSpent + sessionDurationMillis
+            val newTotalTime = currentStats.totalTimeMillisSpent + taskDurationMillis
             val newSessionsCompleted = currentStats.timesCompleted + 1
             Log.d("TaskTrackingRepo", " count : $newSessionsCompleted")
             taskTrackingDao.updateTaskTracking(
@@ -40,7 +39,7 @@ class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao
             //if stats don't exist, create them with this first session's data
             val newStats = TaskTracking(
                 taskId = taskId,
-                totalTimeMillisSpent = sessionDurationMillis,
+                totalTimeMillisSpent = taskDurationMillis,
                 timesCompleted = 1,
             )
             Log.d("TaskTrackingRepo", "new task tracking : $taskId, count : ${newStats.timesCompleted}")

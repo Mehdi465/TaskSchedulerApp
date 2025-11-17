@@ -14,14 +14,21 @@ import com.example.taskscheduler.data.Converters.DateConverters
 import com.example.taskscheduler.data.Converters.DurationConverters
 
 @Database(
-    entities = [Task::class,TaskTracking::class, SessionTracking::class],
-    version = 5,
+    entities = [
+        Task::class,
+        TaskTracking::class,
+        Session::class,
+        SessionTaskEntry::class,
+               ],
+    version = 6,
     exportSchema = true
 )
 @TypeConverters(DurationConverters::class, ColorConverters::class, DateConverters::class)
 abstract class TaskDatabase : RoomDatabase(){
     abstract fun taskDao(): TaskDao
     abstract fun taskTrackingDao(): TaskTrackingDao
+    abstract fun sessionDao(): SessionDao
+    abstract fun sessionTaskEntryDao(): SessionTaskEntryDao
 
     companion object {
         @Volatile

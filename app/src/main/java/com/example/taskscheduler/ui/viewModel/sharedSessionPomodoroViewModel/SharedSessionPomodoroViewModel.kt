@@ -7,6 +7,9 @@ import com.example.taskscheduler.data.ActiveSessionStore
 import com.example.taskscheduler.data.OfflineTaskTrackingRepository
 import com.example.taskscheduler.data.ScheduledTask
 import com.example.taskscheduler.data.Session
+import com.example.taskscheduler.data.SessionRepository
+import com.example.taskscheduler.data.SessionTaskEntry
+import com.example.taskscheduler.data.SessionTaskEntryRepository
 import com.example.taskscheduler.data.TaskTrackingRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +30,9 @@ data class SharedSessionPomodoroUiState(
 
 class SharedSessionPomodoroViewModel(
     private val activeSessionStore: ActiveSessionStore,
-    private val taskTrackingRepository: TaskTrackingRepository
+    private val taskTrackingRepository: TaskTrackingRepository,
+    private val sessionRepository: SessionRepository,
+    private val sessionTaskEntryRepository: SessionTaskEntryRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<SharedSessionPomodoroUiState> = activeSessionStore.activeSessionFlow
@@ -128,22 +133,34 @@ class SharedSessionPomodoroViewModel(
 
             val sessionEndTime = System.currentTimeMillis()
 
-            // Go through each task in the session and update its stats
+            // update session
+            val sessionId = sessionRepository.saveSession(currentSession)
+            Log.d("SharedSessionVM", "Updating session with ID: ${sessionId}")
+
+            // go through each task in the session and update its stats
             for (taskInSession in currentSession.scheduledTasks) {
                 // The duration for each task is stored in the ScheduledTask object itself
                 val taskDurationMillis = taskInSession.duration.inWholeMilliseconds
 
+                // update the task's stats in the database
                 if (taskDurationMillis > 0) {
                     Log.d("SharedSessionVM", "Updating stats for Task ID: ${taskInSession.task.id} with duration: $taskDurationMillis ms")
                     taskTrackingRepository.updateStatsAfterSession(
                         taskId = taskInSession.task.id,
-                        sessionDurationMillis = taskDurationMillis,
-                        sessionEndTime = sessionEndTime
+                        taskDurationMillis = taskDurationMillis,
+                    )
+
+                    // update SessionTaskEntry
+                    sessionTaskEntryRepository.insertSessionTaskEntry(
+                        SessionTaskEntry(
+                            sessionId = sessionId,
+                            taskId = taskInSession.task.id,
+                            startTime = taskInSession.startTime,
+                            endTime = taskInSession.endTime,
+                        )
                     )
                 }
             }
-
-            // After successfully updating all stats, clear the session
             clearActiveSession()
         }
     }

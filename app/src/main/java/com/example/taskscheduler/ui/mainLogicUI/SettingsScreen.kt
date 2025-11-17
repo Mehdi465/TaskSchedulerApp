@@ -68,7 +68,6 @@ fun SettingScreen(
     val pomodoroWorkDuration by settingsViewModel.pomodoroWorkDuration.collectAsState()
     val pomodoroBreakDuration by settingsViewModel.pomodoroBreakDuration.collectAsState()
 
-
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -101,8 +100,6 @@ fun SettingScreen(
                 settingsViewModel.setPomodoroWorkDuration(it)
             }
         )
-
-        Log.d("DANDWOL", "Pomodoro Work Duration: ${settingsViewModel.pomodoroWorkDuration.collectAsState().value}")
     }
 }
 

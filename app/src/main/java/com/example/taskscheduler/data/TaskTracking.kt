@@ -29,5 +29,4 @@ data class TaskTracking(
 
     var timesCompleted: Int = 0,
     var totalTimeMillisSpent: Long = 0,
-    //var usageDates: List<Date> = emptyList() // List of dates when the task was completed
 )

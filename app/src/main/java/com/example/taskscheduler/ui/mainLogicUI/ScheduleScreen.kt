@@ -112,7 +112,9 @@ fun ScheduleScreen(
     scheduleViewModel: SharedSessionPomodoroViewModel = viewModel(
         factory = SharedSessionPomodoroViewModelFactory(
             (LocalContext.current.applicationContext as TaskApplication).activeSessionStore,
-            (LocalContext.current.applicationContext as TaskApplication).tasksTrackingRepository))
+            (LocalContext.current.applicationContext as TaskApplication).tasksTrackingRepository,
+            (LocalContext.current.applicationContext as TaskApplication).sessionRepository,
+            (LocalContext.current.applicationContext as TaskApplication).sessionTaskEntryRepository))
 ) {
     val uiState by scheduleViewModel.uiState.collectAsState()
 
@@ -252,6 +254,8 @@ fun TimelineScreen(session: Session,
                    onReorderTasks: (from: Int, to: Int) -> Unit
 ) {
     val scheduledTasks = session.scheduledTasks
+
+    Log.d("CURRNR_ID","${session.id}")
 
     var draggedItemIndex by remember { mutableStateOf<Int?>(null) }
     var dragOffsetY by remember { mutableStateOf(0f) }

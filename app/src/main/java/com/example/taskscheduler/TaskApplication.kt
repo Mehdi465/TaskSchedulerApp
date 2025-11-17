@@ -4,8 +4,12 @@ import android.app.Application
 import com.example.taskscheduler.data.ActiveSessionStore
 import com.example.taskscheduler.data.AppContainer
 import com.example.taskscheduler.data.AppDataContainer
+import com.example.taskscheduler.data.OfflineSessionRepository
+import com.example.taskscheduler.data.OfflineSessionTaskEntryRepository
 import com.example.taskscheduler.data.OfflineTaskTrackingRepository
 import com.example.taskscheduler.data.OfflineTasksRepository
+import com.example.taskscheduler.data.SessionRepository
+import com.example.taskscheduler.data.SessionTaskEntryRepository
 import com.example.taskscheduler.data.SettingsRepository
 import com.example.taskscheduler.data.TaskDatabase
 import com.example.taskscheduler.data.TaskRepository
@@ -35,6 +39,24 @@ class TaskApplication: Application() {
         SettingsRepository(applicationContext)
     }
 
+    val sessionRepository: SessionRepository by lazy {
+        OfflineSessionRepository(
+            database.sessionDao(),
+            database.taskTrackingDao()
+        )
+    }
+
+    val sessionTaskEntryRepository : SessionTaskEntryRepository by lazy {
+        OfflineSessionTaskEntryRepository(
+            database.sessionTaskEntryDao()
+        )
+    }
+
+    val taskTrackingRepository : TaskTrackingRepository by lazy {
+        OfflineTaskTrackingRepository(
+            database.taskTrackingDao()
+        )
+    }
 
     override fun onCreate() {
         super.onCreate()

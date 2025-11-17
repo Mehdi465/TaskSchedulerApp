@@ -7,6 +7,9 @@ import android.content.Context
  */
 interface AppContainer {
     val tasksRepository: TaskRepository
+    val sessionRepository: SessionRepository
+    val taskTrackingRepository: TaskTrackingRepository
+    val sessionTaskEntryRepository: SessionTaskEntryRepository
 }
 
 /**
@@ -20,6 +23,25 @@ class AppDataContainer(private val context: Context) : AppContainer {
         OfflineTasksRepository(
             TaskDatabase.getDatabase(context).taskDao(),
             TaskDatabase.getDatabase(context).taskTrackingDao()
+        )
+    }
+
+    override val sessionRepository: SessionRepository by lazy {
+        OfflineSessionRepository(
+            TaskDatabase.getDatabase(context).sessionDao(),
+            TaskDatabase.getDatabase(context).taskTrackingDao(),
+        )
+    }
+
+    override val taskTrackingRepository: TaskTrackingRepository by lazy {
+        OfflineTaskTrackingRepository(
+            TaskDatabase.getDatabase(context).taskTrackingDao(),
+        )
+    }
+
+    override val sessionTaskEntryRepository: SessionTaskEntryRepository by lazy {
+        OfflineSessionTaskEntryRepository(
+            TaskDatabase.getDatabase(context).sessionTaskEntryDao(),
         )
     }
 }

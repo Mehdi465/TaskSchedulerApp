@@ -39,13 +39,11 @@ interface TaskTrackingRepository {
      */
     fun getTaskTrackingById(id : Int): Flow<TaskTracking?>
 
-
     /**
      * update tracked task after a session is completed
      */
     suspend fun updateStatsAfterSession(
         taskId : Int,
-        sessionDurationMillis : Long,
-        sessionEndTime : Long
+        taskDurationMillis : Long,
     )
 }
