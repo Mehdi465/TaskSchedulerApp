@@ -4,6 +4,7 @@ import com.example.taskscheduler.data.Dao.SessionDao
 import com.example.taskscheduler.data.Dao.SessionTaskEntryDao
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.Dao.TaskDao
+import com.example.taskscheduler.data.Dao.TaskDeletedDao
 import com.example.taskscheduler.data.TaskTracking
 import com.example.taskscheduler.data.Dao.TaskTrackingDao
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,8 @@ class OfflineTasksRepository(
     private val taskDao: TaskDao,
     private val taskTrackingDao: TaskTrackingDao,
     private val sessionDao: SessionDao,
-    private val sessionTaskEntryDao: SessionTaskEntryDao
+    private val sessionTaskEntryDao: SessionTaskEntryDao,
+    private val taskDeletedDao: TaskDeletedDao
 ): TaskRepository {
     override fun getAllTasksStream(): Flow<List<Task>> = taskDao.getAllTasks()
 
@@ -40,5 +42,6 @@ class OfflineTasksRepository(
         taskDao.clear()
         sessionTaskEntryDao.clear()
         sessionDao.clear()
+        taskDeletedDao.clear()
     }
 }
