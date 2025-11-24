@@ -1,7 +1,8 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Repository
 
 import android.util.Log
-import androidx.compose.animation.core.copy
+import com.example.taskscheduler.data.TaskTracking
+import com.example.taskscheduler.data.Dao.TaskTrackingDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 
@@ -18,6 +19,10 @@ class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao
     override suspend fun updateTaskTracking(task: TaskTracking) = taskTrackingDao.updateTaskTracking(task)
 
     override fun getTaskTrackingById(id: Int): Flow<TaskTracking?> = taskTrackingDao.getTaskTrackingById(id)
+
+    override fun getMostDoneTask(): Flow<TaskTracking?> =
+        taskTrackingDao.getMostDoneTask()
+
 
     // Logical part
     override suspend fun updateStatsAfterSession(

@@ -1,12 +1,12 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Update
+import com.example.taskscheduler.data.Task
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -32,4 +32,8 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id IN (:taskIds)")
     fun getTasksByIds(taskIds: List<Int>): Flow<List<Task>>
 
+
+    // DELETE ALL
+    @Query("DELETE FROM tasks")
+    suspend fun clear()
 }

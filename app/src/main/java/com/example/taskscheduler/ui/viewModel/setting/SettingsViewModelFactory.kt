@@ -4,9 +4,10 @@ import android.app.Application
 import com.example.taskscheduler.data.ActiveSessionStore
 import com.example.taskscheduler.data.AppContainer
 import com.example.taskscheduler.data.AppDataContainer
+import com.example.taskscheduler.data.Repository.OfflineTasksRepository
 import com.example.taskscheduler.data.SettingsRepository // Import
 import com.example.taskscheduler.data.TaskDatabase
-import com.example.taskscheduler.data.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
 import com.example.taskscheduler.utils.NotificationUtils
 
 class TaskApplication : Application() {
@@ -14,9 +15,11 @@ class TaskApplication : Application() {
 
     private val database by lazy { TaskDatabase.getDatabase(this) }
     val tasksRepository: TaskRepository by lazy {
-        com.example.taskscheduler.data.OfflineTasksRepository(
+        OfflineTasksRepository(
             database.taskDao(),
-            database.taskTrackingDao()
+            database.taskTrackingDao(),
+            database.sessionDao(),
+            database.sessionTaskEntryDao()
         )
     }
     val activeSessionStore: ActiveSessionStore by lazy {

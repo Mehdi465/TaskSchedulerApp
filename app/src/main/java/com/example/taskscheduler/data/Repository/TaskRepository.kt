@@ -1,5 +1,6 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Repository
 
+import com.example.taskscheduler.data.Task
 import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
@@ -32,5 +33,10 @@ interface TaskRepository {
      * Retrieve all the tasks from the the given data source.
      */
     fun getTasksByIds(ids: List<Int>): Flow<List<Task>>
+
+    /**
+     * Clear all data from all databases
+     */
+    suspend fun clearAllData()
 
 }

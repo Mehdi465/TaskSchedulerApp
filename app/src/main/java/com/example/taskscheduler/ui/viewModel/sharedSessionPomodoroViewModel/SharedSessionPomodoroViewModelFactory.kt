@@ -3,10 +3,9 @@ package com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.taskscheduler.data.ActiveSessionStore
-import com.example.taskscheduler.data.OfflineTaskTrackingRepository
-import com.example.taskscheduler.data.SessionRepository
-import com.example.taskscheduler.data.SessionTaskEntryRepository
-import com.example.taskscheduler.data.TaskTrackingRepository
+import com.example.taskscheduler.data.Repository.SessionRepository
+import com.example.taskscheduler.data.Repository.SessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.TaskTrackingRepository
 
 class SharedSessionPomodoroViewModelFactory(
     private val activeSessionStore: ActiveSessionStore,

@@ -12,6 +12,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.taskscheduler.data.Converters.ColorConverters
 import com.example.taskscheduler.data.Converters.DateConverters
 import com.example.taskscheduler.data.Converters.DurationConverters
+import com.example.taskscheduler.data.Dao.SessionDao
+import com.example.taskscheduler.data.Dao.SessionTaskEntryDao
+import com.example.taskscheduler.data.Dao.TaskDao
+import com.example.taskscheduler.data.Dao.TaskTrackingDao
 
 @Database(
     entities = [

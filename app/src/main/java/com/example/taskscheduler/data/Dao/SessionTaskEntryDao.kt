@@ -1,9 +1,10 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.taskscheduler.data.SessionTaskEntry
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -23,4 +24,8 @@ interface SessionTaskEntryDao {
 
     @Query("SELECT * FROM sessions_task_entry WHERE sessionId = :sessionId")
     fun getSessionTaskEntryBySessionId(sessionId: Long): Flow<SessionTaskEntry>
+
+    // DELETE ALL
+    @Query("DELETE FROM sessions_task_entry")
+    suspend fun clear()
 }

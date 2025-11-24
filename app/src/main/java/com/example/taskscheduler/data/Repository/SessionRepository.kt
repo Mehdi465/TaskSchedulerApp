@@ -1,4 +1,4 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Repository
 
 import com.example.taskscheduler.data.Session
 import kotlinx.coroutines.flow.Flow
@@ -38,4 +38,20 @@ interface SessionRepository {
      * @param sessionId The ID of the session to delete.
      */
     suspend fun deleteSession(sessionId: Long)
+
+    /**
+     * Get all sessions from the last week, session that starts before but finish after will
+     * not be selected.
+     */
+    fun getLastWeekSessions():Flow<List<Session>>
+
+    /**
+     * Get the first session in the database.
+     */
+    fun getFirstSession(): Flow<Session?>
+
+    /**
+     * Get the last session in the database.
+     */
+    fun getLastSession(): Flow<Session?>
 }

@@ -1,6 +1,7 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Repository
 
-import kotlinx.coroutines.flow.Flow
+import com.example.taskscheduler.data.SessionTaskEntry
+import com.example.taskscheduler.data.Dao.SessionTaskEntryDao
 
 class OfflineSessionTaskEntryRepository(
     private val sessionTaskEntryDao: SessionTaskEntryDao

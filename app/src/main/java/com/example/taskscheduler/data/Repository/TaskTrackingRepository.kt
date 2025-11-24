@@ -1,7 +1,7 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Repository
 
+import com.example.taskscheduler.data.TaskTracking
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
 
 interface TaskTrackingRepository {
     /**
@@ -46,4 +46,9 @@ interface TaskTrackingRepository {
         taskId : Int,
         taskDurationMillis : Long,
     )
+
+    /**
+     * get the most completed task
+     */
+    fun getMostDoneTask() : Flow<TaskTracking?>
 }

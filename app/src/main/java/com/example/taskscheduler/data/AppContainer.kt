@@ -1,6 +1,14 @@
 package com.example.taskscheduler.data
 
 import android.content.Context
+import com.example.taskscheduler.data.Repository.OfflineSessionRepository
+import com.example.taskscheduler.data.Repository.OfflineSessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.OfflineTaskTrackingRepository
+import com.example.taskscheduler.data.Repository.OfflineTasksRepository
+import com.example.taskscheduler.data.Repository.SessionRepository
+import com.example.taskscheduler.data.Repository.SessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskTrackingRepository
 
 /**
  * App container for Dependency injection.
@@ -13,7 +21,7 @@ interface AppContainer {
 }
 
 /**
- * [AppContainer] implementation that provides instance of [OfflineTasksRepository]
+ * [AppContainer] implementation that provides instance of [com.example.taskscheduler.data.Repository.OfflineTasksRepository]
  */
 class AppDataContainer(private val context: Context) : AppContainer {
     /**
@@ -22,7 +30,9 @@ class AppDataContainer(private val context: Context) : AppContainer {
     override val tasksRepository: TaskRepository by lazy {
         OfflineTasksRepository(
             TaskDatabase.getDatabase(context).taskDao(),
-            TaskDatabase.getDatabase(context).taskTrackingDao()
+            TaskDatabase.getDatabase(context).taskTrackingDao(),
+            TaskDatabase.getDatabase(context).sessionDao(),
+            TaskDatabase.getDatabase(context).sessionTaskEntryDao(),
         )
     }
 

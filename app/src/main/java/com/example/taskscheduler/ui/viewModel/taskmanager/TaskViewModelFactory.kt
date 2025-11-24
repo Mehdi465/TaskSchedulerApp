@@ -2,7 +2,7 @@ package com.example.taskscheduler.ui.viewModel.taskmanager
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.taskscheduler.data.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
 import kotlin.jvm.java
 
 

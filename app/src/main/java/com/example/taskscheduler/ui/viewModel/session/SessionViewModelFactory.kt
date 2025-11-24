@@ -6,7 +6,7 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import com.example.taskscheduler.data.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
 
 class SessionViewModelFactory(
     private val application: Application,

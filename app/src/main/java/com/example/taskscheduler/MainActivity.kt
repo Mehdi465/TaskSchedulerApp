@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
 
             // Instantiate SettingsViewModel (or use Hilt for DI)
             val settingsViewModel: SettingsViewModel = viewModel(
-                factory = SettingsViewModelFactory(settingsRepository)
+                factory = SettingsViewModelFactory(settingsRepository, application.tasksRepository)
             )
 
             // Collect the dark theme state

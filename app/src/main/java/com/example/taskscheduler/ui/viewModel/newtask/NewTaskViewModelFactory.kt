@@ -2,7 +2,7 @@ package com.example.taskscheduler.ui.viewModel.newtask
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.taskscheduler.data.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
 
 class NewTaskViewModelFactory( private val tasksRepository: TaskRepository
 ) : ViewModelProvider.Factory {

@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.bottomFeature
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,6 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskTopAppBar
+import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.ui.AppViewModelProvider
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.Dimens
@@ -106,11 +108,43 @@ fun TrackingContent(
     modifier: Modifier = Modifier,
     trackingViewModel: TaskTrackingViewModel
 ){
-    var isSession by remember { mutableStateOf(true) }
+    var isSession by remember { mutableStateOf(false) }
 
     val countTask = trackingViewModel.totalTaskDoneCount.collectAsState().value
     val countSession = trackingViewModel.totalSessionCount.collectAsState().value
     val totalDuration = trackingViewModel.totalDuration.collectAsState().value
+    val lastWeekSessions = trackingViewModel.lastWeekSessions.collectAsState().value
+    val firstSession = trackingViewModel.firstSession.collectAsState().value
+    val lastSession = trackingViewModel.lastSession.collectAsState().value
+
+    val mostDoneTask = trackingViewModel.mostDoneTask.collectAsState().value
+    val mostDoneTrackedTask = trackingViewModel.mostDoneTaskTracked.collectAsState().value
+
+    val listSessionDatas = mutableListOf<@Composable (() -> Unit)>(
+        { DashboardTile("TotalSession", "$countSession", "sessions", background = Color.DarkGray) },
+        { DashboardTile("Total duration", "%.1f".format((totalDuration*0.001)/(60*60)), "hours", background = Color.DarkGray) },
+        { DashboardTile("Task/Sessions", if (countSession == 0) "N/A" else ("%.1f".format(countTask.toDouble()/countSession)), "tasks", background = Color.DarkGray) },
+        { DashboardTile("Last week sessions", "${lastWeekSessions.size}", "sessions", background = Color.DarkGray) },
+        // TODO add releveant info for first and last sessions
+        //{ DashboardTile("First Session",  "${firstSession.startTime}", "sessions", background = Color.DarkGray) },
+        //{ DashboardTile("Last Session",  "${lastSession.startTime}", "sessions", background = Color.DarkGray) }
+    )
+    if (firstSession != null){
+        listSessionDatas.add { DashboardTile("First Session",  "${firstSession.startTime}", "sessions", background = Color.DarkGray)  }
+    }
+
+    if (lastSession != null){
+        listSessionDatas.add { DashboardTile("Last Session",  "${lastSession.startTime}", "sessions", background = Color.DarkGray)  }
+    }
+
+    val listTaskDatas= mutableListOf<@Composable (() -> Unit)>(
+        { DashboardTile("TotalTasks done", "$countTask", "tasks", background = Color.DarkGray) },
+        { DashboardTile("Total duration", "${(totalDuration*0.001)/60}", "mins", background = Color.DarkGray) },
+    )
+
+    if (mostDoneTrackedTask != null){
+        listTaskDatas.add { DashboardTile("most popular task : ${mostDoneTask!!.name}", "${mostDoneTrackedTask.taskId}", "glasses", background = Color.DarkGray) }
+    }
 
     Column(
         modifier = Modifier
@@ -137,12 +171,7 @@ fun TrackingContent(
             modifier = Modifier.padding(16.dp),
             columns = 2,
             spacing = 16.dp,
-            tiles = listOf(
-                { DashboardTile("TotalT", "$countTask", "tasks", background = Color.DarkGray) },
-                { DashboardTile("TotalS", "$countSession", "sessions", background = Color.DarkGray) },
-                { DashboardTile("Total duration", "${(totalDuration*0.001)/60}", "mins", background = Color.DarkGray) },
-                { DashboardTile("Water", "12", "glasses", background = Color.DarkGray) }
-            )
+            tiles = if (isSession) listTaskDatas else listSessionDatas
         )
     }
 }

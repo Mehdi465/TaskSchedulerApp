@@ -1,12 +1,12 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.taskscheduler.data.TaskTracking
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
 
 @Dao
 interface TaskTrackingDao {
@@ -28,4 +28,12 @@ interface TaskTrackingDao {
 
     @Query("SELECT * FROM task_Tracking WHERE taskId = :taskId")
     fun getTaskTrackingById(taskId: Int): Flow<TaskTracking?>
+
+    @Query("SELECT * FROM task_Tracking ORDER BY timesCompleted DESC LIMIT 1")
+    fun getMostDoneTask(): Flow<TaskTracking?>
+
+
+    // DELETE ALL
+    @Query("DELETE FROM task_Tracking")
+    suspend fun clear()
 }

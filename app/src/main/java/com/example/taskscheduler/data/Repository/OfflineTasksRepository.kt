@@ -1,10 +1,18 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Repository
 
+import com.example.taskscheduler.data.Dao.SessionDao
+import com.example.taskscheduler.data.Dao.SessionTaskEntryDao
+import com.example.taskscheduler.data.Task
+import com.example.taskscheduler.data.Dao.TaskDao
+import com.example.taskscheduler.data.TaskTracking
+import com.example.taskscheduler.data.Dao.TaskTrackingDao
 import kotlinx.coroutines.flow.Flow
 
 class OfflineTasksRepository(
     private val taskDao: TaskDao,
-    private val taskTrackingDao: TaskTrackingDao
+    private val taskTrackingDao: TaskTrackingDao,
+    private val sessionDao: SessionDao,
+    private val sessionTaskEntryDao: SessionTaskEntryDao
 ): TaskRepository {
     override fun getAllTasksStream(): Flow<List<Task>> = taskDao.getAllTasks()
 
@@ -25,4 +33,12 @@ class OfflineTasksRepository(
     override suspend fun updateTask(task: Task) = taskDao.update(task)
 
     override fun getTasksByIds(ids: List<Int>) = taskDao.getTasksByIds(ids)
+
+
+    override suspend fun clearAllData(){
+        taskTrackingDao.clear()
+        taskDao.clear()
+        sessionTaskEntryDao.clear()
+        sessionDao.clear()
+    }
 }

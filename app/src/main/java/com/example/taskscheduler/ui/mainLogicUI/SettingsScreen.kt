@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
+import android.app.Dialog
 import android.text.Layout
 import android.util.Log
 import androidx.compose.foundation.background
@@ -42,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
+import com.example.taskscheduler.ui.helperComposable.EraseDatabaseDialog
 import com.example.taskscheduler.ui.helperComposable.SelectTimeDialog
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.Dimens
@@ -60,7 +62,8 @@ fun SettingScreen(
     navigateBack: () -> Unit,
     settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(
-            (LocalContext.current.applicationContext as TaskApplication).settingsRepository
+            (LocalContext.current.applicationContext as TaskApplication).settingsRepository,
+            (LocalContext.current.applicationContext as TaskApplication).tasksRepository
         )
     )
 ){
@@ -120,6 +123,7 @@ fun SettingContent(
     // dialog declaration
     var displaySelectTimeBreakDialog by remember { mutableStateOf(false) }
     var displaySelectTimeWorkDialog by remember { mutableStateOf(false) }
+    var displayEraseDatabase by remember { mutableStateOf(false) }
 
     val isSystemInDarkTheme = isSystemInDarkTheme()
 
@@ -217,8 +221,36 @@ fun SettingContent(
             text = "current language",
         ) { }
 
+        // ------- Delete all datas Part -------
+        Text(
+            text = "ERASE ALL DATA",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
+
+        SettingsTile(
+            text = "ERASE ALL DATA",
+            controlContent = {
+                Button(onClick = {displayEraseDatabase=true}) {
+                    Text(text = "ERASE")
+                }
+            }
+        )
 
         // ------- Dialog Part -------
+
+        // Erase database
+        if (displayEraseDatabase){
+            EraseDatabaseDialog(
+                onDismiss = {
+                    displayEraseDatabase = false
+                },
+                onConfirm = {
+                    settingsViewModel.onResetDatabaseClicked()
+                    displayEraseDatabase = false
+                }
+            )
+        }
 
         // Work Time Dialog
         if (displaySelectTimeWorkDialog) {

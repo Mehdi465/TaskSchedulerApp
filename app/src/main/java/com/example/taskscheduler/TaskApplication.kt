@@ -4,16 +4,16 @@ import android.app.Application
 import com.example.taskscheduler.data.ActiveSessionStore
 import com.example.taskscheduler.data.AppContainer
 import com.example.taskscheduler.data.AppDataContainer
-import com.example.taskscheduler.data.OfflineSessionRepository
-import com.example.taskscheduler.data.OfflineSessionTaskEntryRepository
-import com.example.taskscheduler.data.OfflineTaskTrackingRepository
-import com.example.taskscheduler.data.OfflineTasksRepository
-import com.example.taskscheduler.data.SessionRepository
-import com.example.taskscheduler.data.SessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.OfflineSessionRepository
+import com.example.taskscheduler.data.Repository.OfflineSessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.OfflineTaskTrackingRepository
+import com.example.taskscheduler.data.Repository.OfflineTasksRepository
+import com.example.taskscheduler.data.Repository.SessionRepository
+import com.example.taskscheduler.data.Repository.SessionTaskEntryRepository
 import com.example.taskscheduler.data.SettingsRepository
 import com.example.taskscheduler.data.TaskDatabase
-import com.example.taskscheduler.data.TaskRepository
-import com.example.taskscheduler.data.TaskTrackingRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskTrackingRepository
 import kotlin.getValue
 import com.example.taskscheduler.utils.NotificationUtils
 
@@ -27,7 +27,9 @@ class TaskApplication: Application() {
     val tasksRepository: TaskRepository by lazy {
         OfflineTasksRepository(
             database.taskDao(),
-            database.taskTrackingDao())
+            database.taskTrackingDao(),
+            database.sessionDao(),
+            database.sessionTaskEntryDao())
     }
 
     val tasksTrackingRepository: TaskTrackingRepository by lazy {

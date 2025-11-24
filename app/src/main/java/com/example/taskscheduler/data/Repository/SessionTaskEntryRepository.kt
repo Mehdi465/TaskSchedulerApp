@@ -1,5 +1,6 @@
-package com.example.taskscheduler.data
+package com.example.taskscheduler.data.Repository
 
+import com.example.taskscheduler.data.SessionTaskEntry
 import kotlinx.coroutines.flow.Flow
 
 interface SessionTaskEntryRepository {

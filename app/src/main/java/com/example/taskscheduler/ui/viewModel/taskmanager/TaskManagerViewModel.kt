@@ -1,10 +1,9 @@
 package com.example.taskscheduler.ui.viewModel.taskmanager
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.Task
-import com.example.taskscheduler.data.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

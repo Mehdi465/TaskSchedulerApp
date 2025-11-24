@@ -1,6 +1,8 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
 import android.app.Application
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,12 +54,13 @@ import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskApplication
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Task
-import com.example.taskscheduler.data.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
 import com.example.taskscheduler.ui.helperComposable.TimePickerV2
 import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.theme.taskLighten
 import com.example.taskscheduler.ui.viewModel.session.SessionViewModel
 import com.example.taskscheduler.ui.viewModel.session.SessionViewModelFactory
+import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 
@@ -114,6 +117,7 @@ fun SessionScreen(
     val navigateToHomeTrigger by sessionViewModel.sessionSaveCompleteAndNavigate.collectAsState()
     val errorMessage by sessionViewModel.saveErrorMessage.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     // handle navigation
     LaunchedEffect(navigateToHomeTrigger) {
@@ -146,11 +150,32 @@ fun SessionScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {if (!isSaving) {
-                    sessionViewModel.onConfirmAndSaveSession(
-                        sessionStartTime = sessionStartTime,
-                        sessionEndTime = sessionEndTime,
-                        tasks = selectedTasks
-                    )}},
+                    val currentTime = Date(Instant.now().toEpochMilli())
+                    if (compareTime(sessionStartTime, currentTime)){
+
+                        if (!compareTime(sessionStartTime, sessionEndTime)){
+                            sessionViewModel.onConfirmAndSaveSession(
+                                sessionStartTime = sessionStartTime,
+                                sessionEndTime = sessionEndTime,
+                                tasks = selectedTasks
+                            )
+                        }
+                        else {
+                            Toast.makeText(
+                                context,
+                                "Cannot create a session that starts after it ends",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                    else {
+                        Log.d("SessionScreen", "Session starts in past")
+                        Toast.makeText(
+                            context,
+                            "Cannot create a session that starts in the past.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }}},
                 modifier = Modifier
                     .padding(16.dp),
                 containerColor = MaterialTheme.colorScheme.secondary
@@ -319,6 +344,23 @@ fun convertMinutesToStartEndDates(
     val resultingEndDate: Date = calendar.time
 
     return Pair(resultingStartDate, resultingEndDate)
+}
+
+/**
+ * returns true if date1 is after date2 (goes to minutes at max)
+ */
+fun compareTime(date1: Date, date2: Date): Boolean {
+    val cal1 = Calendar.getInstance()
+    cal1.time = date1
+    cal1.set(Calendar.SECOND, 0)
+    cal1.set(Calendar.MILLISECOND, 0)
+
+    val cal2 = Calendar.getInstance()
+    cal2.time = date2
+    cal2.set(Calendar.SECOND, 0)
+    cal2.set(Calendar.MILLISECOND, 0)
+
+    return cal1.time.after(cal2.time) || cal1.time.equals(cal2.time)
 }
 
 @Composable

@@ -41,10 +41,13 @@ import com.example.taskscheduler.data.PomodoroPhase
 import com.example.taskscheduler.data.PomodoroService
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.pomodoro.PomodoroViewModel
+import com.example.taskscheduler.ui.mainLogicUI.compareTime
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroUiState
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModel
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModelFactory
+import java.time.Instant
+import java.util.Date
 
 
 object PomodoroDestination : NavigationDestination {
@@ -152,8 +155,9 @@ fun PomodoroScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val currentTime = Date(Instant.now().toEpochMilli())
         Text(
-            text = if (session != null && !session.isSessionFinished()) "current task : ${session.getCurrentTask()!!.name}"
+            text = if (session != null && !session.isSessionFinished() && compareTime(currentTime,session.startTime)) "current task : ${session.getCurrentTask()!!.name}"
                     else "No current task",
             fontSize = 24.sp,
             style = MaterialTheme.typography.headlineMedium
