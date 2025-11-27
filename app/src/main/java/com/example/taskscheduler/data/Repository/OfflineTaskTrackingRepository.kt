@@ -6,7 +6,9 @@ import com.example.taskscheduler.data.Dao.TaskTrackingDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 
-class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao) : TaskTrackingRepository {
+class OfflineTaskTrackingRepository(
+    private val taskTrackingDao: TaskTrackingDao,
+) : TaskTrackingRepository {
 
     override fun getTaskTrackingStream(id: Int): Flow<List<TaskTracking?>> = taskTrackingDao.getAllTaskTracking()
 
@@ -22,6 +24,14 @@ class OfflineTaskTrackingRepository(private val taskTrackingDao: TaskTrackingDao
 
     override fun getMostDoneTask(): Flow<TaskTracking?> =
         taskTrackingDao.getMostDoneTask()
+
+    /**
+     * Gets a single TaskTracking object for a given taskId, as a one-time operation.
+     * Returns null if no tracking information is found.
+     */
+    override suspend fun getTrackingForTaskOnce(taskId: Int): TaskTracking? {
+        return taskTrackingDao.getTaskTrackingById(taskId).firstOrNull()
+    }
 
 
     // Logical part

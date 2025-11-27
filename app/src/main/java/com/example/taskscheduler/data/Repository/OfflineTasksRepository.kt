@@ -36,6 +36,9 @@ class OfflineTasksRepository(
 
     override fun getTasksByIds(ids: List<Int>) = taskDao.getTasksByIds(ids)
 
+    override suspend fun getTaskByIdOnce(taskId: Int): Task? {
+        return taskDao.getTaskByIdOnce(taskId)
+    }
 
     override suspend fun clearAllData(){
         taskTrackingDao.clear()

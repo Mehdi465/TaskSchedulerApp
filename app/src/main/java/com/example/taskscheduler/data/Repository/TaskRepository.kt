@@ -34,6 +34,8 @@ interface TaskRepository {
      */
     fun getTasksByIds(ids: List<Int>): Flow<List<Task>>
 
+    suspend fun getTaskByIdOnce(taskId: Int): Task?
+
     /**
      * Clear all data from all databases
      */

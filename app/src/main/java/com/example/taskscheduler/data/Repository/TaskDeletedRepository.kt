@@ -10,5 +10,9 @@ interface TaskDeletedRepository {
 
     fun getTaskDeletedById(taskId: Int): Flow<TaskDeleted?>
 
+    suspend fun getTaskDeletedByIdOnce(taskId: Int): TaskDeleted?
+
+    suspend fun upsertTask(taskDeleted: TaskDeleted)
+
     suspend fun clear()
 }

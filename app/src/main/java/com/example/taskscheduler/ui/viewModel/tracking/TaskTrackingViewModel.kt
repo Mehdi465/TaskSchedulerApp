@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.Repository.SessionRepository
 import com.example.taskscheduler.data.Repository.SessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.TaskDeletedRepository
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.Repository.TaskRepository
 import com.example.taskscheduler.data.TaskTracking
 import com.example.taskscheduler.data.Repository.TaskTrackingRepository
+import com.example.taskscheduler.data.TaskDeleted
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -22,7 +24,8 @@ class TaskTrackingViewModel(
     private val taskRepository: TaskRepository,
     private val taskTrackingRepository: TaskTrackingRepository,
     private val sessionTaskEntryRepository: SessionTaskEntryRepository,
-    private val sessionRepository: SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val taskDeletedRepository: TaskDeletedRepository
 ) : ViewModel() {
 
     val allTasks: StateFlow<List<Task>> = taskRepository.getAllTasksStream()
@@ -111,6 +114,13 @@ class TaskTrackingViewModel(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null // The initial value for the final result is also null.
+        )
+
+    val deletedTasks: StateFlow<List<TaskDeleted>> = taskDeletedRepository.getAllTaskDeleted()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList<TaskDeleted>()
         )
 
 

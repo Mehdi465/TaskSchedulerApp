@@ -19,7 +19,8 @@ class TaskApplication : Application() {
             database.taskDao(),
             database.taskTrackingDao(),
             database.sessionDao(),
-            database.sessionTaskEntryDao()
+            database.sessionTaskEntryDao(),
+            database.taskDeletedDao()
         )
     }
     val activeSessionStore: ActiveSessionStore by lazy {

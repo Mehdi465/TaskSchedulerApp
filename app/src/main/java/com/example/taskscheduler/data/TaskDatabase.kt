@@ -15,6 +15,7 @@ import com.example.taskscheduler.data.Converters.DurationConverters
 import com.example.taskscheduler.data.Dao.SessionDao
 import com.example.taskscheduler.data.Dao.SessionTaskEntryDao
 import com.example.taskscheduler.data.Dao.TaskDao
+import com.example.taskscheduler.data.Dao.TaskDeletedDao
 import com.example.taskscheduler.data.Dao.TaskTrackingDao
 
 @Database(
@@ -23,8 +24,9 @@ import com.example.taskscheduler.data.Dao.TaskTrackingDao
         TaskTracking::class,
         Session::class,
         SessionTaskEntry::class,
+        TaskDeleted::class
                ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(DurationConverters::class, ColorConverters::class, DateConverters::class)
@@ -33,6 +35,7 @@ abstract class TaskDatabase : RoomDatabase(){
     abstract fun taskTrackingDao(): TaskTrackingDao
     abstract fun sessionDao(): SessionDao
     abstract fun sessionTaskEntryDao(): SessionTaskEntryDao
+    abstract fun taskDeletedDao(): TaskDeletedDao
 
     companion object {
         @Volatile

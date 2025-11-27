@@ -3,10 +3,12 @@ package com.example.taskscheduler.data
 import android.content.Context
 import com.example.taskscheduler.data.Repository.OfflineSessionRepository
 import com.example.taskscheduler.data.Repository.OfflineSessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.OfflineTaskDeletedRepository
 import com.example.taskscheduler.data.Repository.OfflineTaskTrackingRepository
 import com.example.taskscheduler.data.Repository.OfflineTasksRepository
 import com.example.taskscheduler.data.Repository.SessionRepository
 import com.example.taskscheduler.data.Repository.SessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.TaskDeletedRepository
 import com.example.taskscheduler.data.Repository.TaskRepository
 import com.example.taskscheduler.data.Repository.TaskTrackingRepository
 
@@ -18,6 +20,7 @@ interface AppContainer {
     val sessionRepository: SessionRepository
     val taskTrackingRepository: TaskTrackingRepository
     val sessionTaskEntryRepository: SessionTaskEntryRepository
+    val taskDeletedRepository: TaskDeletedRepository
 }
 
 /**
@@ -33,6 +36,7 @@ class AppDataContainer(private val context: Context) : AppContainer {
             TaskDatabase.getDatabase(context).taskTrackingDao(),
             TaskDatabase.getDatabase(context).sessionDao(),
             TaskDatabase.getDatabase(context).sessionTaskEntryDao(),
+            TaskDatabase.getDatabase(context).taskDeletedDao(),
         )
     }
 
@@ -53,5 +57,12 @@ class AppDataContainer(private val context: Context) : AppContainer {
         OfflineSessionTaskEntryRepository(
             TaskDatabase.getDatabase(context).sessionTaskEntryDao(),
         )
+    }
+
+    override val taskDeletedRepository: TaskDeletedRepository by lazy{
+        OfflineTaskDeletedRepository(
+            TaskDatabase.getDatabase(context).taskDeletedDao()
+        )
+
     }
 }

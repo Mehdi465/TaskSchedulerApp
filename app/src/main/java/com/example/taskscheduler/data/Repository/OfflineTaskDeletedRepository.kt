@@ -14,8 +14,14 @@ class OfflineTaskDeletedRepository(
     override fun getAllTaskDeleted(): Flow<List<TaskDeleted>>
         = taskDeletedDao.getAllTaskDeleted()
 
+    override suspend fun upsertTask(taskDeleted: TaskDeleted)
+        = taskDeletedDao.upsertTask(taskDeleted)
+
     override fun getTaskDeletedById(taskId: Int): Flow<TaskDeleted?>
         = taskDeletedDao.getTaskDeletedById(taskId)
+
+    override suspend fun getTaskDeletedByIdOnce(taskId: Int): TaskDeleted?
+            = taskDeletedDao.getTaskDeletedByIdOnce(taskId)
 
     override suspend fun clear() = taskDeletedDao.clear()
 }

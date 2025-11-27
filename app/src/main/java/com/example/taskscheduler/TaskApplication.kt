@@ -6,10 +6,12 @@ import com.example.taskscheduler.data.AppContainer
 import com.example.taskscheduler.data.AppDataContainer
 import com.example.taskscheduler.data.Repository.OfflineSessionRepository
 import com.example.taskscheduler.data.Repository.OfflineSessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.OfflineTaskDeletedRepository
 import com.example.taskscheduler.data.Repository.OfflineTaskTrackingRepository
 import com.example.taskscheduler.data.Repository.OfflineTasksRepository
 import com.example.taskscheduler.data.Repository.SessionRepository
 import com.example.taskscheduler.data.Repository.SessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.TaskDeletedRepository
 import com.example.taskscheduler.data.SettingsRepository
 import com.example.taskscheduler.data.TaskDatabase
 import com.example.taskscheduler.data.Repository.TaskRepository
@@ -20,7 +22,6 @@ import com.example.taskscheduler.utils.NotificationUtils
 class TaskApplication: Application() {
     lateinit var container: AppContainer
 
-
     private val database by lazy { TaskDatabase.getDatabase(this) }
 
     // Lazy initialization for the repository
@@ -29,12 +30,9 @@ class TaskApplication: Application() {
             database.taskDao(),
             database.taskTrackingDao(),
             database.sessionDao(),
-            database.sessionTaskEntryDao())
-    }
-
-    val tasksTrackingRepository: TaskTrackingRepository by lazy {
-        OfflineTaskTrackingRepository(
-            database.taskTrackingDao())
+            database.sessionTaskEntryDao(),
+            database.taskDeletedDao()
+        )
     }
 
     val settingsRepository: SettingsRepository by lazy {
@@ -57,6 +55,12 @@ class TaskApplication: Application() {
     val taskTrackingRepository : TaskTrackingRepository by lazy {
         OfflineTaskTrackingRepository(
             database.taskTrackingDao()
+        )
+    }
+
+    val taskDeletedRepository : TaskDeletedRepository by lazy {
+        OfflineTaskDeletedRepository(
+            database.taskDeletedDao()
         )
     }
 

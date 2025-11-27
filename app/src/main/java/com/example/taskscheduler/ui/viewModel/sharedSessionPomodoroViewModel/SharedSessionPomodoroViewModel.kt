@@ -4,11 +4,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskscheduler.data.ActiveSessionStore
+import com.example.taskscheduler.data.Repository.OfflineTaskDeletedRepository
 import com.example.taskscheduler.data.ScheduledTask
 import com.example.taskscheduler.data.Session
 import com.example.taskscheduler.data.Repository.SessionRepository
 import com.example.taskscheduler.data.SessionTaskEntry
 import com.example.taskscheduler.data.Repository.SessionTaskEntryRepository
+import com.example.taskscheduler.data.Repository.TaskDeletedRepository
+import com.example.taskscheduler.data.Repository.TaskRepository
 import com.example.taskscheduler.data.Repository.TaskTrackingRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +33,9 @@ class SharedSessionPomodoroViewModel(
     private val activeSessionStore: ActiveSessionStore,
     private val taskTrackingRepository: TaskTrackingRepository,
     private val sessionRepository: SessionRepository,
-    private val sessionTaskEntryRepository: SessionTaskEntryRepository
+    private val sessionTaskEntryRepository: SessionTaskEntryRepository,
+    private val taskRepository: TaskRepository,
+    private val taskDeletedRepository: TaskDeletedRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<SharedSessionPomodoroUiState> = activeSessionStore.activeSessionFlow
@@ -143,20 +148,38 @@ class SharedSessionPomodoroViewModel(
                 // update the task's stats in the database
                 if (taskDurationMillis > 0) {
                     Log.d("SharedSessionVM", "Updating stats for Task ID: ${taskInSession.task.id} with duration: $taskDurationMillis ms")
-                    taskTrackingRepository.updateStatsAfterSession(
-                        taskId = taskInSession.task.id,
-                        taskDurationMillis = taskDurationMillis,
-                    )
+                    val taskExists = taskRepository.getTaskByIdOnce(taskInSession.task.id) != null
+                    if (!taskExists){
 
-                    // update SessionTaskEntry
-                    sessionTaskEntryRepository.insertSessionTaskEntry(
-                        SessionTaskEntry(
-                            sessionId = sessionId,
+                        val deletedTask = taskDeletedRepository.getTaskDeletedByIdOnce(taskInSession.task.id)
+                        if (deletedTask != null) {
+                            val updatedDeletedTask =
+                                    deletedTask.copy(
+                                        timesCompleted = deletedTask.timesCompleted +1,
+                                        totalTimeMillisSpent = deletedTask.totalTimeMillisSpent + taskDurationMillis
+                                    )
+                            taskDeletedRepository.upsertTask(updatedDeletedTask)
+                            Log.d("SharedSession","Update deleted task ${updatedDeletedTask.id}")
+                        }
+
+                    }
+
+                    else {
+                        taskTrackingRepository.updateStatsAfterSession(
                             taskId = taskInSession.task.id,
-                            startTime = taskInSession.startTime,
-                            endTime = taskInSession.endTime,
+                            taskDurationMillis = taskDurationMillis,
                         )
-                    )
+
+                        // update SessionTaskEntry
+                        sessionTaskEntryRepository.insertSessionTaskEntry(
+                            SessionTaskEntry(
+                                sessionId = sessionId,
+                                taskId = taskInSession.task.id,
+                                startTime = taskInSession.startTime,
+                                endTime = taskInSession.endTime,
+                            )
+                        )
+                    }
                 }
             }
             clearActiveSession()

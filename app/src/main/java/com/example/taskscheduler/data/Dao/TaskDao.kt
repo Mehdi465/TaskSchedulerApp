@@ -32,6 +32,13 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id IN (:taskIds)")
     fun getTasksByIds(taskIds: List<Int>): Flow<List<Task>>
 
+    /**
+     * Retrieves a single task by its ID.
+     * This is a suspend function for one-time queries.
+     * Returns null if the task is not found.
+     */
+    @Query("SELECT * FROM tasks WHERE id = :taskId LIMIT 1")
+    suspend fun getTaskByIdOnce(taskId: Int): Task?
 
     // DELETE ALL
     @Query("DELETE FROM tasks")

@@ -11,7 +11,11 @@ import com.example.taskscheduler.ui.viewModel.tracking.TaskTrackingViewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            TaskManagerViewModel(taskApplication().container.tasksRepository)
+            TaskManagerViewModel(
+                taskApplication().container.tasksRepository,
+                taskApplication().container.taskDeletedRepository,
+                taskApplication().container.taskTrackingRepository
+            )
         }
 
         initializer {
@@ -19,7 +23,8 @@ object AppViewModelProvider {
                 sessionRepository = taskApplication().container.sessionRepository,
                 taskRepository = taskApplication().container.tasksRepository,
                 taskTrackingRepository = taskApplication().container.taskTrackingRepository,
-                sessionTaskEntryRepository = taskApplication().container.sessionTaskEntryRepository
+                sessionTaskEntryRepository = taskApplication().container.sessionTaskEntryRepository,
+                taskDeletedRepository = taskApplication().container.taskDeletedRepository,
             )
         }
     }

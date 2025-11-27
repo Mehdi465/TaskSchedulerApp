@@ -166,10 +166,16 @@ fun TaskManagerScreen(
     val context = LocalContext.current
     val application = context.applicationContext as TaskApplication // Cast to your Application class
     val tasksRepository = application.tasksRepository
+    val taskDeletedRepository = application.taskDeletedRepository
+    val taskTrackingRepository = application.taskTrackingRepository
 
     // --- Create the ViewModel using the Factory ---
     val viewModel: TaskManagerViewModel = viewModel(
-        factory = TaskViewModelFactory(tasksRepository)
+        factory = TaskViewModelFactory(
+            tasksRepository,
+            taskDeletedRepository,
+            taskTrackingRepository
+        )
     )
 
     // --- Observe Task List from ViewModel ---
@@ -305,7 +311,6 @@ private fun TaskListBody(
             TaskList(
                 uiState = uiState,
                 onDeleteTask = { task ->
-                    // TODO remove background color
                     viewModel.deleteTask(task)
                 },
                 onStartModifyTask = { task ->

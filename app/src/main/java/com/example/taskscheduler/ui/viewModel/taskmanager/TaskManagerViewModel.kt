@@ -1,9 +1,14 @@
 package com.example.taskscheduler.ui.viewModel.taskmanager
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskscheduler.data.Repository.TaskDeletedRepository
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.data.Repository.TaskRepository
+import com.example.taskscheduler.data.Repository.TaskTrackingRepository
+import com.example.taskscheduler.data.TaskDeleted
+import com.example.taskscheduler.data.TaskTracking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
+import kotlin.text.toLong
 
 /**
  * UI state for the Task List screen
@@ -28,7 +34,9 @@ data class TaskListUiState(
  * @param tasksRepository The repository for accessing task data.
  */
 class TaskManagerViewModel(
-    private val tasksRepository: TaskRepository // Injected via TaskViewModelFactory
+    private val tasksRepository: TaskRepository, // Injected via TaskViewModelFactory
+    private val taskDeletedRepository: TaskDeletedRepository,
+    private val taskTrackingRepository: TaskTrackingRepository
 ) : ViewModel() {
 
     private val _checkedTaskIds = MutableStateFlow<Set<Int>>(emptySet())
@@ -47,19 +55,15 @@ class TaskManagerViewModel(
             _checkedTaskIds,                     // Flow<Set<Int>>
             errorMessages // not yet used
         ) { tasks: List<Task>, checkedIds: Set<Int>, errorMsg: String? ->
-            // This mapping function is called whenever tasks, checkedIds, or errorMsg emit a new value
             TaskListUiState(
                 tasks = tasks,
                 checkedTasks = checkedIds,
-                isLoading = false, // Set to false because tasks are now available from the stream.
-                // The initialValue of stateIn handles the initial loading state.
+                isLoading = false,
+
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000L),
-            // The initialValue's isLoading will be true.
-            // Once getAllTasksStream emits its first list (even if empty),
-            // the combine block will run, and isLoading will become false.
             initialValue = TaskListUiState(isLoading = true, checkedTasks = _checkedTaskIds.value)
         )
 
@@ -100,9 +104,7 @@ class TaskManagerViewModel(
      * @return A list of selected Tasks.
      */
     fun getSelectedTasks(): List<Task> {
-        // We need to access the current list of tasks and checked IDs.
-        // taskListUiState.value contains the latest combined state.
-        val currentUiState = taskListUiState.value // Get the current emitted state
+        val currentUiState = taskListUiState.value
         return currentUiState.tasks.filter { task ->
             task.id in currentUiState.checkedTasks
         }
@@ -119,10 +121,24 @@ class TaskManagerViewModel(
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             try {
-            tasksRepository.deleteTask(task)
+                    val trackingInfo: TaskTracking? = taskTrackingRepository
+                        .getTrackingForTaskOnce(task.id)
+
+                    val archivedTask = TaskDeleted(
+                        taskId = task.id,
+                        name = task.name,
+                        priority = task.priority.name,
+                        icon = task.icon.toString(),
+                        color = task.color.toString(),
+                        timesCompleted = trackingInfo?.timesCompleted ?: 0,
+                        totalTimeMillisSpent = trackingInfo?.totalTimeMillisSpent ?: 0L
+                    )
+
+                    taskDeletedRepository.upsertTask(archivedTask)
+                    tasksRepository.deleteTask(task)
         } catch (e:Exception) {
-            println("TaskManagerViewModel: Error deleting task - ${e.message}")}
+            Log.d("TaskManagerViewModel","Error deleting task - ${e.message}")
+            }
         }
     }
-    // fun setTaskCompleted(task: Task, completed: Boolean) { /* ... */ }
 }

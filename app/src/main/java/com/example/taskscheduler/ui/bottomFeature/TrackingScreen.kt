@@ -61,6 +61,8 @@ import com.example.taskscheduler.ui.AppViewModelProvider
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.viewModel.tracking.TaskTrackingViewModel
+import kotlin.div
+import kotlin.times
 
 object TrackingDestination : NavigationDestination {
     override val route = "monitoring"
@@ -119,6 +121,7 @@ fun TrackingContent(
 
     val mostDoneTask = trackingViewModel.mostDoneTask.collectAsState().value
     val mostDoneTrackedTask = trackingViewModel.mostDoneTaskTracked.collectAsState().value
+    val deletedTasks = trackingViewModel.deletedTasks.collectAsState().value
 
     val listSessionDatas = mutableListOf<@Composable (() -> Unit)>(
         { DashboardTile("TotalSession", "$countSession", "sessions", background = Color.DarkGray) },
@@ -144,6 +147,14 @@ fun TrackingContent(
 
     if (mostDoneTrackedTask != null){
         listTaskDatas.add { DashboardTile("most popular task : ${mostDoneTask!!.name}", "${mostDoneTrackedTask.taskId}", "glasses", background = Color.DarkGray) }
+    }
+
+    if (deletedTasks.isNotEmpty()){
+        val fourthFirstDeletedTasksName = deletedTasks.take(4).joinToString(separator = ", "){ it.name }
+        listTaskDatas.add { DashboardWideTile("Last deleted tasks", fourthFirstDeletedTasksName, "", background = Color.DarkGray) }
+    }
+    else{
+        listTaskDatas.add { DashboardTile("No task deleted", "☺\uFE0F", "", background = Color.DarkGray) }
     }
 
     Column(
@@ -258,119 +269,77 @@ fun GraphBox(
 }
 
 @Composable
-fun DrawCircleGraphWithIcon(value: Int,
-                            color: Color,
-                            remainingPartColor: Color = Color.Blue,
-                            iconDrawable: Int? = null,
-                            text : String? = null,
-                            contentColor : Color = Color.Red,
-                            backgroundColor : Color = Color.DarkGray) {
-
-    var radius by remember { mutableFloatStateOf(0f) }
-    var canvasWidth by remember { mutableFloatStateOf(0f) }
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(backgroundColor)) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            canvasWidth = size.width
-            val canvasHeight = size.height
-
-            val centerX = canvasWidth / 2f
-            val centerY = canvasHeight / 2f
-            radius = canvasWidth / 2.3f //arrange circle size
-
-
-
-            val sweepAngle = (value / 100f) * 360f
-
-            // Draw the incomplete part of the circle
-            drawArc(
-                color = remainingPartColor,
-                startAngle = sweepAngle,
-                sweepAngle = 360f - sweepAngle,
-                useCenter = false,
-                topLeft = Offset(centerX - radius, centerY - radius),
-                size = Size(radius * 2, radius * 2),
-                style = Stroke(width = radius/9f)//arrange stroke size according to radius
-            )
-
-            // Draw the completed part of the circle
-            drawArc(
-                color = color,
-                startAngle = 0f,
-                sweepAngle = sweepAngle,
-                useCenter = false,
-                topLeft = Offset(centerX - radius, centerY - radius),
-                size = Size(radius * 2, radius * 2),
-                style = Stroke(width = radius/6f)//arrange stroke size according to radius
-            )
-        }
-
-        Column(modifier = Modifier.height(canvasWidth.dp).width(canvasWidth.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center){
-            if(iconDrawable != null){
-                Icon(
-                    painter = painterResource(id = iconDrawable),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size((radius / 4).dp),//arrange stroke size according to radius
-                    tint = color
-
-                )
-            }
-
-
-            if(text != null){
-                if (contentColor != null) {
-                    Text(text, fontSize = (radius / 16).sp,
-                        color = contentColor,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = (radius / 24).dp))//arrange stroke size according to radius
-                }
-            }
-
-        }
-
-    }
-}
-
-
-@Composable
 fun DashboardGrid(
     modifier: Modifier = Modifier,
     columns: Int = 2,
     spacing: Dp = 12.dp,
     tiles: List<@Composable () -> Unit>
 ) {
-    val rows = tiles.chunked(columns)
-
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(spacing),
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
-        rows.forEach { row ->
+        val processedTiles = mutableListOf<List<@Composable () -> Unit>>()
+        val squareTileBuffer = mutableListOf<@Composable () -> Unit>()
+
+        tiles.forEach { tile ->
+            // Heuristic to check if a tile is "wide" by looking at its composable type name
+            val isWideTile = tile.javaClass.name.contains("DashboardWideTile", ignoreCase = true)
+
+            if (isWideTile) {
+                // If we have any pending square tiles, add them to the grid first
+                if (squareTileBuffer.isNotEmpty()) {
+                    processedTiles.add(squareTileBuffer.toList())
+                    squareTileBuffer.clear()
+                }
+                // Add the wide tile as a row of its own
+                processedTiles.add(listOf(tile))
+            } else {
+                // Add square tile to buffer
+                squareTileBuffer.add(tile)
+                if (squareTileBuffer.size == columns) {
+                    processedTiles.add(squareTileBuffer.toList())
+                    squareTileBuffer.clear()
+                }
+            }
+        }
+
+        // Add any remaining square tiles in the buffer
+        if (squareTileBuffer.isNotEmpty()) {
+            processedTiles.add(squareTileBuffer.toList())
+        }
+
+
+        // Render the processed rows
+        processedTiles.forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(spacing)
             ) {
-                row.forEach { tile ->
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f) // ensures square
-                    ) {
-                        tile()
+                if (row.size == 1) {
+                    // This is a wide tile, let it take the full width
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        row.first()()
                     }
-                }
+                } else {
+                    // This is a row of square tiles
+                    row.forEach { tile ->
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f) // ensures square
+                        ) {
+                            tile()
+                        }
+                    }
 
-                // Fill remaining space if row is incomplete
-                if (row.size < columns) {
-                    repeat(columns - row.size) {
-                        Spacer(modifier = Modifier.weight(1f))
+                    // Fill remaining space if row is incomplete
+                    if (row.size < columns) {
+                        repeat(columns - row.size) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
             }
@@ -379,7 +348,7 @@ fun DashboardGrid(
 }
 
 /**
- * Example square dashboard tile
+ * square dashboard tile
  */
 @Composable
 fun DashboardTile(
@@ -410,6 +379,48 @@ fun DashboardTile(
                     color = Color.Black
                 )
                 Text(text = unit, fontSize = 14.sp, color = Color.Gray)
+            }
+        }
+    }
+}
+
+/**
+ * A rectangular dashboard tile that is designed to span the full width of the grid.
+ */
+@Composable
+fun DashboardWideTile(
+    title: String,
+    value: String,
+    unit: String,
+    background: Color = Color(0xFFE8F5E9)
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().height(120.dp), // Use fillMaxWidth and a fixed or intrinsic height
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = background),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = value,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Text(text = unit, fontSize = 16.sp, color = Color.Gray)
             }
         }
     }

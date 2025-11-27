@@ -51,4 +51,7 @@ interface TaskTrackingRepository {
      * get the most completed task
      */
     fun getMostDoneTask() : Flow<TaskTracking?>
+
+    suspend fun getTrackingForTaskOnce(taskId: Int): TaskTracking?
+
 }
