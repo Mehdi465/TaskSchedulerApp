@@ -134,60 +134,34 @@ fun SettingContent(
             .padding(horizontal = 16.dp) // Overall horizontal padding for content
             //.background(color = Color.White)
     ) {
-//        // --- Display Options Section ---
-//        Text(
-//            text = "Display Options",
-//            style = MaterialTheme.typography.titleMedium,
-//            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-//        )
-//        SettingsTile(
-//            text = "Dark Theme",
-//            controlContent = {
-//                Switch(
-//                    checked = isDarkThemeEnabled,
-//                    onCheckedChange = {
-//                        settingsViewModel.setDarkThemeEnabled(it)
-//                    },
-//                    colors = SwitchDefaults.colors(
-//                        checkedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
-//                        checkedTrackColor = Color.Black,
-//                        uncheckedThumbColor = if (isSystemInDarkTheme) Color.White else Color.Blue,
-//                        uncheckedTrackColor = Color.Black
-//                    )
-//                )
-//            }
-//        )
-//
-//        Spacer(modifier = Modifier.height(24.dp)) // Space between sections
-
         // --- Pomodoro Section ---
         Text(
-            text = "Pomodoro Settings",
+            text = stringResource(R.string.pomodoro_settings),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         // break time
         SettingsTile(
-            text = "Break Time: $pomodoroBreakDuration mins", // Display current value
+            text = stringResource(R.string.pomodoro_settings)+": $pomodoroBreakDuration" + stringResource(R.string.minutes), // Display current value
             controlContent = {
                 Button(onClick = {
                     displaySelectTimeBreakDialog = true
                 }
                 ) {
-                    Text(text = "Change")
+                    Text(text = stringResource(R.string.change))
                 }
             }
         )
         // work time
         Spacer(modifier = Modifier.height(Dimens.spaceS)) // space between Pomodoro tiles
         SettingsTile(
-            text = "Work Time: $pomodoroWorkDuration mins", // Display current value
+            text = stringResource(R.string.work_time)+": $pomodoroWorkDuration" + stringResource(R.string.minutes),
             controlContent = {
                 Button(onClick = {
                     displaySelectTimeWorkDialog = true
                 }) {
-                    Text(text = "Change")
+                    Text(text = stringResource(R.string.change))
                 }
             }
         )
@@ -197,42 +171,42 @@ fun SettingContent(
 
         // --- Colors Section ---
         Text(
-            text = "Colors",
+            text = stringResource(R.string.color),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
 
         SettingsTile(
-            text = "Theme Color",
+            text = stringResource(R.string.theme_color),
             controlContent = {
                 Button(onClick = {}) {
-                    Text(text = "Change")
+                    Text(text = stringResource(R.string.change))
                     }
             }
         )
 
         //  ------ Language Section --------
         Text(
-            text = "Language",
+            text = stringResource(R.string.language),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
         SettingsTile(
-            text = "current language",
+            text = stringResource(R.string.current_language),
         ) { }
 
         // ------- Delete all datas Part -------
         Text(
-            text = "ERASE ALL DATA",
+            text = stringResource(R.string.erase_all_data),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
 
         SettingsTile(
-            text = "ERASE ALL DATA",
+            text = stringResource(R.string.erase_all_data),
             controlContent = {
                 Button(onClick = {displayEraseDatabase=true}) {
-                    Text(text = "ERASE")
+                    Text(text = stringResource(R.string.erase))
                 }
             }
         )

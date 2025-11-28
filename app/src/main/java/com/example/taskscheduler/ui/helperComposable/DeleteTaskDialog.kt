@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.taskscheduler.R
 
 @Composable
 fun DeleteTaskDialog(
@@ -25,14 +27,14 @@ fun DeleteTaskDialog(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Are you sure you want to delete this task? All records and data will be lost.")
+            Text(stringResource(R.string.are_you_sure))
             Row(
                 horizontalArrangement = Arrangement.End
             ){
                 Button(
                     onClick = onDismiss
                 ) {
-                    Text("No")
+                    Text(stringResource(R.string.no))
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -40,7 +42,7 @@ fun DeleteTaskDialog(
                 Button(
                     onClick = onConfirm
                 ) {
-                    Text("Yes")
+                    Text(stringResource(R.string.yes))
                 }
             }
         }

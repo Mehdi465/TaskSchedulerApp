@@ -9,6 +9,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -81,9 +82,6 @@ fun NewTaskScreen(
     onDismiss : () -> Unit,
     canNavigateBack: Boolean = true,
 ){
-
-
-
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -558,7 +556,7 @@ fun PrioritySelector(
                         selectedInternalIndex = index
                         onPrioritySelected(priorities[index])
                     }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = label.toString(),

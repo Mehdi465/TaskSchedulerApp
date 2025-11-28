@@ -12,8 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.taskscheduler.R
 
 @Composable
 fun ValidateOrDeleteSession(
@@ -28,7 +30,7 @@ fun ValidateOrDeleteSession(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Do you to delete or confirm this session?")
+            Text(stringResource(R.string.confirm_delete_session))
             Row(
                 horizontalArrangement = Arrangement.End
             ){
@@ -38,7 +40,7 @@ fun ValidateOrDeleteSession(
                         containerColor = Color.Red
                     )
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -49,7 +51,7 @@ fun ValidateOrDeleteSession(
                         containerColor = Color.Green
                     )
                 ) {
-                    Text("Confirm")
+                    Text(stringResource(R.string.confirm))
                 }
             }
         }

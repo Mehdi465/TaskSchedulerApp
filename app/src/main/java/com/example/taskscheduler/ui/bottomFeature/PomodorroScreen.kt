@@ -159,8 +159,8 @@ fun PomodoroScreen(
     ) {
         val currentTime = Date(Instant.now().toEpochMilli())
         Text(
-            text = if (session != null && !session.isSessionFinished() && compareTime(currentTime,session.startTime)) "current task : ${session.getCurrentTask()!!.name}"
-                    else "No current task",
+            text = if (session != null && !session.isSessionFinished() && compareTime(currentTime,session.startTime)) stringResource(R.string.current_task) +": ${session.getCurrentTask()!!.name}"
+                    else stringResource(R.string.no_current_task),
             fontSize = 24.sp,
             style = MaterialTheme.typography.headlineMedium
         )
@@ -168,11 +168,11 @@ fun PomodoroScreen(
 
         Text(
             text = when (pomodoroState.phase) {
-                PomodoroPhase.WORK -> "Work Time"
-                PomodoroPhase.BREAK -> "Short Break"
-                PomodoroPhase.LONG_BREAK -> "Long Break"
-                PomodoroPhase.PAUSED -> "Paused"
-                PomodoroPhase.STOPPED -> "Stopped"
+                PomodoroPhase.WORK -> stringResource(R.string.work_time)
+                PomodoroPhase.BREAK -> stringResource(R.string.short_break)
+                PomodoroPhase.LONG_BREAK -> stringResource(R.string.long_break)
+                PomodoroPhase.PAUSED -> stringResource(R.string.paused)
+                PomodoroPhase.STOPPED -> stringResource(R.string.stopped)
             },
             fontSize = 24.sp,
             style = MaterialTheme.typography.headlineMedium
@@ -198,7 +198,7 @@ fun PomodoroScreen(
                           },
                 enabled = pomodoroState.phase == PomodoroPhase.STOPPED
             ) {
-                Text("Start")
+                Text(stringResource(R.string.start))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
@@ -211,81 +211,29 @@ fun PomodoroScreen(
                 },
                 enabled = pomodoroState.phase != PomodoroPhase.STOPPED
             ) {
-                Text(if (pomodoroState.phase == PomodoroPhase.PAUSED) "Resume" else "Pause")
+                Text(if (pomodoroState.phase == PomodoroPhase.PAUSED) stringResource(R.string.resume) else stringResource(R.string.pause))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = { viewModel.skipPhase() },
                 enabled = pomodoroState.phase != PomodoroPhase.STOPPED
             ) {
-                Text("Skip")
+                Text(stringResource(R.string.skip))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = { viewModel.stopTimer() },
                 enabled = pomodoroState.phase != PomodoroPhase.STOPPED
             ) {
-                Text("Stop")
+                Text(stringResource(R.string.stop))
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Cycles: ${pomodoroState.totalCycles} (Current: ${pomodoroState.currentCycle})",
+            text = stringResource(R.string.cycles)+"${pomodoroState.totalCycles}"+ stringResource(R.string.current) +"${pomodoroState.currentCycle})",
             fontSize = 16.sp,
             style = MaterialTheme.typography.bodyLarge
         )
 
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    PomodoroTimerTheme {
-        // For preview, we can't directly use the ViewModel.
-        // Provide a dummy state or a simplified mock for visual preview.
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Work Time (Preview)",
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "25:00",
-                fontSize = 72.sp,
-                style = MaterialTheme.typography.displayLarge
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(onClick = { /* Do nothing for preview */ }) { Text("Start") }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { /* Do nothing for preview */ }) { Text("Pause") }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { /* Do nothing for preview */ }) { Text("Skip") }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { /* Do nothing for preview */ }) { Text("Stop") }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Cycles: 0 (Current: 0)",
-                fontSize = 16.sp,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-    }
-}
-
-@Composable
-fun PomodoroTimerTheme(content: @Composable () -> Unit) {
-    TODO("Not yet implemented")
 }

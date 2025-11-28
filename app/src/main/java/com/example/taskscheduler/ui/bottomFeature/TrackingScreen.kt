@@ -124,37 +124,45 @@ fun TrackingContent(
     val deletedTasks = trackingViewModel.deletedTasks.collectAsState().value
 
     val listSessionDatas = mutableListOf<@Composable (() -> Unit)>(
-        { DashboardTile("TotalSession", "$countSession", "sessions", background = Color.DarkGray) },
-        { DashboardTile("Total duration", "%.1f".format((totalDuration*0.001)/(60*60)), "hours", background = Color.DarkGray) },
-        { DashboardTile("Task/Sessions", if (countSession == 0) "N/A" else ("%.1f".format(countTask.toDouble()/countSession)), "tasks", background = Color.DarkGray) },
-        { DashboardTile("Last week sessions", "${lastWeekSessions.size}", "sessions", background = Color.DarkGray) },
-        // TODO add releveant info for first and last sessions
-        //{ DashboardTile("First Session",  "${firstSession.startTime}", "sessions", background = Color.DarkGray) },
-        //{ DashboardTile("Last Session",  "${lastSession.startTime}", "sessions", background = Color.DarkGray) }
+        { DashboardTile(stringResource(R.string.total_session), "$countSession", stringResource(R.string.sessions),
+            background = Color.DarkGray) },
+        { DashboardTile(stringResource(R.string.total_duration), "%.1f".format((totalDuration*0.001)/(60*60)), stringResource(R.string.hours),
+            background = Color.DarkGray) },
+        { DashboardTile(stringResource(R.string.task_per_session), if (countSession == 0) "N/A"
+            else ("%.1f".format(countTask.toDouble()/countSession)), stringResource(R.string.tasks), background = Color.DarkGray) },
+        { DashboardTile(stringResource(R.string.last_week_sessions), "${lastWeekSessions.size}", stringResource(R.string.sessions),
+            background = Color.DarkGray) },
     )
     if (firstSession != null){
-        listSessionDatas.add { DashboardTile("First Session",  "${firstSession.startTime}", "sessions", background = Color.DarkGray)  }
+        listSessionDatas.add { DashboardTile(stringResource(R.string.first_session),  "${firstSession.startTime}",
+            stringResource(R.string.sessions), background = Color.DarkGray)  }
     }
 
     if (lastSession != null){
-        listSessionDatas.add { DashboardTile("Last Session",  "${lastSession.startTime}", "sessions", background = Color.DarkGray)  }
+        listSessionDatas.add { DashboardTile(stringResource(R.string.last_session),  "${lastSession.startTime}",
+            stringResource(R.string.sessions), background = Color.DarkGray)  }
     }
 
     val listTaskDatas= mutableListOf<@Composable (() -> Unit)>(
-        { DashboardTile("TotalTasks done", "$countTask", "tasks", background = Color.DarkGray) },
-        { DashboardTile("Total duration", "${(totalDuration*0.001)/60}", "mins", background = Color.DarkGray) },
+        { DashboardTile(stringResource(R.string.total_task_done), "$countTask",
+            stringResource(R.string.tasks), background = Color.DarkGray) },
+        { DashboardTile(stringResource(R.string.total_duration), "${(totalDuration*0.001)/60}",
+            stringResource(R.string.minutes), background = Color.DarkGray) },
     )
 
     if (mostDoneTrackedTask != null){
-        listTaskDatas.add { DashboardTile("most popular task : ${mostDoneTask!!.name}", "${mostDoneTrackedTask.taskId}", "glasses", background = Color.DarkGray) }
+        listTaskDatas.add { DashboardTile(stringResource(R.string.most_popular_task)+
+                " : ${mostDoneTask!!.name}", "${mostDoneTrackedTask.taskId}", "", background = Color.DarkGray) }
     }
 
     if (deletedTasks.isNotEmpty()){
         val fourthFirstDeletedTasksName = deletedTasks.take(4).joinToString(separator = ", "){ it.name }
-        listTaskDatas.add { DashboardWideTile("Last deleted tasks", fourthFirstDeletedTasksName, "", background = Color.DarkGray) }
+        listTaskDatas.add { DashboardWideTile(stringResource(R.string.last_deleted_tasks),
+            fourthFirstDeletedTasksName, "", background = Color.DarkGray) }
     }
     else{
-        listTaskDatas.add { DashboardTile("No task deleted", "☺\uFE0F", "", background = Color.DarkGray) }
+        listTaskDatas.add { DashboardTile(stringResource(R.string.no_task_deleted),
+            "☺\uFE0F", "", background = Color.DarkGray) }
     }
 
     Column(
@@ -166,18 +174,12 @@ fun TrackingContent(
         Spacer(modifier = Modifier.padding(Dimens.skipTopBar))
 
         CustomSwitchWithText(
-            word1 = "Session",
-            word2 = "Task",
+            word1 = stringResource(R.string.sessions),
+            word2 = stringResource(R.string.tasks),
             checked = isSession,
             onCheckedChange = {isSession = it}
         )
 
-        GraphBox(
-            isTaskMode = isSession,
-        )
-
-        // test for SquareTilesColumn
-        val data = (1..7).map{"Item $it"}
         DashboardGrid(
             modifier = Modifier.padding(16.dp),
             columns = 2,
@@ -256,15 +258,6 @@ fun CustomSwitchWithText(
                 textAlign = TextAlign.Center
             )
         }
-    }
-}
-
-@Composable
-fun GraphBox(
-    isTaskMode: Boolean,
-){
-    Box() {
-        Text("Currently ")
     }
 }
 

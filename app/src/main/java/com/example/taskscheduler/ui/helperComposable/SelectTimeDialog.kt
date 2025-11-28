@@ -44,7 +44,7 @@ fun SelectTimeDialog(
                     onClick = {onTimeStore}
                 ) {
                     Text(
-                        text = "Change"
+                        text = stringResource(R.string.change)
                     )
                 }
 

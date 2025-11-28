@@ -11,7 +11,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.taskscheduler.R
 
 
 @Composable
@@ -26,17 +28,17 @@ fun RemoveSessionDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Would you like to remove this session, it would be impossible to recover it later")
+            Text(stringResource(R.string.remove_this_session))
 
             Row() {
                 Button(onClick = onConfirm) {
-                    Text("Yes")
+                    Text(stringResource(R.string.yes))
                 }
 
                 Spacer(modifier = Modifier.padding(10.dp))
 
                 Button(onClick = onDismiss) {
-                    Text("No")
+                    Text(stringResource(R.string.no))
                 }
             }
         }

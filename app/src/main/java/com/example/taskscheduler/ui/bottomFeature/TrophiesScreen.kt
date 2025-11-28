@@ -58,5 +58,5 @@ fun TrophiesScreen(
 fun TrophiesContent(
     modifier: Modifier = Modifier
 ){
-    Text(text = "Trophies")
+    Text(text = stringResource(R.string.trophies))
 }

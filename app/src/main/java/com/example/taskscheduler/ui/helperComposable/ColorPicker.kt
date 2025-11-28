@@ -34,8 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.taskscheduler.R
 import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.theme.TaskColors
 
@@ -80,7 +82,7 @@ fun ColorPickerDialog(
                         Button(onClick = {
                             onDismiss()
                         }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
 
                         Spacer(modifier = Modifier.padding(Dimens.spaceS))
@@ -88,7 +90,7 @@ fun ColorPickerDialog(
                         Button(onClick = {
                             onColorSelected(currentlySelectedInPicker)
                         }) {
-                            Text("Select")
+                            Text(stringResource(R.string.select))
                         }
                     }
                 }
@@ -110,7 +112,7 @@ fun ColorPickerContent(
             .padding(16.dp)
     ) {
         Text(
-            text = "Select a Color",
+            text = stringResource(R.string.select_color),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )

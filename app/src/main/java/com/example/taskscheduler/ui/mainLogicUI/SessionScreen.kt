@@ -163,7 +163,7 @@ fun SessionScreen(
                         else {
                             Toast.makeText(
                                 context,
-                                "Cannot create a session that starts after it ends",
+                                R.string.cannot_create_session_ends,
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -172,7 +172,7 @@ fun SessionScreen(
                         Log.d("SessionScreen", "Session starts in past")
                         Toast.makeText(
                             context,
-                            "Cannot create a session that starts in the past.",
+                            R.string.cannot_create_session_past,
                             Toast.LENGTH_LONG
                         ).show()
                     }}},
@@ -266,7 +266,7 @@ fun SessionCreationPage(
 fun DisplaySelectedTasks(
     selectedTasks: List<Task>
 ) {
-    Text("Selected Tasks")
+    Text(stringResource(R.string.selected_tasks))
 
     LazyColumn(
         modifier = Modifier,
@@ -314,8 +314,7 @@ fun convertMinutesToStartEndDates(
     val calendar = Calendar.getInstance()
 
     // --- Create Start Date ---
-    // Use the day from currentStartDate as the base for the new startTime
-    calendar.time = currentStartDate // Set calendar to the day of the existing sessionStartTime
+    calendar.time = currentStartDate
     calendar.set(Calendar.HOUR_OF_DAY, newStartTimeMinutes / 60)
     calendar.set(Calendar.MINUTE, newStartTimeMinutes % 60)
     calendar.set(Calendar.SECOND, 0)
@@ -323,8 +322,7 @@ fun convertMinutesToStartEndDates(
     val resultingStartDate: Date = calendar.time
 
     // --- Create End Date ---
-    // Use the day from currentStartDate as the base initially
-    calendar.time = currentStartDate // Reset to the day of the existing sessionStartTime
+    calendar.time = currentStartDate
     calendar.set(Calendar.HOUR_OF_DAY, newEndTimeMinutes / 60)
     calendar.set(Calendar.MINUTE, newEndTimeMinutes % 60)
     calendar.set(Calendar.SECOND, 0)
@@ -333,9 +331,6 @@ fun convertMinutesToStartEndDates(
     if (newEndTimeMinutes < newStartTimeMinutes) {
         calendar.add(Calendar.DAY_OF_MONTH, 1)
     }
-    // If startTime and endTime are the same, and it's not 00:00 (which could be a 0-minute session)
-    // assume it's a 24-hour session ending on the next day.
-    // Adjust this specific condition (&& newStartTimeMinutes != 0) if 00:00 to 00:00 should always be 24h.
     else if (newEndTimeMinutes == newStartTimeMinutes && newStartTimeMinutes != 0) {
         calendar.add(Calendar.DAY_OF_MONTH, 1)
     }

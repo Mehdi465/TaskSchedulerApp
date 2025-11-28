@@ -26,6 +26,7 @@
 
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
+    <string name="change">Change</string>
     <string name="modify">Modify</string>
 
     <string name="no_session_found">No session found</string>
@@ -49,6 +50,80 @@
 
     <string name="channel_name">Pomodoro Timer Notifications</string>
     <string name="channel_description">Notifications for the Pomodoro timer, showing current phase and time.</string>
+
+    <!-- manager Session Dialog -->
+    <string name="confirm_delete_session">Do you to delete or confirm this session?</string>
+    <string name="confirm">confirm</string>
+    <string name="remove_this_session">Would you like to remove this session, it would be impossible to recover it later</string>
+
+    <!-- Delete Task Dialog -->
+    <string name="are_you_sure">Are you sure you want to delete this task? All records and data will be lost.</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+
+    <!-- Erase data Dialog -->
+    <string name="erase_all_data_">Are you sure you want to delete all datas ?</string>
+
+    <!-- Color Picker Dialog -->
+    <string name="select">Select</string>
+    <string name="select_color">Select a color</string>
+
+    <!-- Task Manager screen -->
+    <string name="no_task">No task</string>
+    <string name="nothing">Nothing</string>
+
+
+    <!-- Settings screen -->
+    <string name="pomodoro_settings">Pomodoro Settings</string>
+    <string name="theme_color">Theme Color</string>
+    <string name="break_time">Break Time</string>
+    <string name="language">Language</string>
+    <string name="current_language">current language</string>
+    <string name="erase_all_data">ERASE ALL DATA</string>
+    <string name="erase">ERASE</string>
+
+
+    <!-- Session screen -->
+    <string name="cannot_create_session_ends">Cannot create a session that starts after it ends</string>
+    <string name="cannot_create_session_past">Cannot create a session that starts in the past</string>
+    <string name="selected_tasks">Selected Tasks</string>
+
+
+    <!-- Tracking screen -->
+    <string name="total_session">Total session</string>
+    <string name="total_duration">Total duration</string>
+    <string name="sessions">sessions</string>
+    <string name="hours">hours</string>
+    <string name="task_per_session">Task per Sessions</string>
+    <string name="tasks">tasks</string>
+    <string name="last_week_sessions">Last week sessions</string>
+    <string name="first_session">First session</string>
+    <string name="last_session">Last session</string>
+    <string name="total_task_done">Total task done</string>
+    <string name="minutes">minutes</string>
+    <string name="most_popular_task">most popular task</string>
+    <string name="last_deleted_tasks">Last deleted tasks</string>
+    <string name="no_task_deleted">No task deleted</string>
+
+
+    <!-- Pomodorro screen -->
+    <string name="no_current_task">No current task</string>
+    <string name="current_task">current task</string>
+    <string name="work_time">Work Time</string>
+    <string name="short_break">Short Break</string>
+    <string name="long_break">Long Break</string>
+    <string name="paused">Paused</string>
+    <string name="stopped">Stopped</string>
+    <string name="start">Start</string>
+    <string name="resume">Resume</string>
+    <string name="pause">Pause</string>
+    <string name="skip">Skip</string>
+    <string name="stop">Stop</string>
+    <string name="cycles">Cycles</string>
+    <string name="current">current</string>
+
+    <!-- Trophies screen-->
+    <string name="trophies">Trophies</string>
 
     <!-- Notification strings -->
     <string name="channel_name_task_reminders">Task Reminders</string>

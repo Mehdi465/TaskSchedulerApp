@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.taskscheduler.R
 import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModel
 
 @Composable
@@ -26,14 +28,14 @@ fun EraseDatabaseDialog(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Are you sure you want to delete all datas ?")
+            Text(stringResource(R.string.erase_all_data_))
             Row(
                 horizontalArrangement = Arrangement.End
             ){
                 Button(
                     onClick = onDismiss
                 ) {
-                    Text("No")
+                    Text(stringResource(R.string.no))
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -41,7 +43,7 @@ fun EraseDatabaseDialog(
                 Button(
                     onClick = onConfirm
                 ) {
-                    Text("Yes")
+                    Text(stringResource(R.string.yes))
                 }
             }
         }

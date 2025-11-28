@@ -267,7 +267,7 @@ fun TaskManagerScreen(
         }
 
         if (tasks.isEmpty()){
-            Text("No tasks")
+            Text(stringResource(R.string.no_task))
         }
         else if (isLoading){
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -302,7 +302,7 @@ private fun TaskListBody(
     ) {
         if (tasks.isEmpty()) {
             Text(
-                text = "Nothing",
+                text = stringResource(R.string.nothing),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(contentPadding),
@@ -547,13 +547,13 @@ fun TaskItem(
                 )
 
                 Text(
-                    text = "Duration: ${task.duration}",
+                    text = stringResource(R.string.duration)+": ${task.duration}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.DarkGray
                 )
 
                 Text(
-                    text = "Priority: ${task.priority}",
+                    text = stringResource(R.string.priority)+": ${task.priority}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.DarkGray
                 )

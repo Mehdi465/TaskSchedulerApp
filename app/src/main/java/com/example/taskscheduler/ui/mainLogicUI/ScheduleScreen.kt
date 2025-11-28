@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -27,6 +29,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -78,10 +81,13 @@ import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.Sha
 import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.SharedSessionPomodoroViewModelFactory
 import com.example.taskscheduler.utils.NotificationUtils
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.collections.get
 import kotlin.math.roundToInt
+import kotlin.text.format
 import kotlin.text.get
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -219,9 +225,9 @@ fun ScheduleScreen(
     ) { innerPadding ->
 
         if (uiState.session == null) { //showDisplaySessionDialogAnswer ||
-            Text(stringResource(R.string.no_session_found))
+            //Text(stringResource(R.string.no_session_found))
+            EmptyScheduleTimeline(modifier = Modifier.padding(innerPadding))
         } else {
-
             TimelineScreen(
                 session = uiState.session!!,
                 modifier = Modifier.padding(innerPadding),
@@ -269,6 +275,7 @@ fun TimelineScreen(session: Session,
     val hapticFeedback = LocalHapticFeedback.current
 
     if (!scheduledTasks.isEmpty()){
+        Log.d("TimelineScreen", "scheduledTask not empty")
         LazyColumn(
             modifier = modifier.fillMaxSize(),
         ) {
@@ -366,7 +373,8 @@ fun TimelineScreen(session: Session,
                                     // Check items above
                                     var accumulatedHeight = 0f
                                     for (i in index - 1 downTo 0) {
-                                        val itemHeight = itemHeights[scheduledTasks[i].instanceId] ?: 0f
+                                        val itemHeight =
+                                            itemHeights[scheduledTasks[i].instanceId] ?: 0f
                                         if (draggedItemCenterY < accumulatedHeight + itemHeight) {
                                             newTargetIndex = i
                                         } else {
@@ -377,10 +385,12 @@ fun TimelineScreen(session: Session,
 
                                     // Check items below
                                     if (newTargetIndex == index) { // Only check below if not already targeted above
-                                        accumulatedHeight = itemHeights[scheduledTasks[index].instanceId]
-                                            ?: 0f // Start with current item's height
+                                        accumulatedHeight =
+                                            itemHeights[scheduledTasks[index].instanceId]
+                                                ?: 0f // Start with current item's height
                                         for (i in index + 1 until scheduledTasks.size) {
-                                            val itemHeight = itemHeights[scheduledTasks[i].instanceId] ?: 0f
+                                            val itemHeight =
+                                                itemHeights[scheduledTasks[i].instanceId] ?: 0f
                                             if (draggedItemCenterY > accumulatedHeight) {
                                                 newTargetIndex = i
                                             } else {
@@ -410,8 +420,78 @@ fun TimelineScreen(session: Session,
             }
         }
     } else {
-        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.no_tasks_scheduled_etc))
+        Log.d("TimelineScreen", "scheduledTask empty")
+    }
+}
+
+/**
+ * A scrollable timeline UI for when the schedule is empty.
+ * It displays a timeline with round hours for the next 12 hours.
+ * If the current time is 7:12, it will start the timeline from 8:00.
+ *
+ * @param modifier The modifier to be applied to the component.
+ */
+@Composable
+fun EmptyScheduleTimeline(modifier: Modifier = Modifier) {
+    val scrollState = rememberScrollState()
+    val timeFormat = remember { SimpleDateFormat("HH:00", Locale.getDefault()) }
+
+    // --- Logic to get the next round hour ---
+    val startCalendar = Calendar.getInstance()
+    // Move to the next hour
+    startCalendar.add(Calendar.HOUR_OF_DAY, 1)
+    // Reset minutes, seconds, and milliseconds to zero
+    startCalendar.set(Calendar.MINUTE, 0)
+    startCalendar.set(Calendar.SECOND, 0)
+    startCalendar.set(Calendar.MILLISECOND, 0)
+    val startTime = startCalendar.time
+    // --- End of logic ---
+
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(horizontal = 16.dp, vertical = 24.dp)
+    ) {
+        // Add a title or introductory text
+        Text(
+            text = "Your schedule is empty",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        // Generate the timeline for the next 12 hours from the rounded start time
+        for (hourOffset in 0..12) {
+            // Calculate the time for the current timeline marker
+            val markerCalendar = Calendar.getInstance()
+            markerCalendar.time = startTime
+            markerCalendar.add(Calendar.HOUR_OF_DAY, hourOffset)
+            val markerTime = markerCalendar.time
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp), // Represents one hour height
+                verticalAlignment = Alignment.Top
+            ) {
+                // Timestamp on the left
+                Text(
+                    text = timeFormat.format(markerTime),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+
+                // Divider line
+                Divider(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp) // Align with the top of the text
+                )
+            }
         }
     }
 }
