@@ -61,7 +61,10 @@ import com.example.taskscheduler.ui.AppViewModelProvider
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.viewModel.tracking.TaskTrackingViewModel
+import com.google.errorprone.annotations.Var
 import kotlin.div
+import kotlin.math.roundToInt
+import kotlin.ranges.random
 import kotlin.times
 
 object TrackingDestination : NavigationDestination {
@@ -123,46 +126,48 @@ fun TrackingContent(
     val mostDoneTrackedTask = trackingViewModel.mostDoneTaskTracked.collectAsState().value
     val deletedTasks = trackingViewModel.deletedTasks.collectAsState().value
 
+    val gammaColor = 0.07f
+
     val listSessionDatas = mutableListOf<@Composable (() -> Unit)>(
         { DashboardTile(stringResource(R.string.total_session), "$countSession", stringResource(R.string.sessions),
-            background = Color.DarkGray) },
+            background = variateColor(gammaColor,Color.DarkGray)) },
         { DashboardTile(stringResource(R.string.total_duration), "%.1f".format((totalDuration*0.001)/(60*60)), stringResource(R.string.hours),
-            background = Color.DarkGray) },
+            background = variateColor(gammaColor,Color.DarkGray)) },
         { DashboardTile(stringResource(R.string.task_per_session), if (countSession == 0) "N/A"
-            else ("%.1f".format(countTask.toDouble()/countSession)), stringResource(R.string.tasks), background = Color.DarkGray) },
+            else ("%.1f".format(countTask.toDouble()/countSession)), stringResource(R.string.tasks), background = variateColor(gammaColor,Color.DarkGray)) },
         { DashboardTile(stringResource(R.string.last_week_sessions), "${lastWeekSessions.size}", stringResource(R.string.sessions),
-            background = Color.DarkGray) },
+            background = variateColor(gammaColor,Color.DarkGray)) },
     )
     if (firstSession != null){
         listSessionDatas.add { DashboardTile(stringResource(R.string.first_session),  "${firstSession.startTime}",
-            stringResource(R.string.sessions), background = Color.DarkGray)  }
+            stringResource(R.string.sessions), background = variateColor(gammaColor,Color.DarkGray))  }
     }
 
     if (lastSession != null){
         listSessionDatas.add { DashboardTile(stringResource(R.string.last_session),  "${lastSession.startTime}",
-            stringResource(R.string.sessions), background = Color.DarkGray)  }
+            stringResource(R.string.sessions), background = variateColor(gammaColor,Color.DarkGray))  }
     }
 
     val listTaskDatas= mutableListOf<@Composable (() -> Unit)>(
         { DashboardTile(stringResource(R.string.total_task_done), "$countTask",
-            stringResource(R.string.tasks), background = Color.DarkGray) },
+            stringResource(R.string.tasks), background = variateColor(gammaColor,Color.DarkGray)) },
         { DashboardTile(stringResource(R.string.total_duration), "${(totalDuration*0.001)/60}",
-            stringResource(R.string.minutes), background = Color.DarkGray) },
+            stringResource(R.string.minutes), background = variateColor(gammaColor,Color.DarkGray)) },
     )
 
     if (mostDoneTrackedTask != null){
         listTaskDatas.add { DashboardTile(stringResource(R.string.most_popular_task)+
-                " : ${mostDoneTask!!.name}", "${mostDoneTrackedTask.taskId}", "", background = Color.DarkGray) }
+                " : ${mostDoneTask!!.name}", "${mostDoneTrackedTask.taskId}", "", background = variateColor(gammaColor,Color.DarkGray)) }
     }
 
     if (deletedTasks.isNotEmpty()){
         val fourthFirstDeletedTasksName = deletedTasks.take(4).joinToString(separator = ", "){ it.name }
         listTaskDatas.add { DashboardWideTile(stringResource(R.string.last_deleted_tasks),
-            fourthFirstDeletedTasksName, "", background = Color.DarkGray) }
+            fourthFirstDeletedTasksName, "", background = variateColor(gammaColor,Color.DarkGray)) }
     }
     else{
         listTaskDatas.add { DashboardTile(stringResource(R.string.no_task_deleted),
-            "☺\uFE0F", "", background = Color.DarkGray) }
+            "☺\uFE0F", "", background = variateColor(gammaColor,Color.DarkGray)) }
     }
 
     Column(
@@ -417,4 +422,38 @@ fun DashboardWideTile(
             }
         }
     }
+}
+
+/**
+ * param in: gamma from 0 to 1, how the color variate from the baseColor, 0 being the baseColor, 1
+ * being random
+ */
+fun variateColor(gamma: Float = 1f, baseColor:Color): Color {
+    // force gamma between 0 and 1
+    val clampedGamma = gamma.coerceIn(0f, 1f)
+
+    val threshold : Int = (clampedGamma*255).roundToInt()
+    val red = baseColor.red
+    val blue = baseColor.blue
+    val green = baseColor.green
+    val alpha = baseColor.alpha
+
+    val redOffset = (-threshold..threshold).random() / 255f
+    val greenOffset = (-threshold..threshold).random() / 255f
+    val blueOffset = (-threshold..threshold).random() / 255f
+    val alphaOffset = (-threshold..threshold).random() / 255f
+
+    val newRed = (red + redOffset).coerceIn(0f, 1f)
+    val newGreen = (green + greenOffset).coerceIn(0f, 1f)
+    val newBlue = (blue + blueOffset).coerceIn(0f, 1f)
+    val newAlpha = (alpha + alphaOffset).coerceIn(0f, 1f)
+
+    Log.d("color","$newRed $newGreen $newBlue $newAlpha")
+
+    return Color(
+        red = newRed,
+        green = newGreen,
+        blue = newBlue,
+        alpha = newAlpha
+    )
 }
