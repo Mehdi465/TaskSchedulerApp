@@ -2,7 +2,6 @@
 
 package com.example.taskscheduler
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
@@ -22,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,14 +33,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.taskscheduler.data.Task
 import com.example.taskscheduler.ui.navigation.TaskAppNavHost
-
-
-enum class TaskScreens(@StringRes val title: Int){
-    Schedule(title = R.string.schedule_screen),
-    TaskManager(title = R.string.task_manager_screen),
-    NewTask(title = R.string.new_task_screen),
-    SessionManager(title = R.string.session_screen)
-}
 
 @Composable
 fun TaskApp(navController: NavHostController = rememberNavController()){
@@ -70,7 +62,13 @@ fun TaskTopAppBar(
                 }
             }
         },
-        actions = actions
+        actions = actions,
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color(0xFF222222),//MaterialTheme.colorScheme.primary,
+//            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+//            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+//            actionIconContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        )
     )
 }
 
@@ -83,7 +81,7 @@ fun BottomAppScheduleBar(
     onClickTrophies : () -> Unit = {}
 ) {
     BottomAppBar(
-        //containerColor = Color.DarkGray
+        containerColor = Color(0xFF222222)
     ) {
         // Schedule
         IconButton(

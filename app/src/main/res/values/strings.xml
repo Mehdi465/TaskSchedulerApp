@@ -72,6 +72,10 @@
     <string name="no_task">No task</string>
     <string name="nothing">Nothing</string>
 
+    <!-- Schedule screen -->
+    <string name="your_schedule_empty">Your schedule is empty</string>
+
+
 
     <!-- Settings screen -->
     <string name="pomodoro_settings">Pomodoro Settings</string>

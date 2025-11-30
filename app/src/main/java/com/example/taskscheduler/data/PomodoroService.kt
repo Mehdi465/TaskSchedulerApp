@@ -36,8 +36,8 @@ private val LONG_BREAK_DURATION_MILLIS = 15 * 60 * 1000L // 15 minutes
 private val CYCLES_BEFORE_LONG_BREAK = 4
 
 // defaults values if datastore is empty
-private val DEFAULT_WORK_DURATION = 25
-private val DEFAULT_BREAK_DURATION = 5
+private val DEFAULT_WORK_DURATION = 25L
+private val DEFAULT_BREAK_DURATION = 5L
 private val DEFAULT_LONG_BREAK_DURATION = 15
 private val DEFAULT_CYCLES_BEFORE_LONG_BREAK = 4
 
@@ -46,7 +46,10 @@ data class PomodoroState(
     val phase: PomodoroPhase = PomodoroPhase.STOPPED,
     val timeLeftMillis: Long = WORK_DURATION_MILLIS,
     val totalCycles: Int = 0,
-    val currentCycle: Int = 0
+    val currentCycle: Int = 0,
+    var brakeDuration: Long = DEFAULT_WORK_DURATION,
+    var workDuration: Long = DEFAULT_BREAK_DURATION
+    // TODO add long work time
 )
 
 enum class PomodoroPhase {
@@ -163,36 +166,38 @@ class PomodoroService : LifecycleService() {
 
         settingsRepository = (applicationContext as TaskApplication).settingsRepository
 
-            Log.d("PomodoroService", "ACTION_REFRESH_SETTINGS_AND_STATE received")
-            // Launch a coroutine to fetch all current settings and update internal state
-            lifecycleScope.launch {
-                val workDuration = settingsRepository.pomodoroWorkDuration.first() * 60 * 1000L
-                val breakDuration = settingsRepository.pomodoroBreakDuration.first() * 60 * 1000L
-                // TODO
-                //val longBreakDuration = settingsRepository. * 60 * 1000L
-                //val cyclesForLongBreak = settingsRepository.pomodoroCyclesBeforeLongBreak.first()
+        Log.d("PomodoroService", "ACTION_REFRESH_SETTINGS_AND_STATE received")
+        // Launch a coroutine to fetch all current settings and update internal state
+        lifecycleScope.launch {
+            val workDuration = settingsRepository.pomodoroWorkDuration.first() * 60 * 1000L
+            val breakDuration = settingsRepository.pomodoroBreakDuration.first() * 60 * 1000L
+            // TODO
+            //val longBreakDuration = settingsRepository. * 60 * 1000L
+            //val cyclesForLongBreak = settingsRepository.pomodoroCyclesBeforeLongBreak.first()
 
-                // Update internal service StateFlows
-                _workDurationMillis.value = workDuration
-                _breakDurationMillis.value = breakDuration
+            // Update internal service StateFlows
+            _workDurationMillis.value = workDuration
+            _breakDurationMillis.value = breakDuration
+            pomodoroState.value.brakeDuration = breakDuration
+            pomodoroState.value.workDuration = workDuration
 
-                // TODO
-                //_longBreakDurationMillis.value = longBreakDuration
-                //_cyclesBeforeLongBreak.value = cyclesForLongBreak
+            // TODO
+            //_longBreakDurationMillis.value = longBreakDuration
+            //_cyclesBeforeLongBreak.value = cyclesForLongBreak
 
-                // If the timer is currently stopped, update its timeLeft to the new work duration
-                if (_pomodoroState.value.phase == PomodoroPhase.STOPPED) {
-                    _pomodoroState.value = _pomodoroState.value.copy(
-                        timeLeftMillis = workDuration
-                        // Potentially reset cycles too if this implies a full reset for UI display
-                        // currentCycle = 0,
-                        // totalCycles = 0
-                    )
-                }
-                Log.d("PomodoroService", "Settings refreshed. Work: $workDuration, Break: $breakDuration")
-                Log.d("PomodoroService", "Current pomodoroState after refresh: ${_pomodoroState.value}")
-
+            // If the timer is currently stopped, update its timeLeft to the new work duration
+            if (_pomodoroState.value.phase == PomodoroPhase.STOPPED) {
+                _pomodoroState.value = _pomodoroState.value.copy(
+                    timeLeftMillis = workDuration
+                    // Potentially reset cycles too if this implies a full reset for UI display
+                    // currentCycle = 0,
+                    // totalCycles = 0
+                )
             }
+            Log.d("PomodoroService", "Settings refreshed. Work: $workDuration, Break: $breakDuration")
+            Log.d("PomodoroService", "Current pomodoroState after refresh: ${_pomodoroState.value}")
+
+        }
 
     }
 

@@ -1,5 +1,6 @@
 package com.example.taskscheduler.ui.mainLogicUI
 
+import android.R.attr.bottom
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -454,16 +455,16 @@ fun EmptyScheduleTimeline(modifier: Modifier = Modifier) {
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
-        // Add a title or introductory text
         Text(
-            text = "Your schedule is empty",
+            text = stringResource(R.string.your_schedule_empty),
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 24.dp)
+                .align(Alignment.CenterHorizontally)
         )
 
-        // Generate the timeline for the next 12 hours from the rounded start time
+        // display 12 hours for empty schedule
         for (hourOffset in 0..12) {
-            // Calculate the time for the current timeline marker
+            // get current time
             val markerCalendar = Calendar.getInstance()
             markerCalendar.time = startTime
             markerCalendar.add(Calendar.HOUR_OF_DAY, hourOffset)
@@ -472,10 +473,10 @@ fun EmptyScheduleTimeline(modifier: Modifier = Modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp), // Represents one hour height
+                    .height(60.dp),
                 verticalAlignment = Alignment.Top
             ) {
-                // Timestamp on the left
+                // timestamp on the left
                 Text(
                     text = timeFormat.format(markerTime),
                     style = MaterialTheme.typography.bodySmall,

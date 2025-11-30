@@ -448,8 +448,6 @@ fun variateColor(gamma: Float = 1f, baseColor:Color): Color {
     val newBlue = (blue + blueOffset).coerceIn(0f, 1f)
     val newAlpha = (alpha + alphaOffset).coerceIn(0f, 1f)
 
-    Log.d("color","$newRed $newGreen $newBlue $newAlpha")
-
     return Color(
         red = newRed,
         green = newGreen,
