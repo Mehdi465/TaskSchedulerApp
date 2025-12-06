@@ -95,7 +95,7 @@ data class ScheduledTask(
             var currentDuration = Duration.ZERO
 
             // add mandatory tasks
-            var index : Int = 0
+            var index = 0
             while (currentDuration < sessionDuration && index < mandatoryTasks.size) {
                 pickedTasks.add(mandatoryTasks[index])
                 currentDuration = addDuration(currentDuration,mandatoryTasks[index].duration)

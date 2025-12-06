@@ -26,30 +26,20 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-// viewmodel to extract datastore settings info
-
-
 //constants for Pomodoro durations (in milliseconds)
-private val WORK_DURATION_MILLIS = 23 * 60 * 1000L // 25 minutes
-private val BREAK_DURATION_MILLIS = 52 * 60 * 1000L // 5 minutes
-private val LONG_BREAK_DURATION_MILLIS = 15 * 60 * 1000L // 15 minutes
-private val CYCLES_BEFORE_LONG_BREAK = 4
+private val WORK_DURATION_MILLIS = 25 * 60 * 1000L // 25 minutes
+private val BREAK_DURATION_MILLIS = 5 * 60 * 1000L // 5 minutes
 
 // defaults values if datastore is empty
 private val DEFAULT_WORK_DURATION = 25L
 private val DEFAULT_BREAK_DURATION = 5L
-private val DEFAULT_LONG_BREAK_DURATION = 15
-private val DEFAULT_CYCLES_BEFORE_LONG_BREAK = 4
 
 // data class to hold the current state of our Pomodoro timer
 data class PomodoroState(
     val phase: PomodoroPhase = PomodoroPhase.STOPPED,
     val timeLeftMillis: Long = WORK_DURATION_MILLIS,
-    val totalCycles: Int = 0,
-    val currentCycle: Int = 0,
-    var brakeDuration: Long = DEFAULT_WORK_DURATION,
-    var workDuration: Long = DEFAULT_BREAK_DURATION
-    // TODO add long work time
+    var brakeDuration: Long = DEFAULT_BREAK_DURATION,
+    var workDuration: Long = DEFAULT_WORK_DURATION
 )
 
 enum class PomodoroPhase {
@@ -64,11 +54,12 @@ class PomodoroService : LifecycleService() {
     private val _pomodoroState = MutableStateFlow(PomodoroState())
     val pomodoroState: StateFlow<PomodoroState> = _pomodoroState.asStateFlow()
 
-    private var initialTimeLeft: Long = 0L // To resume from pause
+    // to indicate where to go after a pause
+    private var phaseBeforePause: PomodoroPhase? = null
+
+    private var initialTimeLeft: Long = DEFAULT_WORK_DURATION
     private val _workDurationMillis = MutableStateFlow(WORK_DURATION_MILLIS )
     private val _breakDurationMillis = MutableStateFlow(BREAK_DURATION_MILLIS)
-    private val _longBreakDurationMillis = MutableStateFlow(LONG_BREAK_DURATION_MILLIS)
-    private val _cyclesBeforeLongBreak = MutableStateFlow(CYCLES_BEFORE_LONG_BREAK)
 
     private lateinit var settingsRepository: SettingsRepository
 
@@ -92,37 +83,33 @@ class PomodoroService : LifecycleService() {
         settingsRepository = (applicationContext as TaskApplication).settingsRepository
         createNotificationChannel()
 
-        lifecycleScope.launch {
-            settingsRepository.pomodoroBreakDuration.collect { breakDuration ->
-                Log.d("PomodoroServiceOUAAA", "Break duration updated from DataStore: $breakDuration")
-            }
-        }
+//        lifecycleScope.launch {
+//            settingsRepository.pomodoroBreakDuration.collect { breakDuration ->
+//                Log.d("PomodoroServiceOUAAA", "Break duration updated from DataStore: $breakDuration")
+//            }
+//        }
 
         // Collect settings from DataStore using lifecycleScope
-        lifecycleScope.launch {
-            settingsRepository.pomodoroWorkDuration
-                //.map { it * 60 * 1000L } // Convert minutes to millis
-                .collect { duration ->
-                    Log.d("PomodoroService", "Work duration updated from DataStore: $duration minutes")
-                    _workDurationMillis.value = duration * 60 * 1000L
-                    // If no timer is running and state is STOPPED, update initial timeLeft
-                    if (_pomodoroState.value.phase == PomodoroPhase.STOPPED) {
-                        _pomodoroState.value = _pomodoroState.value.copy(timeLeftMillis = duration* 60 * 1000L)
-                    }
-                }
-        }
-        lifecycleScope.launch {
-            settingsRepository.pomodoroBreakDuration
-                //.map { it * 60 * 1000L }
-                .collect {
-                    Log.d("PomodoroService", "Break duration updated from DataStore: $it minutes")
-                    _breakDurationMillis.value = it * 60 * 1000L
-                }
-        }
-
-        // TODO: add long break and cycles
-
-
+//        lifecycleScope.launch {
+//            settingsRepository.pomodoroWorkDuration
+//                //.map { it * 60 * 1000L } // Convert minutes to millis
+//                .collect { duration ->
+//                    Log.d("PomodoroService", "Work duration updated from DataStore: $duration minutes")
+//                    _workDurationMillis.value = DEFAULT_WORK_DURATION * 60 * 1000L
+//                    // If no timer is running and state is STOPPED, update initial timeLeft
+//                    if (_pomodoroState.value.phase == PomodoroPhase.STOPPED) {
+//                        _pomodoroState.value = _pomodoroState.value.copy(timeLeftMillis = duration* 60 * 1000L)
+//                    }
+//                }
+//        }
+//        lifecycleScope.launch {
+//            settingsRepository.pomodoroBreakDuration
+//                //.map { it * 60 * 1000L }
+//                .collect {
+//                    Log.d("PomodoroService", "Break duration updated from DataStore: $it minutes")
+//                    _breakDurationMillis.value = DEFAULT_BREAK_DURATION * 60 * 1000L
+//                }
+//        }
         // To set an initial state correctly if the service is created fresh
         lifecycleScope.launch {
             _pomodoroState.value = PomodoroState(timeLeftMillis = _workDurationMillis.value)
@@ -147,8 +134,6 @@ class PomodoroService : LifecycleService() {
                 _pomodoroState.value = PomodoroState( // Reset to a fresh work session
                     phase = PomodoroPhase.WORK,
                     timeLeftMillis = currentWorkDurationToUse,
-                    currentCycle = 0,
-                    totalCycles = 0
                 )
                 startTimer(_pomodoroState.value.phase, _pomodoroState.value.timeLeftMillis)
             }
@@ -159,7 +144,15 @@ class PomodoroService : LifecycleService() {
         }
         // This ensures the service restarts if it's killed by the system
         // and re-delivers the last intent. Good for long-running services.
-        return START_STICKY
+        return START_NOT_STICKY
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        Log.d("PomodoroService", "Task removed by user. Stopping timer and service.")
+        // Call the same stop function that the stop button uses.
+        // This will reset the state, stop the foreground service, and stop the service itself.
+        stopTimer()
     }
 
     fun refreshPomodoroState() {
@@ -169,17 +162,17 @@ class PomodoroService : LifecycleService() {
         Log.d("PomodoroService", "ACTION_REFRESH_SETTINGS_AND_STATE received")
         // Launch a coroutine to fetch all current settings and update internal state
         lifecycleScope.launch {
-            val workDuration = settingsRepository.pomodoroWorkDuration.first() * 60 * 1000L
-            val breakDuration = settingsRepository.pomodoroBreakDuration.first() * 60 * 1000L
+            val workDuration = DEFAULT_WORK_DURATION
+            val breakDuration = DEFAULT_BREAK_DURATION
             // TODO
             //val longBreakDuration = settingsRepository. * 60 * 1000L
             //val cyclesForLongBreak = settingsRepository.pomodoroCyclesBeforeLongBreak.first()
 
             // Update internal service StateFlows
-            _workDurationMillis.value = workDuration
-            _breakDurationMillis.value = breakDuration
-            pomodoroState.value.brakeDuration = breakDuration
-            pomodoroState.value.workDuration = workDuration
+            _workDurationMillis.value = DEFAULT_WORK_DURATION
+            _breakDurationMillis.value = DEFAULT_BREAK_DURATION
+            pomodoroState.value.brakeDuration = DEFAULT_BREAK_DURATION
+            pomodoroState.value.workDuration = DEFAULT_WORK_DURATION
 
             // TODO
             //_longBreakDurationMillis.value = longBreakDuration
@@ -218,10 +211,7 @@ class PomodoroService : LifecycleService() {
 
     private fun startTimer(phase: PomodoroPhase, duration: Long) {
         stopTimerJob() // Stop any existing timer
-        _pomodoroState.value = PomodoroState(phase = phase, timeLeftMillis = duration,
-            totalCycles = _pomodoroState.value.totalCycles, // Keep previous cycles
-            currentCycle = _pomodoroState.value.currentCycle // Keep previous cycle count
-        )
+        _pomodoroState.value = PomodoroState(phase = phase, timeLeftMillis = duration)
         initialTimeLeft = duration
         startCountingDown()
         startForeground(NOTIFICATION_ID, buildNotification()) // Promote to foreground
@@ -230,6 +220,7 @@ class PomodoroService : LifecycleService() {
 
     private fun pauseTimer() {
         stopTimerJob()
+        phaseBeforePause = _pomodoroState.value.phase
         _pomodoroState.value = _pomodoroState.value.copy(phase = PomodoroPhase.PAUSED)
         updateNotification() // Update notification to show paused state
         Log.d("PomodoroService", "Timer paused at ${_pomodoroState.value.timeLeftMillis} ms")
@@ -237,7 +228,12 @@ class PomodoroService : LifecycleService() {
 
     private fun resumeTimer() {
         if (_pomodoroState.value.phase == PomodoroPhase.PAUSED) {
-            _pomodoroState.value = _pomodoroState.value.copy(phase = PomodoroPhase.WORK)
+            if (phaseBeforePause == PomodoroPhase.WORK) {
+                _pomodoroState.value = _pomodoroState.value.copy(phase = PomodoroPhase.WORK)
+            }
+            else {
+                _pomodoroState.value = _pomodoroState.value.copy(phase = PomodoroPhase.BREAK)
+            }
             startTimer(_pomodoroState.value.phase, _pomodoroState.value.timeLeftMillis)
             Log.d("PomodoroService", "Timer resumed")
         }
@@ -255,11 +251,8 @@ class PomodoroService : LifecycleService() {
         val currentState = _pomodoroState.value
         val nextPhaseAndDuration = getNextPhaseAndDuration(
             currentState.phase,
-            currentState.currentCycle,
-            currentState.totalCycles
         )
         // Reset current cycle count if skipping a work phase before it completes and moves to break
-        val newCurrentCycle = if (currentState.phase == PomodoroPhase.WORK) currentState.currentCycle else currentState.currentCycle
 
         startTimer(nextPhaseAndDuration.first, nextPhaseAndDuration.second)
         Log.d("PomodoroService", "Phase skipped. Next: ${nextPhaseAndDuration.first}")
@@ -287,34 +280,18 @@ class PomodoroService : LifecycleService() {
 
     private fun handlePhaseCompletion() {
         val currentState = _pomodoroState.value
-        val newTotalCycles = if (currentState.phase == PomodoroPhase.WORK) currentState.totalCycles + 1 else currentState.totalCycles
-        val newCurrentCycle = if (currentState.phase == PomodoroPhase.WORK) currentState.currentCycle + 1 else currentState.currentCycle
 
-        val nextPhaseAndDuration = getNextPhaseAndDuration(currentState.phase, newCurrentCycle, newTotalCycles)
+        val nextPhaseAndDuration = getNextPhaseAndDuration(currentState.phase)
 
-        // Reset current cycle count if a long break just finished or if a cycle of 4 just completed
-        val resetCycleAfterLongBreak = if (nextPhaseAndDuration.first == PomodoroPhase.WORK && currentState.phase == PomodoroPhase.LONG_BREAK) 0 else newCurrentCycle
-
-        _pomodoroState.value = _pomodoroState.value.copy(
-            totalCycles = newTotalCycles,
-            currentCycle = resetCycleAfterLongBreak
-        )
-        Log.d("PomodoroService", "Phase completed: ${currentState.phase}. Next: ${nextPhaseAndDuration.first}. Total cycles: $newTotalCycles, Current cycle: $resetCycleAfterLongBreak")
-
-        // Play a sound or vibrate here to notify the user
-        // You would typically use an AudioManager and Vibrator service for this.
+        _pomodoroState.value = _pomodoroState.value.copy()
 
         startTimer(nextPhaseAndDuration.first, nextPhaseAndDuration.second)
     }
 
-    private fun getNextPhaseAndDuration(currentPhase: PomodoroPhase, currentCycle: Int, totalCycles: Int): Pair<PomodoroPhase, Long> {
+    private fun getNextPhaseAndDuration(currentPhase: PomodoroPhase): Pair<PomodoroPhase, Long> {
         return when (currentPhase) {
             PomodoroPhase.WORK -> {
-                if (currentCycle % CYCLES_BEFORE_LONG_BREAK == 0 && currentCycle > 0) {
-                    Pair(PomodoroPhase.LONG_BREAK, LONG_BREAK_DURATION_MILLIS)
-                } else {
-                    Pair(PomodoroPhase.BREAK, BREAK_DURATION_MILLIS)
-                }
+                Pair(PomodoroPhase.BREAK, BREAK_DURATION_MILLIS)
             }
             PomodoroPhase.BREAK, PomodoroPhase.LONG_BREAK -> {
                 Pair(PomodoroPhase.WORK, WORK_DURATION_MILLIS)

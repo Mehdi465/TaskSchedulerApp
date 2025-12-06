@@ -45,7 +45,7 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setPomodoroWorkDuration(durationMinutes: Int) {
         dataStore.edit { preferences ->
-            preferences[UserPreferencesKeys.POMODORO_WORK_DURATION] = durationMinutes
+            //preferences[UserPreferencesKeys.POMODORO_WORK_DURATION] = durationMinutes
         }
     }
 

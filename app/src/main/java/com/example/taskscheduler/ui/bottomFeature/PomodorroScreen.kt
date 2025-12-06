@@ -175,6 +175,7 @@ fun PomodoroScreen(
     }
 
     val pomodoroState by viewModel.pomodoroState.collectAsStateWithLifecycle()
+    Log.d("PomodoroScreen", "PomodoroState: ${pomodoroState.timeLeftMillis}")
 
     Column(
         modifier = Modifier
@@ -254,12 +255,12 @@ fun PomodoroScreen(
                 Text(stringResource(R.string.stop))
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = stringResource(R.string.cycles)+"${pomodoroState.totalCycles}"+ stringResource(R.string.current) +"${pomodoroState.currentCycle})",
-            fontSize = 16.sp,
-            style = MaterialTheme.typography.bodyLarge
-        )
+//        Spacer(modifier = Modifier.height(16.dp))
+//        Text(
+//            text = stringResource(R.string.cycles)+"${pomodoroState.totalCycles}"+ stringResource(R.string.current) +"${pomodoroState.currentCycle})",
+//            fontSize = 16.sp,
+//            style = MaterialTheme.typography.bodyLarge
+//        )
 
     }
 }
@@ -296,6 +297,7 @@ fun PomodoroContent(
     var currentTaskDuration = "No duration"
     var currentTaskicon : String? = Icons.Default.Close.toString()
     var currentTaskColor = Color(0xFF222222)
+    //var taskEndTime : Date = "N/A"
 
     // if a session is active
     if (session != null && !session.isSessionFinished() && compareTime(currentTime,session.startTime)){
@@ -304,6 +306,7 @@ fun PomodoroContent(
         currentTaskDuration = "${session.getCurrentTask()!!.duration}"
         currentTaskicon = session.getCurrentTask()!!.task!!.icon
         currentTaskColor = session.getCurrentTask()!!.task!!.color
+
     }
     val viewModel: PomodoroViewModel = viewModel()
     val context = LocalContext.current
@@ -319,12 +322,22 @@ fun PomodoroContent(
 
     val pomodoroState by viewModel.pomodoroState.collectAsStateWithLifecycle()
 
-    var totalTime = if (pomodoroState.phase == PomodoroPhase.WORK) pomodoroState.workDuration
-                    else if (pomodoroState.phase == PomodoroPhase.BREAK) pomodoroState.brakeDuration
-                    else //do nothing
+    var totalTime by remember { mutableLongStateOf(pomodoroState.workDuration.toLong()) }
+    LaunchedEffect(pomodoroState.phase) {
+        when (pomodoroState.phase) {
+            PomodoroPhase.WORK, PomodoroPhase.STOPPED -> {
+                totalTime = pomodoroState.workDuration.toLong()
+            }
+            PomodoroPhase.BREAK, PomodoroPhase.LONG_BREAK -> {
+                totalTime = pomodoroState.brakeDuration.toLong()
+            }
+            PomodoroPhase.PAUSED -> {
+                // do nothing, take old value
+            }
+        }
+    }
 
     Scaffold(
-        //containerColor = Color.White,
     ) { padding ->
         Column(
             modifier = Modifier
@@ -353,7 +366,9 @@ fun PomodoroContent(
                 modifier = Modifier.size(300.dp) // Size of the ring area
             ) {
                 // Determine progress (0.0 to 1.0)
-                val progress = pomodoroState.timeLeftMillis.toFloat() / totalTime.toFloat()
+                val progress = pomodoroState.timeLeftMillis.toFloat() / (totalTime*60*1000).toFloat()
+                Log.d("PomodoroService", "current Time : ${pomodoroState.timeLeftMillis.toFloat()} \n Total Time: ${totalTime*60*1000}")
+                Log.d("PomodoroService", "Progress: $progress")
 
                 TimerRing(
                     progress = progress,
@@ -368,13 +383,13 @@ fun PomodoroContent(
                         fontWeight = FontWeight.Bold,
                         color = LightGrey
                     )
-                    Text(
-                        text = stringResource(R.string.cycles)+" ${pomodoroState.totalCycles} "+
-                                stringResource(R.string.current) +" ${pomodoroState.currentCycle}",
-                        fontSize = 16.sp,
-                        color = SubText,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+//                    Text(
+//                        text = stringResource(R.string.cycles)+" ${pomodoroState.totalCycles} "+
+//                                stringResource(R.string.current) +" ${pomodoroState.currentCycle}",
+//                        fontSize = 16.sp,
+//                        color = SubText,
+//                        modifier = Modifier.padding(top = 8.dp)
+//                    )
                 }
             }
 
@@ -394,7 +409,6 @@ fun PomodoroContent(
             Spacer(modifier = Modifier.height(20.dp))
 
             // --- CONTROL BUTTONS ---
-            // 4. Three Buttons: Start/Pause logic included
             ControlBar(
                 onRedo = {
                     viewModel.skipPhase()
@@ -402,7 +416,11 @@ fun PomodoroContent(
                 onTogglePlayPause = {
                     if (pomodoroState.phase == PomodoroPhase.PAUSED) {
                         viewModel.resumeTimer()
-                    } else {
+                    }
+                    else if (pomodoroState.phase == PomodoroPhase.STOPPED){
+                        viewModel.startTimer()
+                    }
+                    else {
                         viewModel.pauseTimer()
                     }
                 },
@@ -414,7 +432,6 @@ fun PomodoroContent(
                 },
                 currentPomodoroPhase = pomodoroState.phase
             )
-
             Spacer(modifier = Modifier.height(50.dp))
         }
     }

@@ -374,7 +374,7 @@ fun DashboardTile(
                     text = value,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.LightGray
                 )
                 Text(text = unit, fontSize = 14.sp, color = Color.Gray)
             }
