@@ -106,4 +106,6 @@ dependencies {
 
     // Gson
     implementation("com.google.code.gson:gson:2.13.1")
+
+    implementation("co.yml:ycharts:2.1.0")
 }

@@ -32,6 +32,10 @@ class TaskTrackingViewModel(
         .stateIn(viewModelScope,
             SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val allTasksTracking : StateFlow<List<TaskTracking>> = taskTrackingRepository.getAllTasksTrackingStream()
+        .stateIn(viewModelScope,
+            SharingStarted.WhileSubscribed(5000), emptyList())
+
     fun getTask(taskId: Int) = taskRepository.getTasksByIds(listOf(taskId))
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TaskTrackingDao {
 
-    @Query("SELECT * FROM task_Tracking")
+    @Query("SELECT * FROM task_Tracking ORDER by timesCompleted DESC")
     fun getAllTaskTracking(): Flow<List<TaskTracking>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

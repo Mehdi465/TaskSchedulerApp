@@ -108,7 +108,7 @@
     <string name="most_popular_task">most popular task</string>
     <string name="last_deleted_tasks">Last deleted tasks</string>
     <string name="no_task_deleted">No task deleted</string>
-
+    <string name="top_5_most_completed_tasks">Top 5 most completed tasks</string>
 
     <!-- Pomodorro screen -->
     <string name="no_current_task">No current task</string>

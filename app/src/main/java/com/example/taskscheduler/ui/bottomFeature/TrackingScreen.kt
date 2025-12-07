@@ -1,15 +1,12 @@
 package com.example.taskscheduler.ui.bottomFeature
 
 import android.util.Log
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,9 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -49,23 +47,37 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.set
 import androidx.lifecycle.viewmodel.compose.viewModel
+import co.yml.charts.axis.AxisData
+import co.yml.charts.axis.DataCategoryOptions
+import co.yml.charts.common.model.Point
+import co.yml.charts.common.utils.DataUtils
+import co.yml.charts.ui.barchart.BarChart
+import co.yml.charts.ui.barchart.models.BarChartData
+import co.yml.charts.ui.barchart.models.BarChartType
+import co.yml.charts.ui.barchart.models.BarData
+import co.yml.charts.ui.barchart.models.BarStyle
 import com.example.taskscheduler.BottomAppScheduleBar
 import com.example.taskscheduler.R
 import com.example.taskscheduler.TaskTopAppBar
 import com.example.taskscheduler.data.Task
+import com.example.taskscheduler.data.TaskTracking
 import com.example.taskscheduler.ui.AppViewModelProvider
 import com.example.taskscheduler.ui.navigation.NavigationDestination
 import com.example.taskscheduler.ui.theme.Dimens
 import com.example.taskscheduler.ui.viewModel.tracking.TaskTrackingViewModel
 import com.google.errorprone.annotations.Var
+import kotlin.Boolean
 import kotlin.div
 import kotlin.math.roundToInt
 import kotlin.ranges.random
-import kotlin.times
+import kotlin.text.toFloat
+
 
 object TrackingDestination : NavigationDestination {
     override val route = "monitoring"
@@ -126,7 +138,14 @@ fun TrackingContent(
     val mostDoneTrackedTask = trackingViewModel.mostDoneTaskTracked.collectAsState().value
     val deletedTasks = trackingViewModel.deletedTasks.collectAsState().value
 
+    val allTasks by trackingViewModel.allTasks.collectAsState(initial = emptyList())
+    val allTasksTracking by trackingViewModel.allTasksTracking.collectAsState(initial = emptyList())
+
+
     val gammaColor = 0.07f
+
+    // test example for labels on the X-axis
+    val xLabels = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
 
     val listSessionDatas = mutableListOf<@Composable (() -> Unit)>(
         { DashboardTile(stringResource(R.string.total_session), "$countSession", stringResource(R.string.sessions),
@@ -152,7 +171,7 @@ fun TrackingContent(
         { DashboardTile(stringResource(R.string.total_task_done), "$countTask",
             stringResource(R.string.tasks), background = variateColor(gammaColor,Color.DarkGray)) },
         { DashboardTile(stringResource(R.string.total_duration), "${(totalDuration*0.001)/60}",
-            stringResource(R.string.minutes), background = variateColor(gammaColor,Color.DarkGray)) },
+            stringResource(R.string.minutes), background = variateColor(gammaColor,Color.DarkGray)) }
     )
 
     if (mostDoneTrackedTask != null){
@@ -170,10 +189,24 @@ fun TrackingContent(
             "☺\uFE0F", "", background = variateColor(gammaColor,Color.DarkGray)) }
     }
 
+    listTaskDatas.add {
+        val backgroundColor = variateColor(gammaColor, Color.DarkGray)
+        DashboardWideTileGraph(
+            title = "",//stringResource(R.string.top_5_most_completed_tasks),
+            background = backgroundColor
+        ) {
+            TopTasksBarChart(
+                allTasks = allTasks,
+                allTaskTrackings = allTasksTracking,
+                backgroundColor = backgroundColor
+            )
+        }
+    }
+
     Column(
         modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp),
+            .fillMaxWidth()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.padding(Dimens.skipTopBar))
@@ -273,10 +306,12 @@ fun DashboardGrid(
     spacing: Dp = 12.dp,
     tiles: List<@Composable () -> Unit>
 ) {
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(spacing),
+            .padding(spacing)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
         val processedTiles = mutableListOf<List<@Composable () -> Unit>>()
@@ -342,6 +377,7 @@ fun DashboardGrid(
                 }
             }
         }
+        Spacer(modifier = Modifier.padding(Dimens.skipBottomBar))
     }
 }
 
@@ -393,7 +429,9 @@ fun DashboardWideTile(
     background: Color = Color(0xFFE8F5E9)
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().height(120.dp), // Use fillMaxWidth and a fixed or intrinsic height
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp), // Use fillMaxWidth and a fixed or intrinsic height
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = background),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -425,6 +463,200 @@ fun DashboardWideTile(
 }
 
 /**
+ * A rectangular dashboard tile designed to host a graph or other custom composable content.
+ * It provides a title and a consistent card background.
+ *
+ * @param title The title to display at the top of the tile.
+ * @param background The background color of the tile.
+ * @param modifier Modifier for the Card.
+ * @param content The composable content (e.g., a chart) to display inside the tile.
+ */
+@Composable
+fun DashboardWideTileGraph(
+    title: String,
+    background: Color = Color(0xFF333333), // A default dark background
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min), // Height will adapt to its content
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = background),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.LightGray,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            content()
+        }
+    }
+}
+
+/**
+ * Processes task data and displays a bar chart of the top 5 most completed tasks.
+ *
+ * @param allTasks The list of all Task objects to find names.
+ * @param allTaskTrackings The list of all tracking data.
+ */
+@Composable
+fun TopTasksBarChart(
+    allTasks: List<Task>,
+    allTaskTrackings: List<TaskTracking>,
+    backgroundColor: Color
+) {
+    // select most task done with their names
+    val top5TaskTracking = allTaskTrackings.subList(0,5)
+    val topTasksData : MutableList<Pair<String,Int>> = mutableListOf() // list pair of name,timeCompleted
+    for (taskTracking in top5TaskTracking) {
+        for (task in allTasks) {
+            if (taskTracking.taskId == task.id) {
+                topTasksData.add(Pair(task.name, taskTracking.timesCompleted))
+            }
+        }
+    }
+
+    for (task in allTaskTrackings){
+        Log.d("TopTasksBarChart", "Task: ${task.taskId}, Count: ${task.timesCompleted}")
+    }
+
+    // show a message if there's no data to display
+    if (topTasksData.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp), contentAlignment = Alignment.Center
+        ) {
+            Text("No task data available.", color = Color.Gray)
+        }
+        return
+    }
+
+    val names = topTasksData.map { it.first }
+    val values = topTasksData.map { it.second }
+
+    // convert data into YCharts' BarData format
+    val barData: List<BarData> = remember(values) {
+        values.mapIndexed { index, value ->
+            BarData(point = Point(x = index.toFloat(), y = value.toFloat()))
+        }
+    }
+
+    val yAxisMaxValue = remember(values) { (values.maxOrNull() ?: 0) * 5.2f } // Add 20% padding
+
+    // configure X and Y axes
+    var xAxisData = AxisData.Builder()
+        .startPadding(20.dp)
+        .axisStepSize(50.dp)
+        .steps(names.size - 1)
+        .bottomPadding(10.dp)
+        .axisLabelAngle(20f)
+        .labelData { index -> names.getOrElse(index) { "" } }
+        .axisLineColor(Color.Gray)
+        .axisLabelColor(Color.Gray)
+        .build()
+
+
+    val yAxisData = AxisData.Builder()
+        .steps(4) // 4 lines on the Y axis
+        .labelAndAxisLinePadding(20.dp)
+        .labelData { index ->
+            val value = (index.toFloat() / 4f) * yAxisMaxValue
+            "%.0f".format(value)
+        }
+        .axisLineColor(Color.Gray)
+        .axisLabelColor(Color.Gray)
+        .build()
+
+    // create the final BarChartData object
+    val finalBarChartData = BarChartData(
+        chartData = barData,
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        barStyle = BarStyle(
+            barWidth = 25.dp,
+            paddingBetweenBars = 20.dp,
+            isGradientEnabled = true,
+        ),
+        backgroundColor = backgroundColor
+    )
+
+    // display chart
+    BarChart(modifier = Modifier
+        .height(250.dp)
+        .background(color = backgroundColor),
+         barChartData = finalBarChartData
+        )
+}
+
+
+@Composable
+fun BarChartScreen() {
+    val names = listOf("Task A", "Task B", "Task C", "Task D", "Task E")
+    val values = listOf(10, 20, 30, 15, 25)
+
+    val barData: List<BarData> = remember(values) {
+        values.mapIndexed { index, value ->
+            BarData(
+                point = Point(
+                    x = index.toFloat(),
+                    y = value.toFloat()
+                ),
+            )
+        }
+    }
+
+    val yAxisMaxValue = remember(values) {
+        (values.maxOrNull() ?: 0) + 1 // give padding on top
+    }
+
+    val xAxisData = AxisData.Builder()
+        .axisStepSize(40.dp)
+        .steps(names.size - 1)
+        .bottomPadding(10.dp)
+        .axisLabelAngle(25f)
+        .labelData { index -> names.getOrElse(index) { "" } }
+        .build()
+
+    val yAxisData = AxisData.Builder()
+        .steps(5)
+        .labelAndAxisLinePadding(20.dp)
+        .axisOffset(0.dp)
+        .labelData { index ->
+            val value = (index.toFloat() / 5f) * yAxisMaxValue
+            "%.0f".format(value)
+        }
+        .build()
+
+    val barChartData = BarChartData(
+        chartData = barData,
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        barStyle = BarStyle(
+            barWidth = 25.dp,
+            paddingBetweenBars = 15.dp
+        ),
+        backgroundColor = MaterialTheme.colorScheme.surface
+    )
+
+    // display chart
+    BarChart(modifier = Modifier.height(350.dp), barChartData = barChartData)
+}
+
+
+
+/**
  * param in: gamma from 0 to 1, how the color variate from the baseColor, 0 being the baseColor, 1
  * being random
  */
@@ -454,4 +686,10 @@ fun variateColor(gamma: Float = 1f, baseColor:Color): Color {
         blue = newBlue,
         alpha = newAlpha
     )
+}
+
+@Preview
+@Composable
+fun BarChartPreview(){
+    BarChartScreen()
 }
