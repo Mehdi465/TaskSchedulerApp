@@ -335,7 +335,6 @@ fun convertMinutesToStartEndDates(
         calendar.add(Calendar.DAY_OF_MONTH, 1)
     }
 
-
     val resultingEndDate: Date = calendar.time
 
     return Pair(resultingStartDate, resultingEndDate)

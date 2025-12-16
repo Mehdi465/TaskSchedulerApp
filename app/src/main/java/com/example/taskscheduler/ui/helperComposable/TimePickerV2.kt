@@ -108,28 +108,30 @@ fun TimePickerV2(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val center = Offset(size.width / 2f, size.height / 2f)
             val radius = size.minDimension / 2.4f
-            val arcThickness = 35f
+            val arcThickness = 50f
 
             //  Graduation 0 -> 23
-            val newRadius = size.minDimension / 2.3f
+            val tickRadius = size.minDimension / 2.25f
+            val numberRadius = size.minDimension / 2.1f
             for (i in 0 until 24) {
                 val angleRad = Math.toRadians((i * 15f - 90).toDouble())
 
-                val tick_center = center.plus(Offset(0f,-2f))
+                val tickCenter = center.plus(Offset(0f,3f))
+                val numberCenter = center.plus(Offset(-5f,15f))
                 // tick drawing
                 val tickStart = Offset(
-                    x = tick_center.x + cos(angleRad).toFloat() * (newRadius + 10f),
-                    y = tick_center.y + sin(angleRad).toFloat() * (newRadius + 10f)
+                    x = tickCenter.x + cos(angleRad).toFloat() * (tickRadius + 10f),
+                    y = tickCenter.y + sin(angleRad).toFloat() * (tickRadius + 10f)
                 )
                 val tickEnd = Offset(
-                    x = tick_center.x + cos(angleRad).toFloat() * (newRadius + 20f),
-                    y = tick_center.y + sin(angleRad).toFloat() * (newRadius + 20f)
+                    x = tickCenter.x + cos(angleRad).toFloat() * (tickRadius + 20f),
+                    y = tickCenter.y + sin(angleRad).toFloat() * (tickRadius + 20f)
                 )
                 drawLine(Color.Gray, tickStart, tickEnd, strokeWidth = 2f)
 
                 val textAngle = angleRad
-                val labelX = center.x + cos(textAngle).toFloat() * (newRadius + 35f)
-                val labelY = center.y + sin(textAngle).toFloat() * (newRadius + 35f)
+                val labelX = numberCenter.x + cos(textAngle).toFloat() * (numberRadius + 35f)
+                val labelY = numberCenter.y + sin(textAngle).toFloat() * (numberRadius + 35f)
                 drawContext.canvas.nativeCanvas.apply {
                     drawText(
                         "$i",
