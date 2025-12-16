@@ -2,9 +2,12 @@
 
 package com.example.taskscheduler
 
+import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.Add
@@ -26,8 +29,13 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -99,9 +107,14 @@ fun BottomAppScheduleBar(
             onClick = onClickPomodoro,
             modifier = Modifier.weight(1f)
         ) {
-            Icon(
-                imageVector = Filled.Lock,
-                contentDescription = stringResource(R.string.back_button)
+            Image(
+                painter = painterResource(id = R.drawable.montre_chronographe),
+                contentDescription = stringResource(R.string.back_button),
+                colorFilter = ColorFilter.tint(
+                    color = Color.LightGray,
+                    blendMode = BlendMode.SrcIn
+                ),
+                modifier = Modifier.size(24.dp)
             )
         }
 
@@ -127,9 +140,14 @@ fun BottomAppScheduleBar(
             onClick = onClickTracking,
             modifier = Modifier.weight(1f)
         ) {
-            Icon(
-                imageVector = Filled.Check,
-                contentDescription = stringResource(R.string.back_button)
+            Image(
+                painter = painterResource(id = R.drawable.suivi),
+                contentDescription = stringResource(R.string.back_button),
+                colorFilter = ColorFilter.tint(
+                    color = Color.LightGray,
+                    blendMode = BlendMode.SrcIn
+                ),
+                modifier = Modifier.size(24.dp)
             )
         }
 
@@ -138,9 +156,14 @@ fun BottomAppScheduleBar(
             onClick = onClickTrophies,
             modifier = Modifier.weight(1f)
         ) {
-            Icon(
-                imageVector = Filled.Settings,
-                contentDescription = stringResource(R.string.back_button)
+            Image(
+                painter = painterResource(id = R.drawable.trophee),
+                contentDescription = stringResource(R.string.back_button),
+                colorFilter = ColorFilter.tint(
+                    color = Color.LightGray,
+                    blendMode = BlendMode.SrcIn
+                ),
+                modifier = Modifier.size(24.dp)
             )
         }
     }

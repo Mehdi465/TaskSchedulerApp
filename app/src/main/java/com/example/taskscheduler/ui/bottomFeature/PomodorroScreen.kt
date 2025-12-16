@@ -141,149 +141,12 @@ fun PomodoroScreen(
     }
 }
 
-
-
-@Composable
-fun PomodoroContent_(
-    sharedUiState : SharedSessionPomodoroUiState,
-    session: Session?,
-    modifier : Modifier
-){
-    val viewModel: PomodoroViewModel = viewModel()
-
-    PomodoroScreen(
-        viewModel = viewModel,
-        session = session
-    )
-}
-
-@Composable
-fun PomodoroScreen(
-    viewModel: PomodoroViewModel,
-    session: Session?
-) {
-
-    val context = LocalContext.current
-    // val pomodoroServiceState by PomodoroServiceConnector.serviceStateFlow.collectAsState() // From your service
-
-    // When the screen becomes visible, tell the service to refresh its settings
-    LaunchedEffect(Unit) { // Runs once when the Composable enters the composition
-        val intent = Intent(context, PomodoroService::class.java).apply {
-            action = PomodoroService.ACTION_REFRESH_SETTINGS_AND_STATE
-        }
-        context.startService(intent) // Ensures service is running and processes the action
-    }
-
-    val pomodoroState by viewModel.pomodoroState.collectAsStateWithLifecycle()
-    Log.d("PomodoroScreen", "PomodoroState: ${pomodoroState.timeLeftMillis}")
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        val currentTime = Date(Instant.now().toEpochMilli())
-        Text(
-            text = if (session != null && !session.isSessionFinished() && compareTime(currentTime,session.startTime)) stringResource(R.string.current_task) +": ${session.getCurrentTask()!!.name}"
-                    else stringResource(R.string.no_current_task),
-            fontSize = 24.sp,
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-
-        Text(
-            text = when (pomodoroState.phase) {
-                PomodoroPhase.WORK -> stringResource(R.string.work_time)
-                PomodoroPhase.BREAK -> stringResource(R.string.short_break)
-                PomodoroPhase.LONG_BREAK -> stringResource(R.string.long_break)
-                PomodoroPhase.PAUSED -> stringResource(R.string.paused)
-                PomodoroPhase.STOPPED -> stringResource(R.string.stopped)
-            },
-            fontSize = 24.sp,
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = viewModel.formatTime(pomodoroState.timeLeftMillis),
-            fontSize = 72.sp,
-            style = MaterialTheme.typography.displayLarge
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { viewModel.startTimer()
-                        val startIntent = Intent(context, PomodoroService::class.java).apply {
-                        action = PomodoroService.ACTION_START
-                    }
-                    context.startService(startIntent)
-                          },
-                enabled = pomodoroState.phase == PomodoroPhase.STOPPED
-            ) {
-                Text(stringResource(R.string.start))
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = {
-                    if (pomodoroState.phase == PomodoroPhase.PAUSED) {
-                        viewModel.resumeTimer()
-                    } else {
-                        viewModel.pauseTimer()
-                    }
-                },
-                enabled = pomodoroState.phase != PomodoroPhase.STOPPED
-            ) {
-                Text(if (pomodoroState.phase == PomodoroPhase.PAUSED) stringResource(R.string.resume) else stringResource(R.string.pause))
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = { viewModel.skipPhase() },
-                enabled = pomodoroState.phase != PomodoroPhase.STOPPED
-            ) {
-                Text(stringResource(R.string.skip))
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = { viewModel.stopTimer() },
-                enabled = pomodoroState.phase != PomodoroPhase.STOPPED
-            ) {
-                Text(stringResource(R.string.stop))
-            }
-        }
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Text(
-//            text = stringResource(R.string.cycles)+"${pomodoroState.totalCycles}"+ stringResource(R.string.current) +"${pomodoroState.currentCycle})",
-//            fontSize = 16.sp,
-//            style = MaterialTheme.typography.bodyLarge
-//        )
-
-    }
-}
-
-/**
- *
- *          TESTSSS
- *
- *
- *
- */
-
 // Define Colors based on the image
 val GreenAccent = Color(0xFF2ECC71)
 val RedAccent = Color(0xFFFF6B6B)
 val LightGrey = Color(0xFFF0F0F0)
 val DarkText = Color(0xFF2D3436)
 val SubText = Color(0xFF95A5A6)
-
-// Enum to handle the state logic requested
-enum class TimerState {
-    Idle, Running, Paused
-}
 
 @Composable
 fun PomodoroContent(
@@ -320,7 +183,11 @@ fun PomodoroContent(
         context.startService(intent)
     }
 
-    val pomodoroState by viewModel.pomodoroState.collectAsStateWithLifecycle()
+    //val pomodoroState by viewModel.pomodoroState.collectAsStateWithLifecycle()
+
+    val initialPomodoroState = remember { viewModel.getInitialState() }
+    val pomodoroState by viewModel.pomodoroState.collectAsState(initial = initialPomodoroState)
+    Log.d("PomodoroService", "time start : ${pomodoroState.timeLeftMillis}")
 
     var totalTime by remember { mutableLongStateOf(pomodoroState.workDuration.toLong()) }
     LaunchedEffect(pomodoroState.phase) {

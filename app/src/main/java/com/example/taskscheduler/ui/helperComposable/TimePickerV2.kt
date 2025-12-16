@@ -2,6 +2,7 @@ package com.example.taskscheduler.ui.helperComposable
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
@@ -26,14 +28,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -169,12 +174,28 @@ fun TimePickerV2(
 
         // Center time info
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.Center)) {
-            Icon(Icons.Default.Settings, contentDescription = null, tint = Color.LightGray)
+            Image(
+                painter = painterResource(id = R.drawable.debut),
+                contentDescription = stringResource(R.string.back_button),
+                colorFilter = ColorFilter.tint(
+                    color = Color.LightGray,
+                    blendMode = BlendMode.SrcIn
+                ),
+                modifier = Modifier.size(24.dp)
+            )
             Text(stringResource(R.string.session_starts_at) + " ${displayTime(startTime)}" +
                     if (startTime < currentTime) "⁺¹" else "",
                 fontSize = 20.sp, color = Color.LightGray)
             Spacer(Modifier.height(8.dp))
-            Icon(Icons.Default.AccountBox, contentDescription = null, tint = Color.LightGray)
+            Image(
+                painter = painterResource(id = R.drawable.ligne_darrivee),
+                contentDescription = stringResource(R.string.back_button),
+                colorFilter = ColorFilter.tint(
+                    color = Color.LightGray,
+                    blendMode = BlendMode.SrcIn
+                ),
+                modifier = Modifier.size(24.dp)
+            )
             Text(stringResource(R.string.session_ends_at) +  " ${displayTime(endTime)}" +
                     if (endTime < currentTime) "⁺¹" else "",
                 fontSize = 20.sp, color = Color.LightGray)

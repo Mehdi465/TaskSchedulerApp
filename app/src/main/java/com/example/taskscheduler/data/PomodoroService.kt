@@ -31,8 +31,8 @@ private val WORK_DURATION_MILLIS = 25 * 60 * 1000L // 25 minutes
 private val BREAK_DURATION_MILLIS = 5 * 60 * 1000L // 5 minutes
 
 // defaults values if datastore is empty
-private val DEFAULT_WORK_DURATION = 25L
-private val DEFAULT_BREAK_DURATION = 5L
+val DEFAULT_WORK_DURATION = 25L
+val DEFAULT_BREAK_DURATION = 5L
 
 // data class to hold the current state of our Pomodoro timer
 data class PomodoroState(
@@ -58,8 +58,8 @@ class PomodoroService : LifecycleService() {
     private var phaseBeforePause: PomodoroPhase? = null
 
     private var initialTimeLeft: Long = DEFAULT_WORK_DURATION
-    private val _workDurationMillis = MutableStateFlow(WORK_DURATION_MILLIS )
-    private val _breakDurationMillis = MutableStateFlow(BREAK_DURATION_MILLIS)
+    private val _workDurationMillis = WORK_DURATION_MILLIS
+    private val _breakDurationMillis = BREAK_DURATION_MILLIS
 
     private lateinit var settingsRepository: SettingsRepository
 
@@ -69,7 +69,6 @@ class PomodoroService : LifecycleService() {
         const val ACTION_RESUME = "ACTION_RESUME"
         const val ACTION_STOP = "ACTION_STOP"
         const val ACTION_SKIP = "ACTION_SKIP"
-        // to be updated on the last data stored
         const val ACTION_REFRESH_SETTINGS_AND_STATE = "ACTION_REFRESH_SETTINGS_AND_STATE"
 
 
@@ -112,7 +111,7 @@ class PomodoroService : LifecycleService() {
 //        }
         // To set an initial state correctly if the service is created fresh
         lifecycleScope.launch {
-            _pomodoroState.value = PomodoroState(timeLeftMillis = _workDurationMillis.value)
+            _pomodoroState.value = PomodoroState(timeLeftMillis = _workDurationMillis)
         }
 
         lifecycleScope.launch {
@@ -129,7 +128,7 @@ class PomodoroService : LifecycleService() {
             ACTION_REFRESH_SETTINGS_AND_STATE -> refreshPomodoroState()
             // TODO : clean this into function
             ACTION_START -> {
-                val currentWorkDurationToUse = _workDurationMillis.value
+                val currentWorkDurationToUse = _workDurationMillis
 
                 _pomodoroState.value = PomodoroState( // Reset to a fresh work session
                     phase = PomodoroPhase.WORK,
@@ -169,8 +168,8 @@ class PomodoroService : LifecycleService() {
             //val cyclesForLongBreak = settingsRepository.pomodoroCyclesBeforeLongBreak.first()
 
             // Update internal service StateFlows
-            _workDurationMillis.value = DEFAULT_WORK_DURATION
-            _breakDurationMillis.value = DEFAULT_BREAK_DURATION
+            //_workDurationMillis = DEFAULT_WORK_DURATION
+            //_breakDurationMillis = DEFAULT_BREAK_DURATION
             pomodoroState.value.brakeDuration = DEFAULT_BREAK_DURATION
             pomodoroState.value.workDuration = DEFAULT_WORK_DURATION
 
