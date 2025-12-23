@@ -9,36 +9,35 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val RedColorScheme = darkColorScheme(
-    primary = ThemeRed1,
-    secondary = ThemeRed2,
-    tertiary = ThemeRed3
+
+val DarkColorScheme = darkColorScheme(
+    primary = MidDark,
+    secondary = LightDark,
+    background = Charcoal,
+
+    surface = ThemeColor,
+    surfaceVariant = SecondThemeColor,
+
+    surfaceBright = Color.White
+
 )
 
-private val GreenColorScheme = darkColorScheme(
-    primary = ThemeGreen1,
-    secondary = ThemeGreen2,
-    tertiary = ThemeGreen3
+val LightColorScheme = lightColorScheme(
+    primary = DarkLight,
+    secondary = BlackText,
+    background = White,
+
+    surface = ThemeColor,
+    surfaceVariant = SecondThemeColor,
+
+    surfaceBright = Color.White
 )
 
-private val BlueColorScheme = darkColorScheme(
-    primary = ThemeBlue1,
-    secondary = ThemeBlue2,
-    tertiary = ThemeBlue3
-)
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -49,7 +48,7 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Color(0xFF1C1B1F),
     onSurface = Color(0xFF1C1B1F),
     */
-)
+
 
 @Composable
 fun TaskSchedulerTheme(

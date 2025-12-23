@@ -49,6 +49,7 @@ import com.example.taskscheduler.ui.viewModel.sharedSessionPomodoroViewModel.Sha
 import java.time.Instant
 import java.util.Date
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -65,10 +66,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -250,13 +254,6 @@ fun PomodoroContent(
                         fontWeight = FontWeight.Bold,
                         color = LightGrey
                     )
-//                    Text(
-//                        text = stringResource(R.string.cycles)+" ${pomodoroState.totalCycles} "+
-//                                stringResource(R.string.current) +" ${pomodoroState.currentCycle}",
-//                        fontSize = 16.sp,
-//                        color = SubText,
-//                        modifier = Modifier.padding(top = 8.dp)
-//                    )
                 }
             }
 
@@ -427,8 +424,8 @@ fun ControlBar(
 
         val mainButtonColor = if (currentPomodoroPhase == PomodoroPhase.STOPPED ||
             currentPomodoroPhase == PomodoroPhase.PAUSED) RedAccent else taskColor
-        val mainIcon = if (currentPomodoroPhase == PomodoroPhase.STOPPED ||
-            currentPomodoroPhase == PomodoroPhase.PAUSED) Icons.Default.Menu else Icons.Default.PlayArrow
+        val mainIconId = if (currentPomodoroPhase == PomodoroPhase.STOPPED ||
+            currentPomodoroPhase == PomodoroPhase.PAUSED) R.drawable.pause else R.drawable.play
 
         Box(
             modifier = Modifier
@@ -440,7 +437,7 @@ fun ControlBar(
         ) {
             IconButton(onClick = onTogglePlayPause, modifier = Modifier.fillMaxSize()) {
                 Icon(
-                    imageVector = mainIcon,
+                    painter = painterResource(id=mainIconId),
                     contentDescription = "Toggle",
                     tint = Color.White,
                     modifier = Modifier.size(40.dp)
@@ -462,7 +459,7 @@ fun SmallCircleButton(icon: androidx.compose.ui.graphics.vector.ImageVector, onC
         contentAlignment = Alignment.Center
     ) {
         IconButton(onClick = onClick) {
-            Icon(icon, contentDescription = null, tint = SubText)
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.surfaceBright)
         }
     }
 }

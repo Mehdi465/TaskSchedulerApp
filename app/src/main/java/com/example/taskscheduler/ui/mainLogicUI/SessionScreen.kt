@@ -178,7 +178,8 @@ fun SessionScreen(
                     }}},
                 modifier = Modifier
                     .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.secondary
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.surfaceBright
             ) {
                 if (isSaving) {
                     CircularProgressIndicator()
@@ -401,19 +402,19 @@ fun TaskItemNoCheckBox(task: Task) {
                     text = task.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.background
                 )
 
                 Text(
                     text = "Duration: ${task.duration}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.background
                 )
 
                 Text(
                     text = "Priority: ${task.priority}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.background
                 )
             }
         }

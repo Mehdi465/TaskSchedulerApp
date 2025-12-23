@@ -234,7 +234,7 @@ fun CustomSwitchWithText(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    val selectedColor = Color(0xFF4CAF50)
+    val selectedColor = MaterialTheme.colorScheme.surface
     val unselectedColor = Color.Gray.copy(alpha = 0.5f)
     val selectedTextColor = Color.White
     val unselectedTextColor = Color.Black
@@ -447,7 +447,7 @@ fun DashboardWideTile(
                 text = title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Color.LightGray
             )
             Column(horizontalAlignment = Alignment.End) {
                 Text(
@@ -593,68 +593,16 @@ fun TopTasksBarChart(
     )
 
     // display chart
-    BarChart(modifier = Modifier
-        .height(250.dp)
-        .background(color = backgroundColor),
-         barChartData = finalBarChartData
+    Box(
+        modifier = Modifier.background(color = backgroundColor)
+    ) {
+        BarChart(
+            modifier = Modifier
+                .height(250.dp),
+            barChartData = finalBarChartData
         )
-}
-
-
-@Composable
-fun BarChartScreen() {
-    val names = listOf("Task A", "Task B", "Task C", "Task D", "Task E")
-    val values = listOf(10, 20, 30, 15, 25)
-
-    val barData: List<BarData> = remember(values) {
-        values.mapIndexed { index, value ->
-            BarData(
-                point = Point(
-                    x = index.toFloat(),
-                    y = value.toFloat()
-                ),
-            )
-        }
     }
-
-    val yAxisMaxValue = remember(values) {
-        (values.maxOrNull() ?: 0) + 1 // give padding on top
-    }
-
-    val xAxisData = AxisData.Builder()
-        .axisStepSize(40.dp)
-        .steps(names.size - 1)
-        .bottomPadding(10.dp)
-        .axisLabelAngle(25f)
-        .labelData { index -> names.getOrElse(index) { "" } }
-        .build()
-
-    val yAxisData = AxisData.Builder()
-        .steps(5)
-        .labelAndAxisLinePadding(20.dp)
-        .axisOffset(0.dp)
-        .labelData { index ->
-            val value = (index.toFloat() / 5f) * yAxisMaxValue
-            "%.0f".format(value)
-        }
-        .build()
-
-    val barChartData = BarChartData(
-        chartData = barData,
-        xAxisData = xAxisData,
-        yAxisData = yAxisData,
-        barStyle = BarStyle(
-            barWidth = 25.dp,
-            paddingBetweenBars = 15.dp
-        ),
-        backgroundColor = MaterialTheme.colorScheme.surface
-    )
-
-    // display chart
-    BarChart(modifier = Modifier.height(350.dp), barChartData = barChartData)
 }
-
-
 
 /**
  * param in: gamma from 0 to 1, how the color variate from the baseColor, 0 being the baseColor, 1
@@ -688,8 +636,3 @@ fun variateColor(gamma: Float = 1f, baseColor:Color): Color {
     )
 }
 
-@Preview
-@Composable
-fun BarChartPreview(){
-    BarChartScreen()
-}

@@ -205,7 +205,8 @@ fun ScheduleScreen(
                 },
                 modifier = Modifier
                     .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.secondary
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.surfaceBright
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check,
@@ -459,7 +460,9 @@ fun EmptyScheduleTimeline(modifier: Modifier = Modifier) {
             text = stringResource(R.string.your_schedule_empty),
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 24.dp)
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
+            //color = if (isDarkModeOn(context = )) Color.White else Color.DarkGray
+
         )
 
         // display 12 hours for empty schedule
@@ -511,7 +514,7 @@ fun TaskItem(
                 if (scheduledTask.isCurrentTask(currentTime)) {
                     Color.DarkGray
                 } else {
-                    MaterialTheme.colorScheme.surface
+                    MaterialTheme.colorScheme.background
                 }
             ),
     ) {
@@ -644,7 +647,7 @@ fun StrikethroughText(
         } else {
             style.copy(textDecoration = TextDecoration.None)
         },
-        color = Color.DarkGray
+        color = MaterialTheme.colorScheme.background
     )
 }
 

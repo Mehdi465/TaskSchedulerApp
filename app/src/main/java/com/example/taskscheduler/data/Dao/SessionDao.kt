@@ -22,10 +22,10 @@ interface SessionDao {
     @Query("SELECT * FROM sessions WHERE startTime >= :timestamp ORDER BY startTime DESC")
     fun getSessionsSince(timestamp: Long): Flow<List<Session>>
 
-    @Query("SELECT * FROM sessions ORDER BY startTime DESC LIMIT 1")
+    @Query("SELECT * FROM sessions ORDER BY startTime ASC LIMIT 1")
     fun getFirstSession():Flow<Session?>
 
-    @Query("SELECT * FROM sessions ORDER BY startTime ASC LIMIT 1")
+    @Query("SELECT * FROM sessions ORDER BY startTime DESC LIMIT 1")
     fun getLastSession():Flow<Session?>
 
 //    // The query to get everything back

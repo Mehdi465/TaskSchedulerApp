@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -25,9 +26,27 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskscheduler.data.pomodoro.PomodoroViewModel
+import com.example.taskscheduler.ui.theme.DarkColorScheme
+import com.example.taskscheduler.ui.theme.LightColorScheme
 import com.example.taskscheduler.ui.theme.TaskSchedulerTheme
 import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModel
 import com.example.taskscheduler.ui.viewModel.setting.SettingsViewModelFactory
+
+@Composable
+fun MyCustomTheme(
+    // 1. This is the Compose version of the "Dark Mode Check"
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    // 2. Select the color scheme based on the boolean
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
+    // 3. Provide the colors to the MaterialTheme
+    MaterialTheme(
+        colorScheme = colorScheme,
+        content = content
+    )
+}
 
 class MainActivity : ComponentActivity() {
 
@@ -79,7 +98,9 @@ class MainActivity : ComponentActivity() {
                     color = if (isDarkTheme) MaterialTheme.colorScheme.background else Color.White,
 
                 ) {
-                    TaskApp()
+                    MyCustomTheme {
+                        TaskApp()
+                    }
                 }
             }
         }

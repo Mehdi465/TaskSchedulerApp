@@ -96,9 +96,14 @@ fun BottomAppScheduleBar(
             onClick = onClickHome,
             modifier = Modifier.weight(1f)
         ) {
-            Icon(
-                imageVector = Filled.Home,
-                contentDescription = stringResource(R.string.back_button)
+            Image(
+                painter = painterResource(id = R.drawable.maison),
+                contentDescription = stringResource(R.string.back_button),
+                colorFilter = ColorFilter.tint(
+                    color = MaterialTheme.colorScheme.secondary,
+                    blendMode = BlendMode.SrcIn
+                ),
+                modifier = Modifier.size(24.dp)
             )
         }
 
@@ -111,7 +116,7 @@ fun BottomAppScheduleBar(
                 painter = painterResource(id = R.drawable.montre_chronographe),
                 contentDescription = stringResource(R.string.back_button),
                 colorFilter = ColorFilter.tint(
-                    color = Color.LightGray,
+                    color = MaterialTheme.colorScheme.secondary,
                     blendMode = BlendMode.SrcIn
                 ),
                 modifier = Modifier.size(24.dp)
@@ -144,7 +149,7 @@ fun BottomAppScheduleBar(
                 painter = painterResource(id = R.drawable.suivi),
                 contentDescription = stringResource(R.string.back_button),
                 colorFilter = ColorFilter.tint(
-                    color = Color.LightGray,
+                    color = MaterialTheme.colorScheme.secondary,
                     blendMode = BlendMode.SrcIn
                 ),
                 modifier = Modifier.size(24.dp)
@@ -160,7 +165,7 @@ fun BottomAppScheduleBar(
                 painter = painterResource(id = R.drawable.trophee),
                 contentDescription = stringResource(R.string.back_button),
                 colorFilter = ColorFilter.tint(
-                    color = Color.LightGray,
+                    color = MaterialTheme.colorScheme.secondary,
                     blendMode = BlendMode.SrcIn
                 ),
                 modifier = Modifier.size(24.dp)
